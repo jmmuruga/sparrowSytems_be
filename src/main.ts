@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import "./core/db";
 import cors from "cors";
+import userDetailRouter from "./module/userDetails/userDetails.controller";
 
 const app = express();
 dotenv.config();
@@ -17,3 +18,4 @@ let corsOptions = {
 };
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
+app.use('/userDetailsRouter', cors(corsOptions), userDetailRouter);
