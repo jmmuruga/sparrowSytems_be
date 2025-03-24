@@ -1,7 +1,9 @@
 import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
+import { UserDetails } from "../module/userDetails/userDetails.model";
 const Entities: any[] = [
+  UserDetails,
 
 
 ]
