@@ -1,9 +1,10 @@
 import "reflect-metadata";
-import dotenv from 'dotenv';
-import express from 'express';
+import dotenv from "dotenv";
+import express from "express";
 import "./core/db";
 import cors from "cors";
 import userDetailRouter from "./module/userDetails/userDetails.controller";
+import loginModuleRouter from "./module/loginModule/loginModule.controller";
 
 const app = express();
 dotenv.config();
@@ -18,4 +19,7 @@ let corsOptions = {
 };
 app.use('/userDetailsRouter', cors(corsOptions), userDetailRouter);
 
+
+app.use("/userDetailsRouter", cors(corsOptions), userDetailRouter);
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
+app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
