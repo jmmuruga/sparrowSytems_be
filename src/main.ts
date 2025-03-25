@@ -17,7 +17,6 @@ let corsOptions = {
   preflightContinue: false,
   optionsSuccessStatus: 204,
 };
-app.use('/userDetailsRouter', cors(corsOptions), userDetailRouter);
 
 
 app.use("/userDetailsRouter", cors(corsOptions), userDetailRouter);
