@@ -2,21 +2,20 @@ import Joi from "joi";
 
 export interface userDetailsDto {
     userid: number;
-    e_mail: string;
-    usertype: string;
+    email: string;
+    userType: string;
     password: string;
-    confirmpassword: string;
+    confirmPassword: string;
     cuid: number;
     muid: number;
 }
 export const userDetailsValidation = Joi.object({
-    userid: Joi.number().optional().allow(null, ""),
-    e_mail: Joi.string().required(),
-    usertype: Joi.string().required(),
+    email: Joi.string().required(),
+    userType: Joi.string().required(),
     password: Joi.string().required(),
-    confirmpassword: Joi.string().required(),
-    cuid: Joi.number().required(),
-    muid: Joi.number().required(),
+    confirmPassword: Joi.string().required(),
+    cuid: Joi.optional().allow(null , ''),
+    muid: Joi.optional().allow(null , ''),
 })
 
 

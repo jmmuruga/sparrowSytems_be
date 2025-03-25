@@ -14,13 +14,13 @@ export class UserDetails {
   // @Column()
   // role: String;
   @Column()
-  e_mail: string;
+  email: string;
   @Column()
-  usertype: string;
+  userType: string;
   @Column()
   password: string;
   @Column()
-  confirmpassword: string;
+  confirmPassword: string;
   @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
