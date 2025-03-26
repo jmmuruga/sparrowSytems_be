@@ -3,7 +3,7 @@ import { appSource } from "../../core/db";
 import { UserDetails } from "../userDetails/userDetails.model";
 import { ValidationException } from "../../core/exception";
 import nodemailer from 'nodemailer';
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken';
 import { resetPasswordValidation } from "../userDetails/userDetails.dto";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
@@ -21,36 +21,24 @@ const handleError = (res: Response, error: any) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const { e_mail, password } = req.body;
-
+        const { email, password } = req.body;
+        console.log(email , password)
         const userRepository = appSource.getRepository(UserDetails);
-        const user = await userRepository.findOneBy({ e_mail });
+        const user = await userRepository.findOneBy({ email  : email});
 
         if (!user) {
             throw new ValidationException("Invalid Email!");
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            throw new ValidationException("Invalid Password!");
-        }
-
-        const jwtSecret = process.env.JWT_SECRET_KEY;
-        if (!jwtSecret) {
-            throw new Error("JWT secret key is not configured.");
-        }
-
-        const token = jwt.sign(
-            { id: user.userid, email: user.e_mail },
-            jwtSecret,
-            { expiresIn: "1h" }
-        );
+       if(user.password != password){
+        console.log(user.password , password , 'pass')
+        throw new ValidationException("Incorrect Password!");
+       }
 
         res.status(200).send({
             Result: {
                 id: user.userid,
                 user_name: user.user_name,
-                token,
                 status: "Login Success"
             },
         });
@@ -62,14 +50,14 @@ export const login = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
-        const { e_mail } = req.body;
+        const { email } = req.body;
 
-        if (!e_mail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e_mail)) {
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             throw new ValidationException("Invalid Email format!");
         }
 
         const repo = appSource.getRepository(UserDetails);
-        const user = await repo.findOneBy({ e_mail });
+        const user = await repo.findOneBy({ email });
 
         if (!user) {
             throw new ValidationException("Email not found!");
@@ -97,7 +85,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
-            to: e_mail,
+            to: email,
             subject: "Password Recovery Assistance",
             text: `Hello ${user.user_name},\n\n
             We received a request to reset your password. Please use the following OTP to reset your password:\n
