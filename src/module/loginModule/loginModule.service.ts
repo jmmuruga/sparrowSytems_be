@@ -21,7 +21,7 @@ const handleError = (res: Response, error: any) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.params;
         console.log(email , password)
         const userRepository = appSource.getRepository(UserDetails);
         const user = await userRepository.findOneBy({ email  : email});
