@@ -21,7 +21,7 @@ const handleError = (res: Response, error: any) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.params;
         console.log(email , password)
         const userRepository = appSource.getRepository(UserDetails);
         const user = await userRepository.findOneBy({ email  : email});
@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
-        const { email } = req.body;
+        const { email } = req.params;
 
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             throw new ValidationException("Invalid Email format!");
@@ -106,7 +106,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 export const resetNewPassword = async (req: Request, res: Response) => {
     try {
-        const { userid, newPassword, muid } = req.body;
+        const { userid, newPassword, muid } = req.params;
 
         const validation = resetPasswordValidation.validate({ userid, newPassword });
         if (validation.error) {
@@ -114,7 +114,7 @@ export const resetNewPassword = async (req: Request, res: Response) => {
         }
 
         const userRepository = appSource.getRepository(UserDetails);
-        const user = await userRepository.findOneBy({ userid });
+        const user = await userRepository.findOneBy({ userid : +userid });
 
         if (!user) {
             throw new ValidationException("Invalid User!");
@@ -122,7 +122,7 @@ export const resetNewPassword = async (req: Request, res: Response) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        await userRepository.update({ userid }, { password: hashedPassword, muid });
+        await userRepository.update({ userid : +userid }, { password: hashedPassword, muid : +muid });
 
         res.status(200).send({
             IsSuccess: true,
