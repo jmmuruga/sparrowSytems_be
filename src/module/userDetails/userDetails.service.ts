@@ -53,3 +53,36 @@ export const getUser = async (req: Request, res: Response) => {
       res.status(500).send(error);
   }
 };
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const id = req.params.userid;
+  const userRepo = appSource.getRepository(UserDetails);
+  try {
+      const typeNameFromDb = await userRepo
+          .createQueryBuilder('UserDetails')
+          .where("UserDetails.userid = :userid", {
+              userid: id,
+          })
+          .getOne();
+      if (!typeNameFromDb?.userid) {
+          throw new HttpException("User not Found", 400);
+      }
+      await userRepo
+          .createQueryBuilder("UserDetails")
+          .delete()
+          .from(UserDetails)
+          .where("userid = :userid", { userid: id })
+          .execute();
+      res.status(200).send({
+          IsSuccess: `User deleted successfully!`,
+      });
+  }
+  catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+}
