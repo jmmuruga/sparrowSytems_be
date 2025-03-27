@@ -33,3 +33,23 @@ export const newUser = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+      const Repository = appSource.getRepository(UserDetails);
+      const userList = await Repository
+          .createQueryBuilder()
+          .getMany();
+      res.status(200).send({
+          Result: userList
+      });
+  } catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+};
