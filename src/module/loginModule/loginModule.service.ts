@@ -35,6 +35,7 @@ export const login = async (req: Request, res: Response) => {
         throw new ValidationException("Incorrect Password!");
        }
 
+      
         res.status(200).send({
             Result: {
                 id: user.userid,
@@ -50,86 +51,88 @@ export const login = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
-        const { email } = req.params;
-
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            throw new ValidationException("Invalid Email format!");
-        }
-
-        const repo = appSource.getRepository(UserDetails);
-        const user = await repo.findOneBy({ email });
-
-        if (!user) {
-            throw new ValidationException("Email not found!");
-        }
-
+        const eMail = req.params.email;
         const randomOtp = String(Math.floor(100000 + Math.random() * 900000));
-        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes validity
-
-        // Store OTP temporarily (improve this by saving in DB)
-        const otpStore = {
-            otp: randomOtp,
-            expiresAt,
-        };
-
-        // Use environment variables for email credentials
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL_USER,   // Use environment variables
-                pass: process.env.EMAIL_PASS,
-            },
+        const repo = appSource.getRepository(UserDetails);
+        const isThereEmail = await repo.findOneBy({
+            email: eMail
         });
+        if (!isThereEmail) {
+            throw new ValidationException('Invalid Email !');
+        }
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: "Password Recovery Assistance",
-            text: `Hello ${user.user_name},\n\n
-            We received a request to reset your password. Please use the following OTP to reset your password:\n
-            OTP: ${randomOtp}\n\n
-            This OTP is valid for 10 minutes.\n\n
-            Best regards,\nSaveData InfoTech Solutions`
-        });
+        if (isThereEmail) {
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                port: 465,
+                secure: true,
+                auth: {
+                    user: "savedatain@gmail.com",
+                    pass: "mqks tltb abyk jlyw",
+                },
+            });
 
+            await transporter.sendMail({
+                from: "savedatain@gmail.com",
+                to: eMail,
+                subject: `Password Recovery Assistance`,
+                text: `Hello ${isThereEmail.user_name},\n\n
+                We received a request to reset your password. Please use the following One-Time Password (OTP) to log in and reset your password:\n
+                OTP: ${randomOtp}\n\n
+                This OTP is valid for a limited time. After logging in, we recommend that you update your password for security purposes.\n\n
+                If you did not request a password reset, please contact our support team.\n\n
+                Best regards,\nSaveData InfoTech Solutions`
+            });
+        }
+        console.log(isThereEmail.userid, "forget pawd")
         res.status(200).send({
             IsSuccess: true,
-            message: "OTP sent successfully"
+            otp: randomOtp,
+            user_details: { user_name: isThereEmail.user_name, userid: isThereEmail.userid },
+            Result: "Mail sent successfully"
         });
-
-    } catch (error) {
+    }
+    catch (error) {
         handleError(res, error);
     }
-};
+}
 
 export const resetNewPassword = async (req: Request, res: Response) => {
+    const data = req.body;
     try {
-        const { userid, newPassword, muid } = req.params;
+        const validation = resetPasswordValidation.validate(data);
+        if (validation?.error) {
+            throw new ValidationException(
+                validation.error.message
+            );
+        }
+        const UserDetailsRepoistry = appSource.getRepository(UserDetails);
+        const userDetailsDetails = await UserDetailsRepoistry.createQueryBuilder('UserDetails')
+            .where("UserDetails.userid = :userid", {
+                userid: data.userid,
+            }).getOne();
 
-        const validation = resetPasswordValidation.validate({ userid, newPassword });
-        if (validation.error) {
-            throw new ValidationException(validation.error.message);
+        if (!userDetailsDetails) {
+            throw new ValidationException('Invalid User !');
         }
 
-        const userRepository = appSource.getRepository(UserDetails);
-        const user = await userRepository.findOneBy({ userid : +userid });
-
-        if (!user) {
-            throw new ValidationException("Invalid User!");
-        }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        await userRepository.update({ userid : +userid }, { password: hashedPassword, muid : +muid });
-
-        res.status(200).send({
-            IsSuccess: true,
-            message: "Password updated successfully"
-        });
-
-    } catch (error) {
+        await UserDetailsRepoistry
+            .update({ userid: data.userid }, { password: data.password, confirmPassword : data.password, muid: data.muid })
+            .then((r) => {
+                res.status(200).send({
+                    IsSuccess: "Password Updated successfully",
+                });
+            })
+            .catch((error) => {
+                if (error instanceof ValidationException) {
+                    return res.status(400).send({
+                        message: error?.message,
+                    });
+                }
+                res.status(500).send(error);
+            });
+    }
+    catch (error) {
         handleError(res, error);
     }
-};
+}
