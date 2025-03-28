@@ -117,7 +117,7 @@ export const resetNewPassword = async (req: Request, res: Response) => {
         }
 
         await UserDetailsRepoistry
-            .update({ userid: data.userid }, { password: data.password, muid: data.muid })
+            .update({ userid: data.userid }, { password: data.password,confirmPassword : data.password, muid: data.muid })
             .then((r) => {
                 res.status(200).send({
                     IsSuccess: "Password Updated successfully",
