@@ -8,6 +8,7 @@ export interface userDetailsDto {
     confirmPassword: string;
     cuid: number;
     muid: number;
+    
 }
 export const userDetailsValidation = Joi.object({
     email: Joi.string().required(),
