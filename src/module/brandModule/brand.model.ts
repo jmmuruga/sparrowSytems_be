@@ -11,34 +11,34 @@ export class BrandDetail {
   brandid: number;
   @Column()
   brandname: string;
-  @Column()
-  servicecenter_name: string;
-  @Column()
-  description: string;
-  @Column()
-  servicecentre_address: string;
    @Column()
-   pincode : string;
+   servicecenter_name: string;
    @Column()
-   city : string;
+   description: string;
    @Column()
-   state : string;
-   @Column()
-   country : string;
-   @Column()
-   contact_number  : string;
-   @Column()
-   mobile_number : string;
-   @Column()
-   customercare_number : string;
-   @Column()
-   tollfree_number : string;
-   @Column()
-   email: string;
-   @Column()
-   website  : string;
-   @Column()
-   brandimage  : string;
+   servicecentre_address: string;
+    @Column()
+    pincode : string;
+    @Column()
+    city : string;
+    @Column()
+    state : string;
+    @Column()
+    country : string;
+    @Column()
+    contact_number  : string;
+    @Column()
+    mobile_number : string;
+    @Column()
+    customercare_number : string;
+    @Column()
+    tollfree_number : string;
+    @Column()
+    email: string;
+    @Column()
+    website  : string;
+   @Column({type:'ntext'})
+   brandimage: string;
   @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
