@@ -37,9 +37,9 @@ export class BrandDetail {
   email: string;
   @Column()
   website: string;
-  @Column()
-  // status: boolean;
-  // @Column({ type: "ntext" })
+  @Column({default: true})
+  status: boolean;
+  @Column({ type: "ntext" })
   brandimage: string;
   @Column({ nullable: true })
   cuid: number;
@@ -49,5 +49,4 @@ export class BrandDetail {
   createdAt: Date;
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
-  user_name: any;
 }

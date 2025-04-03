@@ -15,7 +15,7 @@ export interface brandDto {
      tollfree_number: string;
      email:string;
      website: string;
-    //  status: boolean;
+     status: boolean;
      brandimage  :string;
      cuid: number;
      muid: number;
@@ -34,8 +34,8 @@ export const brandValidation = Joi.object({
      customercare_number: Joi.string().required(),
      tollfree_number: Joi.string().required(),
     email: Joi.string().required(),
-     website: Joi.string().required(),
-    //  status: Joi.boolean().required(),
+    website: Joi.string().required(),
+    status: Joi.boolean().required(),
     brandimage: Joi.string().required(),
     cuid: Joi.optional().allow(null , ''),
     muid: Joi.optional().allow(null , ''),

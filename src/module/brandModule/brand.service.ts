@@ -35,6 +35,52 @@ export const addBrand = async (req: Request, res: Response) => {
   }
 };
 
+export const brandEditDetails = async (req: Request, res: Response) => {
+  console.log("Received request params:", req.params)
+  const id = req.params.brandid;
+  console.log("Searching for brand with ID:", id);
+  try {
+      const Repository = appSource.getRepository(BrandDetail);
+      const dataList = await Repository
+          .createQueryBuilder('BrandDetail')
+      .select([
+        "BrandDetail.brandid",
+        "BrandDetail.brandname",
+        "BrandDetail.servicecenter_name",
+        "BrandDetail.description",
+        "BrandDetail.servicecentre_address",
+        "BrandDetail.pincode",
+        "BrandDetail.city",
+        "BrandDetail.state",
+        "BrandDetail.country",  // Added a unique field instead of duplicate 'state'
+        "BrandDetail.contact_number",
+        "BrandDetail.mobile_number",
+        "BrandDetail.customercare_number",
+        "BrandDetail.tollfree_number",
+        "BrandDetail.email",
+        "BrandDetail.website",
+        "BrandDetail.status",
+        "BrandDetail.brandimage",
+        "BrandDetail.created_at",
+        "BrandDetail.updated_at",
+      ])
+      .where("BrandDetail.brandid = :brandid", { brandid: Number(id) }) // ✅ Corrected WHERE condition
+      .getOne();
+
+      console.log("Fetched Brand Details:", dataList);
+          
+      res.status(200).send({
+          Result: dataList
+      });
+  } catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+};
 
 
 
