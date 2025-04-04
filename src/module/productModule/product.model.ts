@@ -19,9 +19,9 @@ export class products {
     @Column()
     offer_price: number;
     @Column()
-    min_qly: number;
+    min_qty: number;
     @Column()
-    max_qly: number;
+    max_qty: number;
     @Column()
     delivery_charges: string;
     @Column({ nullable: true })

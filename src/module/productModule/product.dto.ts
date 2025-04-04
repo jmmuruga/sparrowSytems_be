@@ -9,8 +9,8 @@ export interface productDetailsDto {
     mrp: number;
     discount: number;
     offer_price: number;
-    min_qly: number;
-    max_qly: number;
+    min_qty: number;
+    max_qty: number;
     devivery_charges: string;
     devery_amount: number;
     variation_group: string;
@@ -25,7 +25,6 @@ export interface productDetailsDto {
 }
 
 export const productDetalsValidation = Joi.object({
-    productid: Joi.number().required(),
     product_name: Joi.string().required(),
     stock: Joi.string().required(),
     brand_name: Joi.string().required(),
@@ -33,8 +32,8 @@ export const productDetalsValidation = Joi.object({
     mrp: Joi.number().required(),
     discount: Joi.number().required(),
     offer_price: Joi.number().required(),
-    min_qly: Joi.number().required(),
-    max_qly: Joi.number().required(),
+    min_qty: Joi.number().required(),
+    max_qty: Joi.number().required(),
     devivery_charges: Joi.string().required(),
     devery_amount: Joi.number().required(),
     variation_group: Joi.string(),

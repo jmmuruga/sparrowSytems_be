@@ -6,3 +6,5 @@ const productRouter = Router();
 
 productRouter.post('/addProducts', (req, res) => { addProduct(req, res);
 });
+
+export default productRouter;
