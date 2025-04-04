@@ -13,6 +13,9 @@ export const addBrand = async (req: Request, res: Response) => {
       throw new ValidationException(validation.error.message);
     }
     const BrandRepository = appSource.getRepository(BrandDetail);
+  
+
+
     // Check if email already exists
     const validateTypeName = await BrandRepository.findBy({
       email: payload.email,
@@ -35,52 +38,60 @@ export const addBrand = async (req: Request, res: Response) => {
   }
 };
 
-export const brandEditDetails = async (req: Request, res: Response) => {
-  console.log("Received request params:", req.params)
-  const id = req.params.brandid;
-  console.log("Searching for brand with ID:", id);
-  try {
-      const Repository = appSource.getRepository(BrandDetail);
-      const dataList = await Repository
-          .createQueryBuilder('BrandDetail')
-      .select([
-        "BrandDetail.brandid",
-        "BrandDetail.brandname",
-        "BrandDetail.servicecenter_name",
-        "BrandDetail.description",
-        "BrandDetail.servicecentre_address",
-        "BrandDetail.pincode",
-        "BrandDetail.city",
-        "BrandDetail.state",
-        "BrandDetail.country",  // Added a unique field instead of duplicate 'state'
-        "BrandDetail.contact_number",
-        "BrandDetail.mobile_number",
-        "BrandDetail.customercare_number",
-        "BrandDetail.tollfree_number",
-        "BrandDetail.email",
-        "BrandDetail.website",
-        "BrandDetail.status",
-        "BrandDetail.brandimage",
-        "BrandDetail.created_at",
-        "BrandDetail.updated_at",
-      ])
-      .where("BrandDetail.brandid = :brandid", { brandid: Number(id) }) // ✅ Corrected WHERE condition
-      .getOne();
 
-      console.log("Fetched Brand Details:", dataList);
-          
-      res.status(200).send({
-          Result: dataList
-      });
-  } catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
-  }
-};
+
+
+
+// export const updateBrand = async (req: Request, res: Response) => {
+//   const payload: brandDto = req.body;
+
+//   try {
+//     const validation = brandValidation.validate(payload);
+//     if (validation?.error) {
+//       throw new ValidationException(validation.error.message);
+//     }
+
+//     const BrandRepository = appSource.getRepository(BrandDetail);
+
+//     // Check if the brand exists
+//     const brand = await BrandRepository.findOneBy({
+//       brandid: payload.brandid,
+//     });
+
+//     if (!brand) {
+//       throw new ValidationException("Brand not found");
+//     }
+
+//     // If email is being changed, check for duplicates
+//     // if (payload.email !== brand.email) {
+//     //   const emailExists = await BrandRepository.findBy({ email: payload.email });
+//     //   if (emailExists.length > 0) {
+//     //     throw new ValidationException("Email already exists");
+//     //   }
+//     // }
+
+//     const { brandid, cuid, ...updatePayload } = payload;
+
+//     await BrandRepository.update({ brandid: payload.brandid }, updatePayload);
+
+//     res.status(200).send({
+//       IsSuccess: "User Details updated successfully",
+//     });
+
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error.message,
+//       });
+//     }
+
+//     res.status(500).send({
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
+
 
 
 

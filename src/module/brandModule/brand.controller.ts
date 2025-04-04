@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addBrand, brandEditDetails, getBrandDetail } from "./brand.service";
+import { addBrand,  getBrandDetail } from "./brand.service";
 import multer from "multer";
 
 
@@ -12,8 +12,8 @@ brandRouter.post('/addBrand',upload.single("brandimage"),(req, res) => { addBran
  });
 brandRouter.get('/getBrandDetail',(req, res) => { getBrandDetail (req, res);
 });
-brandRouter.get('/editBrand/:brandid',(req, res) => { brandEditDetails (req, res);
-});
+//  brandRouter.get('/editBrand/',(req, res) => { updateBrand (req, res);
+//  });
  
 
 
