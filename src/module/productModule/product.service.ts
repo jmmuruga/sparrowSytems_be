@@ -4,37 +4,47 @@ import { Request, Response } from "express";
 import { productDetailsDto, productDetalsValidation } from "./product.dto";
 import { products } from "./product.model";
 
+
+
 export const addProduct = async (req: Request, res: Response) => {
-  const payload: productDetailsDto = req.body;
+    try {
+        // Step 1: Log the incoming request body
+        console.log("📦 Incoming Product Payload:", JSON.stringify(req.body, null, 2));
 
-  try {
-      // Validate request payload
-      const validation = productDetalsValidation.validate(payload);
-      if (validation?.error) {
-          throw new ValidationException(validation.error.message);
-      }
+        const payload: productDetailsDto = req.body;
 
-      const ProductRepository = appSource.getRepository(products);
+        // Step 2: Validate request payload
+        const validation = productDetalsValidation.validate(payload, { abortEarly: false });
+        if (validation.error) {
+            console.warn("❌ Validation error:", validation.error.details);
+            throw new ValidationException(validation.error.message);
+        }
 
-      // Remove `productid` from the payload (it is auto-generated)
-      const { productid, ...updatePayload } = payload;
+        const ProductRepository = appSource.getRepository(products);
 
-      // Save the product
-      const newProduct = ProductRepository.create(updatePayload);
-      await ProductRepository.save(newProduct);
+        // Step 3: Remove auto-generated productid if it exists
+        const { productid, ...cleanedPayload } = validation.value;
 
-      return res.status(201).json({
-          success: true,
-          message: "Product added successfully",
-          data: newProduct, // Return saved product details
-      });
+        // Step 4: Create and save product
+        const newProduct = ProductRepository.create(cleanedPayload);
+        await ProductRepository.save(newProduct);
 
-  } catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).json({ success: false, message: error.message });
-      }
-      console.error("Error adding product:", error);
-      return res.status(500).json({ success: false, message: "Internal server error" });
-  }
+        return res.status(201).json({
+            success: true,
+            message: "Product added successfully",
+            data: newProduct,
+        });
+
+    } catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+
+        // Log all other unexpected errors
+        console.error("🔥 Unexpected error while adding product:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
 };
+
+
   

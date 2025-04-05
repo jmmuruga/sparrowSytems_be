@@ -11,22 +11,22 @@ export interface productDetailsDto {
     offer_price: number;
     min_qty: number;
     max_qty: number;
-    devivery_charges: string;
-    devery_amount: number;
+    delivery_charges: string;
+    delivery_amount: number;
     variation_group: string;
     description: string;
     terms: string;
     delivery_days: string;
     warranty: string;
     document: string;
-    images: string;
+    images: string[];
     cuid: number;
     muid: number;
 }
 
 export const productDetalsValidation = Joi.object({
     product_name: Joi.string().required(),
-    stock: Joi.string().required(),
+    stock: Joi.string().required(), // or Joi.number() if it's a quantity
     brand_name: Joi.string().required(),
     category_name: Joi.string().required(),
     mrp: Joi.number().required(),
@@ -34,15 +34,15 @@ export const productDetalsValidation = Joi.object({
     offer_price: Joi.number().required(),
     min_qty: Joi.number().required(),
     max_qty: Joi.number().required(),
-    devivery_charges: Joi.string().required(),
-    devery_amount: Joi.number().required(),
+    delivery_charges: Joi.string().required(),
+    delivery_amount: Joi.number().required(),
     variation_group: Joi.string(),
     description: Joi.string().required(),
     terms: Joi.string().required(),
     delivery_days: Joi.string().required(),
-    warrenty: Joi.string().required(),
+    warranty: Joi.string().required(),
     document: Joi.string().required(),
-    images: Joi.string().required(),
+    images: Joi.array().items(Joi.string()).required(),
     cuid: Joi.number().required(),
     muid: Joi.number().required()
-})
+});
