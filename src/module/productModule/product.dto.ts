@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi, { allow, optional } from "joi";
 
 export interface productDetailsDto {
     productid: number;
@@ -35,14 +35,14 @@ export const productDetalsValidation = Joi.object({
     min_qty: Joi.number().required(),
     max_qty: Joi.number().required(),
     delivery_charges: Joi.string().required(),
-    delivery_amount: Joi.number().required(),
-    variation_group: Joi.string(),
+    delivery_amount: Joi.number().optional().allow(null, ''),
+    variation_group: Joi.string().optional().allow(null, ''),
     description: Joi.string().required(),
     terms: Joi.string().required(),
     delivery_days: Joi.string().required(),
     warranty: Joi.string().required(),
     document: Joi.string().required(),
     images: Joi.array().items(Joi.string()).required(),
-    cuid: Joi.number().required(),
-    muid: Joi.number().required()
+    cuid: Joi.number().allow(null , ''),
+    muid: Joi.number().allow(null , '')
 });

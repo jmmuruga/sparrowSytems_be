@@ -10,11 +10,11 @@ export class banner {
     description: string;
     @Column()
     link: string;
-    @Column()
+    @Column({ type: 'ntext' })
     image: string;
-    @Column({ nullable: true })
+    @Column({'nullable': true})
     cuid: number;
-    @Column({ nullable: true })
+    @Column({'nullable': true})
     muid: number;
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;

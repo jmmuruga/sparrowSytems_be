@@ -29,14 +29,13 @@ export const newBanner = async (req: Request, res: Response) => {
             }
 
         } else {
-            const { banner_id, ...newBannerPayload } = payload;
-            const newBanner = bannerRepo.create(newBannerPayload);
-            await bannerRepo.save(newBanner);
+            // const { banner_id, ...newBannerPayload } = payload;
+            // const newBanner = bannerRepo.create(newBannerPayload);
+            await bannerRepo.save(payload);
 
             return res.status(200).send({ IsSuccess: "Banner added successfully" });
         }
     } catch (error) {
-        console.log("Banner Error", error);
         if (error instanceof ValidationException) {
             return res.status(400).send({ message: error.message });
         }
