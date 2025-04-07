@@ -1,6 +1,6 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
-import { brandDto, brandValidation } from "./brand.dto";
+import { brandDto, brandValidation, updateBrandValidation } from "./brand.dto";
 import { Request, Response } from "express";
 import { BrandDetail } from "./brand.model";
 
@@ -8,15 +8,32 @@ import { BrandDetail } from "./brand.model";
 export const addBrand = async (req: Request, res: Response) => {
   const payload: brandDto = req.body;
   try {
+
+    const BrandRepository = appSource.getRepository(BrandDetail);
+
+    if(payload.brandid){
+      console.log('came nto update')
+      const validation = updateBrandValidation.validate(payload);
+      if (validation?.error) {
+        throw new ValidationException(validation.error.message);
+      }
+      const brandDetails  = await BrandRepository.findOneBy({
+        brandid : payload.brandid
+      });
+      if(!brandDetails?.brandid){
+        throw new ValidationException("Brand not found");
+      }
+      const { cuid, brandid, ...updatePayload } = payload;
+      await BrandRepository.update({ brandid: payload.brandid }, updatePayload);
+      res.status(200).send({
+        IsSuccess: "Brand Details updated SuccessFully",
+      });
+      return;
+    }
     const validation = brandValidation.validate(payload);
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
-    const BrandRepository = appSource.getRepository(BrandDetail);
-  
-
-
-   
     const validateTypeName = await BrandRepository.findBy({
       email: payload.email,
     });
@@ -26,9 +43,10 @@ export const addBrand = async (req: Request, res: Response) => {
     const { brandid, ...updatePayload } = payload;
     await BrandRepository.save(updatePayload);
     res.status(200).send({
-      IsSuccess: "User Details added SuccessFully",
+      IsSuccess: "Brand Details added SuccessFully",
     });
   } catch (error) {
+    console.log(error , 'error')
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message, 
@@ -37,6 +55,9 @@ export const addBrand = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
+
+
 
 
 
@@ -127,7 +148,8 @@ export const getBrandDetail = async (req: Request, res: Response) => {
       const Repository = appSource.getRepository(BrandDetail);
       
       const brandList = await Repository
-          .createQueryBuilder()
+          .createQueryBuilder("brand")
+          .orderBy("brand.brandname", "ASC")
           .getMany();
       res.status(200).send({
           Result: brandList
