@@ -8,8 +8,6 @@ const Entities: any[] = [
   UserDetails,
   products,
   banner,
-
-
 ]
 export const appSource = new DataSource({
   type: "mssql",

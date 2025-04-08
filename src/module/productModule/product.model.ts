@@ -36,10 +36,22 @@ export class products {
     delivery_days: string;
     @Column()
     warranty: string;
-    @Column()
+    @Column({ nullable: true })
     document: string;
-    @Column()
-    images: string;
+    @Column({ type: 'ntext' , nullable: true })
+    image1: string;
+    @Column({ type: 'ntext' , nullable: true })
+    image2: string;
+    @Column({ type: 'ntext' , nullable: true })
+    image3: string;
+    @Column({ type: 'ntext'  , nullable: true})
+    image4: string;
+    @Column({ type: 'ntext' , nullable: true })
+    image5: string;
+    @Column({ type: 'ntext' , nullable: true })
+    image6: string;
+    @Column({ type: 'ntext' , nullable: true })
+    image7: string;
     @Column({ nullable: true })
     cuid: number;
     @Column({ nullable: true })
