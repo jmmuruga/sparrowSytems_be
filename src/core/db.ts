@@ -2,8 +2,10 @@ import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { UserDetails } from "../module/userDetails/userDetails.model";
+import { BrandDetail } from "../module/brandModule/brand.model";
 const Entities: any[] = [
   UserDetails,
+  BrandDetail,
 
 
 ]
