@@ -23,7 +23,7 @@ let corsOptions = {
 
 app.use("/userDetailsRouter", cors(corsOptions), userDetailRouter);
 app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
-app.use("/productRouter", cors(corsOptions), productRouter);
-app.use("/bannerRouter", cors(corsOptions), bannerRouter);
+// app.use("/productRouter", cors(corsOptions), productRouter);
+// app.use("/bannerRouter", cors(corsOptions), bannerRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
