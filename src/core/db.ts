@@ -8,6 +8,7 @@ const Entities: any[] = [
   UserDetails,
   products,
   banner,
+  BrandDetail,
   
 ]
 export const appSource = new DataSource({
