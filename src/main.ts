@@ -5,7 +5,11 @@ import "./core/db";
 import cors from "cors";
 import userDetailRouter from "./module/userDetails/userDetails.controller";
 import loginModuleRouter from "./module/loginModule/loginModule.controller";
+
+import productRouter from "./module/productModule/product.controller"
+import bannerRouter from "./module/bannerModule/banner.controller";
 import brandRouter from "./module/brandModule/brand.controller";
+
 
 const app = express();
 dotenv.config();
@@ -22,8 +26,10 @@ let corsOptions = {
 
 app.use("/userDetailsRouter", cors(corsOptions), userDetailRouter);
 app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
-app.use('/brandRouter', cors(corsOptions), brandRouter);
 
+app.use("/productRouter", cors(corsOptions), productRouter);
+app.use("/bannerRouter", cors(corsOptions), bannerRouter);
+app.use('/brandRouter', cors(corsOptions), brandRouter);
 
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

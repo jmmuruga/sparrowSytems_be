@@ -2,12 +2,15 @@ import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { UserDetails } from "../module/userDetails/userDetails.model";
+import { products } from "../module/productModule/product.model";
+import { banner } from "../module/bannerModule/banner.model";
 import { BrandDetail } from "../module/brandModule/brand.model";
 const Entities: any[] = [
   UserDetails,
+  products,
+  banner,
   BrandDetail,
-
-
+  
 ]
 export const appSource = new DataSource({
   type: "mssql",
