@@ -6,11 +6,11 @@ import { products } from "./product.model";
 
 
 
-// export const addProduct = async (req: Request, res: Response) => {
+// export const addProducts = async (req: Request, res: Response) => {
 //     try {
 //         const payload: productDetailsDto = req.body;
 //        console.log("called" );
-//        const validation = productDetalsValidation.validate(payload);
+//        const validation = productDetailsValidation.validate(payload);
 //         if (validation.error) {
 //             console.warn("❌ Validation error:", validation.error.message);
 //             throw new ValidationException(validation.error.message);
@@ -32,23 +32,23 @@ import { products } from "./product.model";
 export const addProducts = async (req: Request, res: Response) => {
     const payload: productDetailsDto = req.body;
     try {
-      const BrandRepository = appSource.getRepository(products);
+      const ProductRepository = appSource.getRepository(products);
       if(payload.productid){
         console.log('came nto update')
         const validation = updateDetailsValidation.validate(payload);
         if (validation?.error) {
           throw new ValidationException(validation.error.message);
         }
-        const brandDetails  = await BrandRepository.findOneBy({
+        const productDetails  = await ProductRepository.findOneBy({
           productid : payload.productid
         });
-        if(!brandDetails?.productid){
-          throw new ValidationException("Brand not found");
+        if(!productDetails?.productid){
+          throw new ValidationException("Product not found");
         }
         const { cuid, productid, ...updatePayload } = payload;
-        await BrandRepository.update({ productid: payload.productid }, updatePayload);
+        await ProductRepository.update({ productid: payload.productid }, updatePayload);
         res.status(200).send({
-          IsSuccess: "Brand Details updated SuccessFully",
+          IsSuccess: "Product Details updated SuccessFully",
         });
         return;
       }
@@ -57,9 +57,9 @@ export const addProducts = async (req: Request, res: Response) => {
         throw new ValidationException(validation.error.message);
       }
       const { productid, ...updatePayload } = payload;
-      await BrandRepository.save(updatePayload);
+      await ProductRepository.save(updatePayload);
       res.status(200).send({
-        IsSuccess: "Brand Details added SuccessFully",
+        IsSuccess: "Product Details added SuccessFully",
       });
     } catch (error) {
       console.log(error , 'error')
@@ -92,27 +92,27 @@ export const getProductsDetails = async (req: Request, res: Response) => {
 };
 
 export const deleteProduct = async (req: Request, res: Response) => {
-    const id = req.params.banner_id;
-    console.log("Received Brand ID:", id);
-    const brandRepo = appSource.getRepository(products);
+    const id = req.params.productid;
+    console.log("Received product ID:", id);
+    const productRepo = appSource.getRepository(products);
     try {
-        const typeNameFromDb = await  brandRepo
-            .createQueryBuilder('BrandDetail')
-            .where("BrandDetail.brandid = :brandid", {
-                brandid: id,
+        const typeNameFromDb = await  productRepo
+            .createQueryBuilder('ProductDetail')
+            .where("ProductDetail.productid = :productid", {
+                productid: id,
             })
             .getOne();
         if (!typeNameFromDb?.productid) {
-            throw new HttpException("brand not Found", 400);
+            throw new HttpException("product not Found", 400);
         }
-        await  brandRepo
-            .createQueryBuilder("BrandDetail")
+        await  productRepo
+            .createQueryBuilder("ProductDetail")
             .delete()
             .from(products)
-            .where("brandid = :brandid", { brandid: id })
+            .where("productid = :productid", { productid: id })
             .execute();
         res.status(200).send({
-            IsSuccess: `brand deleted successfully!`,
+            IsSuccess: `product deleted successfully!`,
         });
     }
     catch (error) {
@@ -123,7 +123,41 @@ export const deleteProduct = async (req: Request, res: Response) => {
         }
         res.status(500).send(error);
     }
-  }
+  };
+
+
+//   export const changeStatusProduct = async (req: Request, res: Response) => {
+//     const id = req.params.albumid;
+//     const statusVal: boolean = req.params.status === 'true';
+//     const repo = appSource.getRepository(products);
+//     try {
+//         const typeNameFromDb = await repo
+//             .createQueryBuilder('ProductDetail')
+//             .where("ProductDetail.productid = :productid", {
+//                 albumid: id,
+//             })
+//             .getOne();
+//         if (!typeNameFromDb?.productid) {
+//             throw new HttpException("Data not Found", 400);
+//         }
+//         await repo
+//             .createQueryBuilder()
+//             .update(products)
+//             .set({ status: statusVal})
+//             .where({ productid: id }).execute();
+//         res.status(200).send({
+//             IsSuccess: `Status Updated successfully!`,
+//         });
+//     }
+//     catch (error) {
+//         if (error instanceof ValidationException) {
+//             return res.status(400).send({
+//                 message: error?.message,
+//             });
+//         }
+//         res.status(500).send(error);
+//     }
+//   }
 
 
   
