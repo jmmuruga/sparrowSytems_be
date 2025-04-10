@@ -126,38 +126,38 @@ export const deleteProduct = async (req: Request, res: Response) => {
   };
 
 
-//   export const changeStatusProduct = async (req: Request, res: Response) => {
-//     const id = req.params.albumid;
-//     const statusVal: boolean = req.params.status === 'true';
-//     const repo = appSource.getRepository(products);
-//     try {
-//         const typeNameFromDb = await repo
-//             .createQueryBuilder('ProductDetail')
-//             .where("ProductDetail.productid = :productid", {
-//                 albumid: id,
-//             })
-//             .getOne();
-//         if (!typeNameFromDb?.productid) {
-//             throw new HttpException("Data not Found", 400);
-//         }
-//         await repo
-//             .createQueryBuilder()
-//             .update(products)
-//             .set({ status: statusVal})
-//             .where({ productid: id }).execute();
-//         res.status(200).send({
-//             IsSuccess: `Status Updated successfully!`,
-//         });
-//     }
-//     catch (error) {
-//         if (error instanceof ValidationException) {
-//             return res.status(400).send({
-//                 message: error?.message,
-//             });
-//         }
-//         res.status(500).send(error);
-//     }
-//   }
+  export const changeStatusProduct = async (req: Request, res: Response) => {
+    const id = req.params.albumid;
+    const statusVal: boolean = req.params.status === 'true';
+    const repo = appSource.getRepository(products);
+    try {
+        const typeNameFromDb = await repo
+            .createQueryBuilder('ProductDetail')
+            .where("ProductDetail.productid = :productid", {
+                albumid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.productid) {
+            throw new HttpException("Data not Found", 400);
+        }
+        await repo
+            .createQueryBuilder()
+            .update(products)
+            .set({ status: statusVal})
+            .where({ productid: id }).execute();
+        res.status(200).send({
+            IsSuccess: `Status Updated successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+  }
 
 
   

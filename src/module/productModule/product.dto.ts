@@ -28,7 +28,7 @@ export interface productDetailsDto {
     image7: string;
     cuid: number;
     muid: number;
-    // status: boolean;
+    status: boolean;
 }
 
 export const productDetailsValidation = Joi.object({
@@ -58,7 +58,6 @@ export const productDetailsValidation = Joi.object({
     image7: Joi.string().optional().allow(null, ''),
     cuid: Joi.number().allow(null , ''),
     muid: Joi.number().allow(null , ''),
-    // status: Joi.boolean().required(),
 
 });
 
@@ -90,6 +89,5 @@ export const updateDetailsValidation = Joi.object({
     image7: Joi.string().optional().allow(null, ''),
     cuid: Joi.number().allow(null , ''),
     muid: Joi.number().allow(null , ''),
-    // status: Joi.boolean().required(),
 
 });

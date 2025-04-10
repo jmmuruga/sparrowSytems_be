@@ -60,7 +60,7 @@ export class products {
     createdAt: Date;
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
-    // @Column({default: true})
-    // status: boolean;
+    @Column({default: true})
+    status: boolean;
 
 }
