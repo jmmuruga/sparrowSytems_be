@@ -38,8 +38,8 @@ export const login = async (req: Request, res: Response) => {
       
         res.status(200).send({
             Result: {
-                id: user.userid,
-                user_name: user.user_name,
+                userid: user.userid,
+                email: user.email,
                 status: "Login Success"
             },
         });
