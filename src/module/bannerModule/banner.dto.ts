@@ -10,6 +10,11 @@ export interface bannerDetailsDto {
     muid: number;
 }
 
+export interface bannerStatusDto{
+    bannerid: string;
+    status: boolean;
+}
+
 export const bannerDetailsValidation = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),

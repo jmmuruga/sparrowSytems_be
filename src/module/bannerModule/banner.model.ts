@@ -20,4 +20,6 @@ export class banner {
     createdAt: Date;
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
+    @Column({default: true})
+    status: boolean;
 }

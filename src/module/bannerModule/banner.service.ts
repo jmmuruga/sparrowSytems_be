@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { bannerDetailsDto, bannerDetailsValidation, updateBannerValidation } from "./banner.dto";
+import { bannerDetailsDto, bannerDetailsValidation, bannerStatusDto, updateBannerValidation } from "./banner.dto";
 import { HttpException, ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 import { banner } from "./banner.model";
@@ -46,23 +46,23 @@ import { banner } from "./banner.model";
 export const newBanner = async (req: Request, res: Response) => {
     const payload: bannerDetailsDto = req.body;
     try {
-      const BrandRepository = appSource.getRepository(banner);
+      const BannerRepository = appSource.getRepository(banner);
       if(payload.banner_id){
         console.log('came nto update')
         const validation = updateBannerValidation.validate(payload);
         if (validation?.error) {
           throw new ValidationException(validation.error.message);
         }
-        const brandDetails  = await BrandRepository.findOneBy({
+        const bannerDetails  = await BannerRepository.findOneBy({
           bannerid : payload.banner_id
         });
-        if(!brandDetails?.bannerid){
-          throw new ValidationException("Brand not found");
+        if(!bannerDetails?.bannerid){
+          throw new ValidationException("banner not found");
         }
         const { cuid, banner_id, ...updatePayload } = payload;
-        await BrandRepository.update({ bannerid: payload.banner_id }, updatePayload);
+        await BannerRepository.update({ bannerid: payload.banner_id }, updatePayload);
         res.status(200).send({
-          IsSuccess: "Brand Details updated SuccessFully",
+          IsSuccess: "banner Details updated SuccessFully",
         });
         return;
       }
@@ -71,9 +71,9 @@ export const newBanner = async (req: Request, res: Response) => {
         throw new ValidationException(validation.error.message);
       }
       const { banner_id, ...updatePayload } = payload;
-      await BrandRepository.save(updatePayload);
+      await BannerRepository.save(updatePayload);
       res.status(200).send({
-        IsSuccess: "Brand Details added SuccessFully",
+        IsSuccess: "banner Details added SuccessFully",
       });
     } catch (error) {
       console.log(error , 'error')
@@ -108,26 +108,26 @@ export const getBannerDetail = async (req: Request, res: Response) => {
 
 export const deleteBanner = async (req: Request, res: Response) => {
     const id = req.params.banner_id;
-    console.log("Received Brand ID:", id);
-    const brandRepo = appSource.getRepository(banner);
+    console.log("Received Banner ID:", id);
+    const bannerRepo = appSource.getRepository(banner);
     try {
-        const typeNameFromDb = await  brandRepo
-            .createQueryBuilder('BrandDetail')
-            .where("BrandDetail.brandid = :brandid", {
-                brandid: id,
+        const typeNameFromDb = await  bannerRepo
+            .createQueryBuilder('BannerDetail')
+            .where("BannerDetail.bannerid = :bannerid", {
+              bannerid: id,
             })
             .getOne();
         if (!typeNameFromDb?.bannerid) {
-            throw new HttpException("brand not Found", 400);
+            throw new HttpException("banner not Found", 400);
         }
-        await  brandRepo
-            .createQueryBuilder("BrandDetail")
+        await  bannerRepo
+            .createQueryBuilder("BannerDetail")
             .delete()
             .from(banner)
-            .where("brandid = :brandid", { brandid: id })
+            .where("bannerid = :bannerid", { bannerid: id })
             .execute();
         res.status(200).send({
-            IsSuccess: `brand deleted successfully!`,
+            IsSuccess: `banner deleted successfully!`,
         });
     }
     catch (error) {
@@ -139,3 +139,28 @@ export const deleteBanner = async (req: Request, res: Response) => {
         res.status(500).send(error);
     }
   }
+
+  export const changeStatusBanner = async (req: Request, res: Response) => {
+      const status: bannerStatusDto= req.body;
+      const BannerRepository = appSource.getRepository(banner);
+      const details = await BannerRepository.findOneBy({ bannerid: Number(status.bannerid) });
+    try {
+      if (!details) throw new HttpException("bannerDetails not Found", 400);
+      await BannerRepository
+        .createQueryBuilder()
+        .update(banner)
+        .set({ status: status.status })
+        .where({ bannerid: Number(status.bannerid) })
+        .execute();
+      res.status(200).send({
+        IsSuccess: `Status for banner ${details.title} Updated successfully!`,
+      });
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        return res.status(400).send({
+          message: error?.message,
+        });
+      }
+      res.status(500).send(error);
+    }
+  };
