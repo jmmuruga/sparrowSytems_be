@@ -15,8 +15,8 @@ export class Category {
   @Column()
   categoryicon: string;
   @Column({default: true})
-//   status: boolean;
-//   @Column({ nullable: true })
+   status: boolean;
+     @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
   muid: number;
