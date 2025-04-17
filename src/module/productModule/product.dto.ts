@@ -30,6 +30,10 @@ export interface productDetailsDto {
     muid: number;
     status: boolean;
 }
+export interface productStatusDto{
+    productid: string;
+    status: boolean;
+}
 
 export const productDetailsValidation = Joi.object({
     product_name: Joi.string().required(),
