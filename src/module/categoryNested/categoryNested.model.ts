@@ -7,16 +7,20 @@ import {
   } from "typeorm";
 
 @Entity()
-export class Category {
+export class CategoryNested {
   @PrimaryGeneratedColumn()
-  categoryid: number;
+  subcategoryid: number;
   @Column()
   categoryname: string;
   @Column()
+  // parentcategory: string;
+  // @Column()
+  parentid: number;
+  @Column()
   categoryicon: string;
   @Column({default: true})
-   status: boolean;
-     @Column({ nullable: true })
+  status: boolean;
+  @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
   muid: number;
@@ -25,12 +29,3 @@ export class Category {
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
 }
-
-
-
-
-
-
-
-
-

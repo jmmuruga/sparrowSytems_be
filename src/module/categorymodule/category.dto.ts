@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-
+//parent dto
 export interface CategoryDto {
   categoryid: number;
   categoryname: string;
@@ -10,6 +10,7 @@ export interface CategoryDto {
   muid: number;
 }
 
+ 
 
 export const categoryValidation = Joi.object({
   categoryname: Joi.string().required(),
@@ -18,6 +19,7 @@ export const categoryValidation = Joi.object({
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });
+
 
 
 export interface changeCategroyStatusDto {

@@ -1,17 +1,37 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
-import { userDetailsDto, userDetailsValidation } from "./userDetails.dto";
+import { userDetailsDto, userDetailsUpadteValidation, userDetailsValidation } from "./userDetails.dto";
 import { Request, Response } from "express";
 import { UserDetails } from "./userDetails.model";
 
 export const newUser = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
   try {
+    const UserDetailsRepoistry = appSource.getRepository(UserDetails);
+      if (payload.userid) {
+           const validation = userDetailsUpadteValidation.validate(payload);
+           if (validation?.error) {
+             throw new ValidationException(validation.error.message);
+           }
+           const userDetails = await UserDetailsRepoistry.findOneBy({
+            userid: payload.userid,
+           });
+           if (!userDetails?.userid) {
+             throw new ValidationException("Brand not found");
+           }
+           const { cuid, userid, ...updatePayload } = payload;
+           await UserDetailsRepoistry.update({ userid: payload.userid }, updatePayload);
+           res.status(200).send({
+             IsSuccess: "Brand Details updated SuccessFully",
+           });
+           return;
+         }
+
     const validation = userDetailsValidation.validate(payload);
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
-    const UserDetailsRepoistry = appSource.getRepository(UserDetails);
+    // const UserDetailsRepoistry = appSource.getRepository(UserDetails);
 
     const validateTypeName = await UserDetailsRepoistry.findBy({
       email: payload.email,

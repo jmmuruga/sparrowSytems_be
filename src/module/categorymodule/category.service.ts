@@ -61,6 +61,7 @@ export const getCategory = async (req: Request, res: Response) => {
   try{
     const Repository = appSource.getRepository(Category);
     const category = await Repository.createQueryBuilder("category").orderBy("category.categoryname","ASC").getMany();
+    
     res.status(200).send({
       Result: category,
   })
@@ -78,7 +79,6 @@ catch (error) {
 
 export const deleteCategory = async (req: Request, res: Response) => {
   const id = req.params.categoryid;
-  // console.log("Received category ID:", id);
   const categoryRepo = appSource.getRepository(Category);
   try {
       const typeNameFromDb = await  categoryRepo
