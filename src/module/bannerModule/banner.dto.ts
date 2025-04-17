@@ -1,13 +1,14 @@
 import Joi from "joi";
 
 export interface bannerDetailsDto {
-    banner_id: number;
+    bannerid: number;
     title: string;
     description: string;
     link: string;
     image: string;
     cuid: number;
     muid: number;
+    status: boolean;
 }
 
 export interface bannerStatusDto{
@@ -31,5 +32,6 @@ export const updateBannerValidation = Joi.object({
     link: Joi.string().required(),
     image: Joi.string().required(),
     cuid: Joi.number().optional(),
-    muid: Joi.number().optional()
+    muid: Joi.number().optional(),
+    status: Joi.boolean().optional()
 })

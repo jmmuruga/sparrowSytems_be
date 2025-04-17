@@ -45,22 +45,23 @@ import { banner } from "./banner.model";
 
 export const newBanner = async (req: Request, res: Response) => {
     const payload: bannerDetailsDto = req.body;
+    console.log(payload, 'payload')
     try {
       const BannerRepository = appSource.getRepository(banner);
-      if(payload.banner_id){
+      if(payload.bannerid){
         console.log('came nto update')
         const validation = updateBannerValidation.validate(payload);
         if (validation?.error) {
           throw new ValidationException(validation.error.message);
         }
         const bannerDetails  = await BannerRepository.findOneBy({
-          bannerid : payload.banner_id
+          bannerid : payload.bannerid
         });
         if(!bannerDetails?.bannerid){
           throw new ValidationException("banner not found");
         }
-        const { cuid, banner_id, ...updatePayload } = payload;
-        await BannerRepository.update({ bannerid: payload.banner_id }, updatePayload);
+        const { cuid, bannerid, ...updatePayload } = payload;
+        await BannerRepository.update({ bannerid: payload.bannerid }, updatePayload);
         res.status(200).send({
           IsSuccess: "banner Details updated SuccessFully",
         });
@@ -70,7 +71,7 @@ export const newBanner = async (req: Request, res: Response) => {
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
-      const { banner_id, ...updatePayload } = payload;
+      const { bannerid, ...updatePayload } = payload;
       await BannerRepository.save(updatePayload);
       res.status(200).send({
         IsSuccess: "banner Details added SuccessFully",
@@ -107,7 +108,7 @@ export const getBannerDetail = async (req: Request, res: Response) => {
 };
 
 export const deleteBanner = async (req: Request, res: Response) => {
-    const id = req.params.banner_id;
+    const id = req.params.bannerid;
     console.log("Received Banner ID:", id);
     const bannerRepo = appSource.getRepository(banner);
     try {
