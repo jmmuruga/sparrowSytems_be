@@ -20,6 +20,21 @@ export const userDetailsValidation = Joi.object({
 })
 
 
+export const userDetailsUpadteValidation = Joi.object({
+    userid: Joi.number().required(),
+    email: Joi.string().required(),
+    userType: Joi.string().required(),
+    password: Joi.string().required(),
+    confirmPassword: Joi.string().required(),
+    cuid: Joi.optional().allow(null , ''),
+    muid: Joi.optional().allow(null , ''),
+})
+
+
+
+
+
+
 export const resetPasswordValidation = Joi.object({
     userid: Joi.number().required(),
     otp: Joi.string().required(),

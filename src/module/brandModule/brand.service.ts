@@ -4,23 +4,20 @@ import { brandDto, brandValidation, updateBrandValidation } from "./brand.dto";
 import { Request, Response } from "express";
 import { BrandDetail } from "./brand.model";
 
-
 export const addBrand = async (req: Request, res: Response) => {
   const payload: brandDto = req.body;
   try {
-
     const BrandRepository = appSource.getRepository(BrandDetail);
 
-    if(payload.brandid){
-      console.log('came nto update')
+    if (payload.brandid) {
       const validation = updateBrandValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
-      const brandDetails  = await BrandRepository.findOneBy({
-        brandid : payload.brandid
+      const brandDetails = await BrandRepository.findOneBy({
+        brandid: payload.brandid,
       });
-      if(!brandDetails?.brandid){
+      if (!brandDetails?.brandid) {
         throw new ValidationException("Brand not found");
       }
       const { cuid, brandid, ...updatePayload } = payload;
@@ -46,125 +43,103 @@ export const addBrand = async (req: Request, res: Response) => {
       IsSuccess: "Brand Details added SuccessFully",
     });
   } catch (error) {
-    console.log(error , 'error')
+    console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
-        message: error.message, 
+        message: error.message,
       });
     }
     res.status(500).send({ message: "Internal server error" });
   }
 };
 
-
-
-
-
-
-
 export const deleteBrand = async (req: Request, res: Response) => {
   const id = req.params.brandid;
-  console.log("Received Brand ID:", id);
   const brandRepo = appSource.getRepository(BrandDetail);
   try {
-      const typeNameFromDb = await  brandRepo
-          .createQueryBuilder('BrandDetail')
-          .where("BrandDetail.brandid = :brandid", {
-              brandid: id,
-          })
-          .getOne();
-      if (!typeNameFromDb?.brandid) {
-          throw new HttpException("brand not Found", 400);
-      }
-      await  brandRepo
-          .createQueryBuilder("BrandDetail")
-          .delete()
-          .from(BrandDetail)
-          .where("brandid = :brandid", { brandid: id })
-          .execute();
-      res.status(200).send({
-          IsSuccess: `brand deleted successfully!`,
+    const typeNameFromDb = await brandRepo
+      .createQueryBuilder("BrandDetail")
+      .where("BrandDetail.brandid = :brandid", {
+        brandid: id,
+      })
+      .getOne();
+    if (!typeNameFromDb?.brandid) {
+      throw new HttpException("brand not Found", 400);
+    }
+    await brandRepo
+      .createQueryBuilder("BrandDetail")
+      .delete()
+      .from(BrandDetail)
+      .where("brandid = :brandid", { brandid: id })
+      .execute();
+    res.status(200).send({
+      IsSuccess: `brand deleted successfully!`,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
       });
+    }
+    res.status(500).send(error);
   }
-  catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
-  }
-}
-
+};
 
 export const changeStatusBrand = async (req: Request, res: Response) => {
   const id = req.params.albumid;
 
-
-  const statusVal: boolean = req.params.status === 'true';
+  const statusVal: boolean = req.params.status === "true";
   const repo = appSource.getRepository(BrandDetail);
 
   try {
-      const typeNameFromDb = await repo
-          .createQueryBuilder('BrandDetail')
-          .where("BrandDetail.brandid = :brandid", {
-              albumid: id,
-          })
-          .getOne();
-      if (!typeNameFromDb?.brandid) {
-          throw new HttpException("Data not Found", 400);
-      }
-      await repo
-          .createQueryBuilder()
-          .update(BrandDetail)
-          .set({ status: statusVal})
-          .where({ brandid: id }).execute();
+    const typeNameFromDb = await repo
+      .createQueryBuilder("BrandDetail")
+      .where("BrandDetail.brandid = :brandid", {
+        albumid: id,
+      })
+      .getOne();
+    if (!typeNameFromDb?.brandid) {
+      throw new HttpException("Data not Found", 400);
+    }
+    await repo
+      .createQueryBuilder()
+      .update(BrandDetail)
+      .set({ status: statusVal })
+      .where({ brandid: id })
+      .execute();
 
-      res.status(200).send({
-          IsSuccess: `Status Updated successfully!`,
-      });
-  }
-  catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
-  }
-}
-
-
-
-
-
-
-
-
-
-
-export const getBrandDetail = async (req: Request, res: Response) => {
-  try {
-      const Repository = appSource.getRepository(BrandDetail);
-      
-      const brandList = await Repository
-          .createQueryBuilder("brand")
-          .orderBy("brand.brandname", "ASC")
-          .getMany();
-      res.status(200).send({
-          Result: brandList
-      });
+    res.status(200).send({
+      IsSuccess: `Status Updated successfully!`,
+    });
   } catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
   }
 };
 
+export const getBrandDetail = async (req: Request, res: Response) => {
+  try {
+    const Repository = appSource.getRepository(BrandDetail);
 
+    const brandList = await Repository.createQueryBuilder("brand")
+      .orderBy("brand.brandname", "ASC")
+      .getMany();
+    res.status(200).send({
+      Result: brandList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
 
 export const updateBrand = async (req: Request, res: Response) => {
   const payload: brandDto = req.body;
@@ -207,7 +182,6 @@ export const updateBrand = async (req: Request, res: Response) => {
     res.status(200).send({
       IsSuccess: "Brand details updated successfully",
     });
-
   } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
@@ -216,5 +190,3 @@ export const updateBrand = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
-
-

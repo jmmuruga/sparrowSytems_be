@@ -9,6 +9,8 @@ import loginModuleRouter from "./module/loginModule/loginModule.controller";
 import productRouter from "./module/productModule/product.controller"
 import bannerRouter from "./module/bannerModule/banner.controller";
 import brandRouter from "./module/brandModule/brand.controller";
+import categoryRouter from "./module/categorymodule/category.controller";
+import categoryNestedRouter from "./module/categoryNested/categoryNested.controller";
 
 
 const app = express();
@@ -30,6 +32,8 @@ app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
 app.use("/productRouter", cors(corsOptions), productRouter);
 app.use("/bannerRouter", cors(corsOptions), bannerRouter);
 app.use('/brandRouter', cors(corsOptions), brandRouter);
+app.use('/categoryRouter', cors(corsOptions),categoryRouter );
+app.use('/categoryNestedRouter', cors(corsOptions),categoryNestedRouter );
 
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
