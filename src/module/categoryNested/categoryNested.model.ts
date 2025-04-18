@@ -13,9 +13,9 @@ export class CategoryNested {
   @Column()
   categoryname: string;
   @Column()
-  // parentcategory: string;
+  parentcategory: string;
   // @Column()
-  parentid: number;
+  // parentid: string;
   @Column()
   categoryicon: string;
   @Column({default: true})

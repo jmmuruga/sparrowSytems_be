@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { CategoryDto, categoryUpdateValidation, categoryValidation, changeCategroyStatusDto } from "./category.dto";
 import { Category } from "./category.model";
 import { console } from "inspector/promises";
+import { CategoryNested } from "../categoryNested/categoryNested.model";
 
 
 
@@ -60,7 +61,17 @@ export const addCategory = async (req: Request, res: Response) => {
 export const getCategory = async (req: Request, res: Response) => {
   try{
     const Repository = appSource.getRepository(Category);
-    const category = await Repository.createQueryBuilder("category").orderBy("category.categoryname","ASC").getMany();
+    const categoryNestedRepoisstry = appSource.getRepository(CategoryNested);
+    const category = await Repository.query(
+      `select * from [${process.env.DB_NAME}].[dbo].category`
+    )
+    const subCategory = await categoryNestedRepoisstry.query(`
+       select * from [${process.env.DB_NAME}].[dbo].category_nested
+      `)
+
+    if(subCategory.length > 0){
+      category.push(...subCategory)
+    }
     
     res.status(200).send({
       Result: category,
@@ -109,7 +120,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
       res.status(500).send(error);
   }
 }
-
 
 
 
