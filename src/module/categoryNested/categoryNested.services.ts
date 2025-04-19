@@ -88,6 +88,7 @@ export const deleteSubCategory = async (req: Request, res: Response) => {
 
 
 export const changeSubCategoryStatus = async (req: Request, res: Response) => {
+  console.log("called")
    const subCategoryStatus : changenestedCategroyStatusDto = req.body;
   const categoryRepository = appSource.getRepository(CategoryNested);
 

@@ -124,10 +124,13 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
 
 export const changeStatusCategory = async (req: Request, res: Response) => {
+
    const categoryStatus : changeCategroyStatusDto = req.body;
   const categoryRepository = appSource.getRepository(Category);
 
   try {
+    console.log('called')
+    console.log(categoryStatus, 'categoryStatus');
       const categoryFromDB = await categoryRepository.findBy({
           categoryid : categoryStatus.categoryid,
       })
