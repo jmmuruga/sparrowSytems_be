@@ -129,13 +129,14 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 export const changeStatusProduct = async (req: Request, res: Response) => {
-    const status: productStatusDto= req.body;
-    const ProductRepository = appSource.getRepository(products);
-    const details = await ProductRepository.findOneBy({ productid: Number(status.productid) });
+  const status: productStatusDto = req.body;
+  const ProductRepository = appSource.getRepository(products);
+  const details = await ProductRepository.findOneBy({
+    productid: Number(status.productid),
+  });
   try {
     if (!details) throw new HttpException("productDetails not Found", 400);
-    await ProductRepository
-      .createQueryBuilder()
+    await ProductRepository.createQueryBuilder()
       .update(products)
       .set({ status: status.status })
       .where({ productid: Number(status.productid) })
@@ -144,6 +145,107 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
       IsSuccess: `Status for product ${details.product_name} Updated successfully!`,
     });
   } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getRecentOffers = async (req: Request, res: Response) => {
+  try {
+    const ProductRepository = appSource.getRepository(products);
+    const details: productDetailsDto[] = await ProductRepository.query(
+      `  SELECT TOP 5  
+    productid,
+    product_name,
+    stock,
+    brand_name,
+    category_name,
+    mrp,
+    discount,
+    offer_price,
+    min_qty,
+    max_qty,
+    delivery_charges,
+    delivery_amount,
+    variation_group,
+    description,
+    terms,
+    delivery_days,
+    warranty,
+    document,
+    image1,
+    image2,
+    image3,
+    image4,
+    image5,
+    image6,
+    image7,
+    cuid,
+    muid,
+    created_at,
+    updated_at,
+    status
+FROM [${process.env.DB_name}].[dbo].[products]
+WHERE [offer_price] IS NOT NULL
+ORDER BY [updated_at] DESC;`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getNewProducts = async (req: Request, res: Response) => {
+  try {
+    const ProductRepository = appSource.getRepository(products);
+    const details: productDetailsDto[] = await ProductRepository.query(
+      `  SELECT TOP 15
+    [productid],
+    [product_name],
+    [stock],
+    [brand_name],
+    [category_name],
+    [mrp],
+    [discount],
+    [offer_price],
+    [min_qty],
+    [max_qty],
+    [delivery_charges],
+    [delivery_amount],
+    [variation_group],
+    [description],
+    [terms],
+    [delivery_days],
+    [warranty],
+    [document],
+    [image1],
+    [image2],
+    [image3],
+    [image4],
+    [image5],
+    [image6],
+    [image7],
+    [cuid],
+    [muid],
+    [created_at],
+    [updated_at],
+    [status]
+FROM [SPARROW_SYSTEMS].[dbo].[products]
+ORDER BY [created_at] DESC;`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
