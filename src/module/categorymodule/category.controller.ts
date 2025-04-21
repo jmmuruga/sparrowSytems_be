@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addCategory, changeStatusCategory, deleteCategory, getCategory } from "./category.service";
+import { addCategory, changeStatusCategory, deleteCategory, getCategory, getHeaderCategory } from "./category.service";
  
 
 const categoryRouter= Router();
@@ -13,6 +13,8 @@ categoryRouter.delete('/deletecategory/:categoryid',(req, res) => { deleteCatego
 
 categoryRouter.post('/changestatus',(req, res) => { changeStatusCategory(req, res);
 });
+categoryRouter.get('/getHeaderCategory',(req, res) => { getHeaderCategory (req, res);
+})
 
 
 

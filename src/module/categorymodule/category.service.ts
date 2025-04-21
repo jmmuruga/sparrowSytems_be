@@ -63,10 +63,10 @@ export const getCategory = async (req: Request, res: Response) => {
     const Repository = appSource.getRepository(Category);
     const categoryNestedRepoisstry = appSource.getRepository(CategoryNested);
     const category = await Repository.query(
-      `select * from [${process.env.DB_NAME}].[dbo].category`
+      `select * from [${process.env.DB_NAME}].[dbo].category  ORDER BY categoryname ASC`
     )
     const subCategory = await categoryNestedRepoisstry.query(`
-       select * from [${process.env.DB_NAME}].[dbo].category_nested
+       select * from [${process.env.DB_NAME}].[dbo].category_nested ORDER BY categoryname ASC
       `)
 
     if(subCategory.length > 0){
@@ -87,6 +87,50 @@ catch (error) {
   res.status(500).send(error);
 }
 };
+
+
+export const getHeaderCategory = async (req: Request, res: Response) => {
+  try{
+    const Repository = appSource.getRepository(Category);
+    const categoryNestedRepoisstry = appSource.getRepository(CategoryNested);
+    const category = await Repository.query(
+      `select * from [${process.env.DB_NAME}].[dbo].category  ORDER BY categoryname ASC`
+    )
+    const subCategory = await categoryNestedRepoisstry.query(`
+       select * from [${process.env.DB_NAME}].[dbo].category_nested ORDER BY categoryname ASC
+      `)
+
+    if(subCategory.length > 0){
+      for(const sub of subCategory){
+        const categoryId = sub.parentcategory;
+        category.forEach((x: any) => {
+          if (x.categoryid == categoryId) {
+            if (!x.subCategory) {
+              x.subCategory = []; // initialize if undefined
+            }
+            x.subCategory.push(sub);
+          }
+        });
+      }
+    }
+    res.status(200).send({
+      Result: category,
+  })
+
+}
+catch (error) {
+  if (error instanceof ValidationException) {
+      return res.status(400).send({
+          message: error?.message,
+      });
+  }
+  res.status(500).send(error);
+}
+};
+
+
+
+
 
 export const deleteCategory = async (req: Request, res: Response) => {
   const id = req.params.categoryid;
