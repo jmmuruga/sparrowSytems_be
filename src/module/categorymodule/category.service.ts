@@ -72,9 +72,25 @@ export const getCategory = async (req: Request, res: Response) => {
     if(subCategory.length > 0){
       category.push(...subCategory)
     }
+
+   let sortedList = category.sort(function(a : any, b : any) {
+    const nameA = a.categoryname.toUpperCase(); // ignore upper and lowercase
+    const nameB = b.categoryname.toUpperCase(); // ignore upper and lowercase
+      
+  // sort in an ascending order
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+  
+    // names must be equal
+    return 0;
+  })
     
     res.status(200).send({
-      Result: category,
+      Result: sortedList,
   })
 
 }
