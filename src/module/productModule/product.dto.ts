@@ -62,6 +62,7 @@ export const productDetailsValidation = Joi.object({
   image7: Joi.string().optional().allow(null, ""),
   cuid: Joi.number().allow(null, ""),
   muid: Joi.number().allow(null, ""),
+  status: Joi.boolean().optional(),
 });
 
 export const updateDetailsValidation = Joi.object({

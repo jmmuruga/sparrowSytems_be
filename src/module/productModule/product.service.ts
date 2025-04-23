@@ -61,6 +61,14 @@ export const addProducts = async (req: Request, res: Response) => {
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
+
+    const existingProduct = await ProductRepository.findOneBy({
+      product_name: payload.product_name,
+    });
+    if (existingProduct) {
+      throw new ValidationException("Product name already exists");
+    }
+    
     const { productid, ...updatePayload } = payload;
     await ProductRepository.save(updatePayload);
     res.status(200).send({
