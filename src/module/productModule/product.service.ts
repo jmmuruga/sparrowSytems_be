@@ -217,28 +217,34 @@ ORDER BY [created_at] DESC;`
   }
 };
 
-export const getLatestUpdateOne = async (req: Request, res: Response) => {
+export const getLatestUpdatedCategory = async (req: Request, res: Response) => {
   try {
     const ProductRepository = appSource.getRepository(products);
     const details: productDetailsDto[] = await ProductRepository.query(
-      ` SELECT TOP 5
-    product.productid,
-    product.product_name,
-    product.mrp,
-    product.discount,
-    product.offer_price,
-    product.image1,
-    product.status,
-	category.categoryname as categoryFullName
-FROM [SPARROW_SYSTEMS].[dbo].[products] product 
-INNER JOIN [SPARROW_SYSTEMS].[DBO].[category] category on category.categoryid = product.category_name
-WHERE product.category_name = (
-    SELECT TOP 1 category_name
+      ` SELECT TOP 2 
+    ranked.productid,
+    ranked.product_name,
+    ranked.mrp,
+    ranked.discount,
+    ranked.offer_price,
+    ranked.image1,
+    ranked.status,
+    category.categoryname AS categoryFullName
+FROM (
+    SELECT 
+        *,
+        CAST(updated_at AS DATE) AS updated_date,
+        ROW_NUMBER() OVER (
+            PARTITION BY category_name 
+            ORDER BY CAST(updated_at AS DATE) DESC
+        ) AS rn
     FROM [SPARROW_SYSTEMS].[dbo].[products]
     WHERE category_name IS NOT NULL
-    ORDER BY updated_at DESC
-)
-ORDER BY product.[updated_at] DESC;`
+) AS ranked
+INNER JOIN [SPARROW_SYSTEMS].[dbo].[category] category 
+    ON category.categoryid = ranked.category_name
+WHERE ranked.rn = 1
+ORDER BY ranked.updated_date DESC`
     );
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -251,54 +257,3 @@ ORDER BY product.[updated_at] DESC;`
     res.status(500).send(error);
   }
 };
-
-// export const getAccessories = async (req: Request, res: Response) => {
-//   try {
-//     const ProductRepository = appSource.getRepository(products);
-//     const details: productDetailsDto[] = await ProductRepository.query(
-//       `SELECT TOP 5
-//     [productid],
-//     [product_name],
-//     [stock],
-//     [brand_name],
-//     [category_name],
-//     [mrp],
-//     [discount],
-//     [offer_price],
-//     [min_qty],
-//     [max_qty],
-//     [delivery_charges],
-//     [delivery_amount],
-//     [variation_group],
-//     [description],
-//     [terms],
-//     [delivery_days],
-//     [warranty],
-//     [document],
-//     [image1],
-//     [image2],
-//     [image3],
-//     [image4],
-//     [image5],
-//     [image6],
-//     [image7],
-//     [cuid],
-//     [muid],
-//     [created_at],
-//     [updated_at],
-//     [status]
-// FROM [SPARROW_SYSTEMS].[dbo].[products]
-// WHERE category_name = 2
-// ORDER BY [updated_at] DESC;`
-//     );
-//     res.status(200).send({ Result: details });
-//   } catch (error) {
-//     console.log(error);
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error?.message,
-//       });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
