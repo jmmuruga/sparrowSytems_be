@@ -17,12 +17,12 @@ export const newUser = async (req: Request, res: Response) => {
             userid: payload.userid,
            });
            if (!userDetails?.userid) {
-             throw new ValidationException("Brand not found");
+             throw new ValidationException("user details  not found");
            }
            const { cuid, userid, ...updatePayload } = payload;
            await UserDetailsRepoistry.update({ userid: payload.userid }, updatePayload);
            res.status(200).send({
-             IsSuccess: "Brand Details updated SuccessFully",
+             IsSuccess: "user  Details updated SuccessFully",
            });
            return;
          }

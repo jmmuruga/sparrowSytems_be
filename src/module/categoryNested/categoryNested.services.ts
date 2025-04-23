@@ -1,13 +1,14 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
-import { CategoryNestedDto, categorynestedUpdateValidation, categorynestedValidation } from "./categoryNested.dto";
+import { CategoryNestedDto, categorynestedUpdateValidation, categorynestedValidation, changenestedCategroyStatusDto } from "./categoryNested.dto";
 import { CategoryNested } from "./categoryNested.model";
 
 
 
 export const addsubCategory = async (req: Request, res: Response) => {
   const payload: CategoryNestedDto = req.body;
+  console.log("Incoming data:", req.body);
   try {
  
     const categoryRepository = appSource.getRepository(CategoryNested);
@@ -35,6 +36,12 @@ export const addsubCategory = async (req: Request, res: Response) => {
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
+    const validateTypeName = await categoryRepository.findBy({
+      categoryname: payload.categoryname,
+    });
+    if (validateTypeName?.length) {
+      throw new ValidationException("categoryname already exist");
+    }
     
     const { subcategoryid, ...updatePayload } = payload;
     await categoryRepository.save(updatePayload);
@@ -51,3 +58,76 @@ export const addsubCategory = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
+export const deleteSubCategory = async (req: Request, res: Response) => {
+  const id = req.params.subcategoryid;
+  const categoryRepo = appSource.getRepository(CategoryNested);
+  try {
+      const typeNameFromDb = await  categoryRepo
+          .createQueryBuilder('CategoryNested')
+          .where("CategoryNested.subcategoryid = :subcategoryid", {
+            subcategoryid : id,
+          })
+          .getOne();
+      if (!typeNameFromDb?.subcategoryid) {
+          throw new HttpException("brand not Found", 400);
+      }
+      await  categoryRepo
+          .createQueryBuilder("CategoryNested")
+          .delete()
+          .from(CategoryNested)
+          .where("subcategoryid = :subcategoryid", { subcategoryid: id })
+          .execute();
+      res.status(200).send({
+          IsSuccess: `subcategory  deleted successfully!`,
+      });
+  }
+  catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+}
+
+
+export const changeSubCategoryStatus = async (req: Request, res: Response) => {
+  console.log("called")
+   const subCategoryStatus : changenestedCategroyStatusDto = req.body;
+  const categoryRepository = appSource.getRepository(CategoryNested);
+
+  try {
+      const categoryFromDB = await categoryRepository.findBy({
+        subcategoryid : subCategoryStatus .subcategoryid,
+      })
+      if (categoryFromDB.length == 0) {
+          throw new HttpException("Data not Found", 400);
+      }
+      await categoryRepository
+          .createQueryBuilder()
+          .update(CategoryNested)
+          .set({ status: subCategoryStatus.status })
+          .where({ subcategoryid: subCategoryStatus.subcategoryid })
+          .execute();
+
+      res.status(200).send({
+          IsSuccess: `Status Updated successfully!`,
+      });
+  }
+  catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+}
+
+
+
+
+
+

@@ -6,7 +6,6 @@ import Joi from "joi";
 export interface CategoryNestedDto {
     subcategoryid: number;
     categoryname: string;
-    parentid: number;
     parentcategory: string;
     categoryicon: string;
     status: boolean;
@@ -24,11 +23,13 @@ export interface CategoryNestedDto {
     muid: Joi.optional().allow(null, ""),
   });
   
-
+  export interface changenestedCategroyStatusDto {
+    subcategoryid: number;
+    status: boolean;
+  }
 
   export const categorynestedUpdateValidation = Joi.object({
     subcategoryid: Joi.number().required(),
-    parentid: Joi.number().required(),
     parentcategory: Joi.string().required(),
     categoryname: Joi.string().required(),
     categoryicon: Joi.string().required(),

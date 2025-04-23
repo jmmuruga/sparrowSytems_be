@@ -141,6 +141,30 @@ export const getBrandDetail = async (req: Request, res: Response) => {
   }
 };
 
+export const getTopBrandDetail = async (req: Request, res: Response) => {
+  try {
+    const Repository = appSource.getRepository(BrandDetail);
+
+    const brandList = await Repository.createQueryBuilder("brand")
+      .orderBy("brand.brandname", "ASC")
+      .limit(18)
+      .getMany();
+    res.status(200).send({
+      Result: brandList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+
+
 export const updateBrand = async (req: Request, res: Response) => {
   const payload: brandDto = req.body;
 

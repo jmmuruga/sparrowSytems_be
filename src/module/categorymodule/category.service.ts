@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { CategoryDto, categoryUpdateValidation, categoryValidation, changeCategroyStatusDto } from "./category.dto";
 import { Category } from "./category.model";
 import { console } from "inspector/promises";
+import { CategoryNested } from "../categoryNested/categoryNested.model";
 
 
 
@@ -36,6 +37,12 @@ export const addCategory = async (req: Request, res: Response) => {
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
+    const validateTypeName = await categoryRepository.findBy({
+      categoryname: payload.categoryname,
+    });
+    if (validateTypeName?.length) {
+      throw new ValidationException("category name  already exist");
+    }
     
     const { categoryid, ...updatePayload } = payload;
     await categoryRepository.save(updatePayload);
@@ -60,8 +67,74 @@ export const addCategory = async (req: Request, res: Response) => {
 export const getCategory = async (req: Request, res: Response) => {
   try{
     const Repository = appSource.getRepository(Category);
-    const category = await Repository.createQueryBuilder("category").orderBy("category.categoryname","ASC").getMany();
+    const categoryNestedRepoisstry = appSource.getRepository(CategoryNested);
+    const category = await Repository.query(
+      `select * from [${process.env.DB_NAME}].[dbo].category  ORDER BY categoryname ASC`
+    )
+    const subCategory = await categoryNestedRepoisstry.query(`
+       select * from [${process.env.DB_NAME}].[dbo].category_nested ORDER BY categoryname ASC
+      `)
+
+    if(subCategory.length > 0){
+      category.push(...subCategory)
+    }
+
+   let sortedList = category.sort(function(a : any, b : any) {
+    const nameA = a.categoryname.toUpperCase(); // ignore upper and lowercase
+    const nameB = b.categoryname.toUpperCase(); // ignore upper and lowercase
+      
+  // sort in an ascending order
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+  
+    // names must be equal
+    return 0;
+  })
     
+    res.status(200).send({
+      Result: sortedList,
+  })
+
+}
+catch (error) {
+  if (error instanceof ValidationException) {
+      return res.status(400).send({
+          message: error?.message,
+      });
+  }
+  res.status(500).send(error);
+}
+};
+
+
+export const getHeaderCategory = async (req: Request, res: Response) => {
+  try{
+    const Repository = appSource.getRepository(Category);
+    const categoryNestedRepoisstry = appSource.getRepository(CategoryNested);
+    const category = await Repository.query(
+      `select * from [${process.env.DB_NAME}].[dbo].category  ORDER BY categoryname ASC`
+    )
+    const subCategory = await categoryNestedRepoisstry.query(`
+       select * from [${process.env.DB_NAME}].[dbo].category_nested ORDER BY categoryname ASC
+      `)
+
+    if(subCategory.length > 0){
+      for(const sub of subCategory){
+        const categoryId = sub.parentcategory;
+        category.forEach((x: any) => {
+          if (x.categoryid == categoryId) {
+            if (!x.subCategory) {
+              x.subCategory = []; // initialize if undefined
+            }
+            x.subCategory.push(sub);
+          }
+        });
+      }
+    }
     res.status(200).send({
       Result: category,
   })
@@ -76,6 +149,10 @@ catch (error) {
   res.status(500).send(error);
 }
 };
+
+
+
+
 
 export const deleteCategory = async (req: Request, res: Response) => {
   const id = req.params.categoryid;
@@ -112,12 +189,14 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
 
 
-
 export const changeStatusCategory = async (req: Request, res: Response) => {
+
    const categoryStatus : changeCategroyStatusDto = req.body;
   const categoryRepository = appSource.getRepository(Category);
 
   try {
+    console.log('called')
+    console.log(categoryStatus, 'categoryStatus');
       const categoryFromDB = await categoryRepository.findBy({
           categoryid : categoryStatus.categoryid,
       })
