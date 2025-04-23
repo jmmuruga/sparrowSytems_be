@@ -36,6 +36,12 @@ export const addsubCategory = async (req: Request, res: Response) => {
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
+    const validateTypeName = await categoryRepository.findBy({
+      categoryname: payload.categoryname,
+    });
+    if (validateTypeName?.length) {
+      throw new ValidationException("categoryname already exist");
+    }
     
     const { subcategoryid, ...updatePayload } = payload;
     await categoryRepository.save(updatePayload);

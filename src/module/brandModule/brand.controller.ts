@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addBrand,  changeStatusBrand,  deleteBrand,  getBrandDetail, updateBrand } from "./brand.service";
+import { addBrand,  changeStatusBrand,  deleteBrand,  getBrandDetail, getTopBrandDetail, updateBrand } from "./brand.service";
 import multer from "multer";
 
 
@@ -12,14 +12,17 @@ brandRouter.post('/addBrand',upload.single("brandimage"),(req, res) => { addBran
  });
 brandRouter.get('/getBrandDetail',(req, res) => { getBrandDetail (req, res);
 });
-  brandRouter.get('/editBrand/',(req, res) => { updateBrand (req, res);
-  });
+brandRouter.get('/editBrand/',(req, res) => { updateBrand (req, res);
+});
 
 brandRouter.delete('/deleteBrand/:brandid',(req, res) => { deleteBrand(req, res);
 });
 
 brandRouter.put('/changestatus/:status/:brandid',(req, res) => { changeStatusBrand(req, res);
 });
+brandRouter.get('/gettopbrand/',(req, res) => { getTopBrandDetail (req, res);
+});
+
  
 
 
