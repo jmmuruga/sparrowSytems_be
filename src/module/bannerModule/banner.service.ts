@@ -67,6 +67,14 @@ export const newBanner = async (req: Request, res: Response) => {
         });
         return;
       }
+
+      const existingProduct = await BannerRepository.findOneBy({
+        title: payload.title,
+      });
+      if (existingProduct) {
+        throw new ValidationException("Product name already exists");
+      }
+
       const validation = bannerDetailsValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);

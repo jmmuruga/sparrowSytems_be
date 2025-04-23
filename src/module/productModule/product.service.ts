@@ -37,7 +37,6 @@ export const addProducts = async (req: Request, res: Response) => {
   try {
     const ProductRepository = appSource.getRepository(products);
     if (payload.productid) {
-      console.log("came nto update");
       const validation = updateDetailsValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -62,6 +61,14 @@ export const addProducts = async (req: Request, res: Response) => {
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
+
+    const existingProduct = await ProductRepository.findOneBy({
+      product_name: payload.product_name,
+    });
+    if (existingProduct) {
+      throw new ValidationException("Product name already exists");
+    }
+    
     const { productid, ...updatePayload } = payload;
     await ProductRepository.save(updatePayload);
     res.status(200).send({
@@ -97,7 +104,6 @@ export const getProductsDetails = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   const id = req.params.productid;
-  console.log("Received product ID:", id);
   const productRepo = appSource.getRepository(products);
   try {
     const typeNameFromDb = await productRepo
@@ -129,13 +135,14 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 export const changeStatusProduct = async (req: Request, res: Response) => {
-    const status: productStatusDto= req.body;
-    const ProductRepository = appSource.getRepository(products);
-    const details = await ProductRepository.findOneBy({ productid: Number(status.productid) });
+  const status: productStatusDto = req.body;
+  const ProductRepository = appSource.getRepository(products);
+  const details = await ProductRepository.findOneBy({
+    productid: Number(status.productid),
+  });
   try {
     if (!details) throw new HttpException("productDetails not Found", 400);
-    await ProductRepository
-      .createQueryBuilder()
+    await ProductRepository.createQueryBuilder()
       .update(products)
       .set({ status: status.status })
       .where({ productid: Number(status.productid) })
@@ -152,3 +159,146 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
+export const getRecentOffers = async (req: Request, res: Response) => {
+  try {
+    const ProductRepository = appSource.getRepository(products);
+    const details: productDetailsDto[] = await ProductRepository.query(
+      `  SELECT TOP 5  
+    productid,
+    product_name,
+    mrp,
+    discount,
+    offer_price,
+    image1,
+    created_at,
+    status
+FROM [${process.env.DB_name}].[dbo].[products]
+WHERE [offer_price] IS NOT NULL
+ORDER BY [updated_at] DESC;`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getNewProducts = async (req: Request, res: Response) => {
+  try {
+    const ProductRepository = appSource.getRepository(products);
+    const details: productDetailsDto[] = await ProductRepository.query(
+      `  SELECT TOP 15
+    productid,
+    product_name,
+    mrp,
+    discount,
+    offer_price,
+    image1,
+    created_at,
+    status
+FROM [SPARROW_SYSTEMS].[dbo].[products]
+ORDER BY [created_at] DESC;`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getLatestUpdateOne = async (req: Request, res: Response) => {
+  try {
+    const ProductRepository = appSource.getRepository(products);
+    const details: productDetailsDto[] = await ProductRepository.query(
+      ` SELECT TOP 5
+    product.productid,
+    product.product_name,
+    product.mrp,
+    product.discount,
+    product.offer_price,
+    product.image1,
+    product.status,
+	category.categoryname as categoryFullName
+FROM [SPARROW_SYSTEMS].[dbo].[products] product 
+INNER JOIN [SPARROW_SYSTEMS].[DBO].[category] category on category.categoryid = product.category_name
+WHERE product.category_name = (
+    SELECT TOP 1 category_name
+    FROM [SPARROW_SYSTEMS].[dbo].[products]
+    WHERE category_name IS NOT NULL
+    ORDER BY updated_at DESC
+)
+ORDER BY product.[updated_at] DESC;`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+// export const getAccessories = async (req: Request, res: Response) => {
+//   try {
+//     const ProductRepository = appSource.getRepository(products);
+//     const details: productDetailsDto[] = await ProductRepository.query(
+//       `SELECT TOP 5
+//     [productid],
+//     [product_name],
+//     [stock],
+//     [brand_name],
+//     [category_name],
+//     [mrp],
+//     [discount],
+//     [offer_price],
+//     [min_qty],
+//     [max_qty],
+//     [delivery_charges],
+//     [delivery_amount],
+//     [variation_group],
+//     [description],
+//     [terms],
+//     [delivery_days],
+//     [warranty],
+//     [document],
+//     [image1],
+//     [image2],
+//     [image3],
+//     [image4],
+//     [image5],
+//     [image6],
+//     [image7],
+//     [cuid],
+//     [muid],
+//     [created_at],
+//     [updated_at],
+//     [status]
+// FROM [SPARROW_SYSTEMS].[dbo].[products]
+// WHERE category_name = 2
+// ORDER BY [updated_at] DESC;`
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     console.log(error);
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
