@@ -220,7 +220,7 @@ ORDER BY [created_at] DESC;`
 export const getLatestUpdatedCategory = async (req: Request, res: Response) => {
   try {
     const ProductRepository = appSource.getRepository(products);
-    const details: productDetailsDto[] = await ProductRepository.query(
+    const details: any[] = await ProductRepository.query(
       ` SELECT TOP 2 
     ranked.productid,
     ranked.product_name,
@@ -229,7 +229,8 @@ export const getLatestUpdatedCategory = async (req: Request, res: Response) => {
     ranked.offer_price,
     ranked.image1,
     ranked.status,
-    category.categoryname AS categoryFullName
+    category.categoryname AS categoryFullName,
+    ranked.category_name as categoryId
 FROM (
     SELECT 
         *,
@@ -246,7 +247,19 @@ INNER JOIN [SPARROW_SYSTEMS].[dbo].[category] category
 WHERE ranked.rn = 1
 ORDER BY ranked.updated_date DESC`
     );
-    res.status(200).send({ Result: details });
+
+    let categoryList : any[] = [];
+
+    for (const x of details){
+      const productsOfCategory = await ProductRepository.query(
+        `select top 5 * from products  where category_name  = '${x.categoryId}'
+         order by  updated_at DESC;`
+      )
+       categoryList.push(...productsOfCategory);
+    }
+    res.status(200).send({ Result: details ,
+      categoryList: categoryList
+    });
   } catch (error) {
     console.log(error);
     if (error instanceof ValidationException) {
