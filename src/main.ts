@@ -11,6 +11,7 @@ import bannerRouter from "./module/bannerModule/banner.controller";
 import brandRouter from "./module/brandModule/brand.controller";
 import categoryRouter from "./module/categorymodule/category.controller";
 import categoryNestedRouter from "./module/categoryNested/categoryNested.controller";
+import customerDetailRouter from "./module/customerDetails/customerDetails.controller";
 
 
 const app = express();
@@ -34,6 +35,8 @@ app.use("/bannerRouter", cors(corsOptions), bannerRouter);
 app.use('/brandRouter', cors(corsOptions), brandRouter);
 app.use('/categoryRouter', cors(corsOptions),categoryRouter );
 app.use('/categoryNestedRouter', cors(corsOptions),categoryNestedRouter );
+app.use('/customerDetailRouter', cors(corsOptions),customerDetailRouter );
+
 
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

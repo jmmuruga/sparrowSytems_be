@@ -7,6 +7,7 @@ import { banner } from "../module/bannerModule/banner.model";
 import { BrandDetail } from "../module/brandModule/brand.model";
 import { Category,  } from "../module/categorymodule/category.model";
 import { CategoryNested } from "../module/categoryNested/categoryNested.model";
+import { customerDetails } from "../module/customerDetails/customerDetails.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -14,6 +15,7 @@ const Entities: any[] = [
   BrandDetail,
   Category,
   CategoryNested,
+  customerDetails,
   
   
 ]
