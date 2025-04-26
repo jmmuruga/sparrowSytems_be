@@ -11,6 +11,9 @@ userDetailRouter.get('/getUser',(req, res) => { getUser(req, res);
 userDetailRouter.delete('/deleteuser/:userid',(req, res) => { deleteUser(req, res);
 });
 
+userDetailRouter.delete('/deleteuser/:userid',(req, res) => { deleteUser(req, res);
+});
+
 
 
 export default userDetailRouter;

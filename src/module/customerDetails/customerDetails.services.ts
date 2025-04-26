@@ -56,4 +56,58 @@ export const newCustomer =  async (req: Request, res:Response)=>{
 };
 
 
+export const getCustomer = async (req: Request, res: Response) => {
+  try {
+      const Repository = appSource.getRepository(customerDetails);
+      const customerList = await Repository
+          .createQueryBuilder()
+          .getMany();
+      res.status(200).send({
+          Result: customerList
+      });
+  } catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+};
+
+
+export const deleteCustomer = async (req: Request, res: Response) => {
+  const id = req.params.customerid;
+  const customerRepo = appSource.getRepository(customerDetails);
+  try {
+      const typeNameFromDb = await customerRepo
+          .createQueryBuilder('customerDetails')
+          .where("customerDetails.customerid = :customerid", {
+            customerid: id,
+          })
+          .getOne();
+      if (!typeNameFromDb?.customerid) {
+          throw new HttpException("User not Found", 400);
+      }
+      await customerRepo
+          .createQueryBuilder("customerDetails")
+          .delete()
+          .from(customerDetails)
+          .where("customerid = :customerid", { customerid: id })
+          .execute();
+      res.status(200).send({
+          IsSuccess: `User deleted successfully!`,
+      });
+  }
+  catch (error) {
+      if (error instanceof ValidationException) {
+          return res.status(400).send({
+              message: error?.message,
+          });
+      }
+      res.status(500).send(error);
+  }
+}
+
+
 
