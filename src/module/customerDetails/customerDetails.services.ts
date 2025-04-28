@@ -40,7 +40,14 @@ export const newCustomer =  async (req: Request, res:Response)=>{
     if(validateEmail?.length){
         throw new ValidationException("Email already exist")
     }
-    const {customerid,...updatePayload} = payload;
+  const validateMobile = await customerDetailsRepoistry.findBy({
+      mobilenumber:payload.mobilenumber
+  })
+  if(validateMobile.length){
+      throw new ValidationException("mobilenumber already exist")
+  }
+
+   const {customerid,...updatePayload} = payload;
     await customerDetailsRepoistry.save(updatePayload)
     res.status(200).send({
         IsSuccess: "User Details added SuccessFully",
