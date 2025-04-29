@@ -8,6 +8,7 @@ import {
   updateDetailsValidation,
 } from "./product.dto";
 import { products } from "./product.model";
+import { Category } from "../categorymodule/category.model";
 
 // export const addProducts = async (req: Request, res: Response) => {
 //     try {
@@ -88,7 +89,12 @@ export const addProducts = async (req: Request, res: Response) => {
 export const getProductsDetails = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(products);
-    const productList = await Repository.createQueryBuilder().getMany();
+    const productList : productDetailsDto[] = await Repository.createQueryBuilder().getMany();
+    const categoryRepoistry = appSource.getRepository(Category);
+    const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+    productList.forEach((x) =>{
+      x.categoryName = categoryList.find((y) => y.categoryid === +x.category_name)?.categoryname;
+    })
     res.status(200).send({
       Result: productList,
     });
