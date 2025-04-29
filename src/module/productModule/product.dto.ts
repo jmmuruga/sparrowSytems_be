@@ -29,6 +29,7 @@ export interface productDetailsDto {
   cuid: number;
   muid: number;
   status: boolean;
+  categoryName? :string;
 }
 export interface productStatusDto {
   productid: string;
