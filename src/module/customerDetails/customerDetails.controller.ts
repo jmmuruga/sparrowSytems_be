@@ -1,10 +1,14 @@
 import { Router } from "express";
-import { deleteCustomer, getCustomer, newCustomer } from "./customerDetails.services";
+import { deleteCustomer, getCustomer, newCustomer, Userlogin } from "./customerDetails.services";
 
 const customerDetailRouter = Router();
 
 customerDetailRouter.post("/addCustomer", (req, res) => {
   newCustomer(req, res);
+});
+
+customerDetailRouter.post("/userlogin", (req, res) => {
+  Userlogin(req, res);
 });
 customerDetailRouter.get("/getCustomer", (req, res) => {
   getCustomer(req, res);

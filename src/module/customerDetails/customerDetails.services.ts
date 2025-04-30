@@ -62,6 +62,65 @@ export const newCustomer =  async (req: Request, res:Response)=>{
   }
 };
 
+export const Userlogin = async (req: Request, res: Response) => {
+    const payload :  {emailorMobile : string,password : string}  = req.body;
+    console.log(req.body, "Login attempt");
+    let isLogInSucces : boolean;
+    try {
+    const customerDetailsRepo = appSource.getRepository(customerDetails);
+
+    let loginCustomerDetails;
+ 
+    const checkEmailExist = await customerDetailsRepo.findOneBy({
+        email: payload.emailorMobile 
+    })
+
+    if(checkEmailExist){
+         loginCustomerDetails = checkEmailExist;
+         if(checkEmailExist.password == payload.password){
+            isLogInSucces = true
+         }else{
+            throw new ValidationException('Wrong Password')
+         }
+    }
+    
+    if(!checkEmailExist){
+        const checkMobExist = await customerDetailsRepo.findOneBy({
+            mobilenumber : payload.emailorMobile
+        });
+
+        if(checkMobExist){
+            loginCustomerDetails = checkMobExist;
+            if(checkMobExist.password == payload.password){
+                isLogInSucces = true
+             }else{
+                throw new ValidationException('Wrong Password')
+             }
+        }
+
+        if(!checkMobExist){
+            throw new ValidationException('No Customer Found')
+        }
+    }
+    res.status(200).send({
+    message: "Login successful",
+    customer: loginCustomerDetails,
+    });
+}
+catch (error) {
+    if (error instanceof ValidationException) {
+        return res.status(400).send({
+            message: error?.message,
+        });
+    }
+    res.status(500).send(error);
+}  
+   
+
+}
+  
+
+
 
 export const getCustomer = async (req: Request, res: Response) => {
   try {
