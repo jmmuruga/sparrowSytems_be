@@ -8,6 +8,7 @@ import { BrandDetail } from "../module/brandModule/brand.model";
 import { Category,  } from "../module/categorymodule/category.model";
 import { CategoryNested } from "../module/categoryNested/categoryNested.model";
 import { customerDetails } from "../module/customerDetails/customerDetails.model";
+import { allOrders } from "../module/allOrdersModule/allOrders.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -16,6 +17,7 @@ const Entities: any[] = [
   Category,
   CategoryNested,
   customerDetails,
+  allOrders
   
   
 ]
