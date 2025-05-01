@@ -3,6 +3,21 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import { customerDetailsDto, customerDetailsUpdateValidation, customerDetailsValiadtion } from "./customerDetails.dto";
 import { customerDetails } from "./customerDetails.model";
+import nodemailer from 'nodemailer';
+
+import dotenv from "dotenv";
+
+dotenv.config();  // Ensure env variables are loaded
+
+// Utility function for error handling
+const handleError = (res: Response, error: any) => {
+    console.error("Error:", error);
+    if (error instanceof ValidationException) {
+        return res.status(400).send({ message: error.message });
+    }
+    res.status(500).send({ message: "Internal server error" });
+};
+
 
 
 export const newCustomer =  async (req: Request, res:Response)=>{
@@ -174,6 +189,38 @@ export const deleteCustomer = async (req: Request, res: Response) => {
       res.status(500).send(error);
   }
 }
+
+
+
+export const  requestPasswordReset = async(req:Request,res:Response) =>{
+     const {email} = req.params
+     console.log(email,"no email")
+      
+     try {
+        const customerDetailsRepo = appSource.getRepository(customerDetails)
+        const customer = await customerDetailsRepo.findOneBy
+        ( {email:email})
+
+        if(!customer) {
+            throw new ValidationException ("invalid email")
+        }
+        res.status(200).send({
+            message: "Login successful",
+            email:customer.email,
+            });
+     } 
+     catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+
+     }     
+
+}
+
 
 
 

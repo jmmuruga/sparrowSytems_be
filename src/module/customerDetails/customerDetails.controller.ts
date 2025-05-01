@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteCustomer, getCustomer, newCustomer, Userlogin } from "./customerDetails.services";
+import { deleteCustomer, getCustomer, newCustomer,requestPasswordReset,Userlogin } from "./customerDetails.services";
 
 const customerDetailRouter = Router();
 
@@ -15,6 +15,8 @@ customerDetailRouter.get("/getCustomer", (req, res) => {
 });
 customerDetailRouter.delete('/deletecustomer/:customerid',(req, res) => { deleteCustomer(req, res);
 });
+
+ customerDetailRouter.get('/forgotPassword/:email', (req , res) => {requestPasswordReset(req, res)});
 
 
 export default customerDetailRouter;
