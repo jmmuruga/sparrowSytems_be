@@ -205,10 +205,12 @@ export const  requestPasswordReset = async(req:Request,res:Response) =>{
             throw new ValidationException ("invalid email")
         }
         res.status(200).send({
+            Result: customer,
             message: "Login successful",
-            email:customer.email,
+            // email: customer.email
+           
             });
-     } 
+     }  
      catch (error) {
         if (error instanceof ValidationException) {
             return res.status(400).send({
