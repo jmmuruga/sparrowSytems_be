@@ -3,6 +3,21 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import { customerDetailsDto, customerDetailsUpdateValidation, customerDetailsValiadtion } from "./customerDetails.dto";
 import { customerDetails } from "./customerDetails.model";
+import nodemailer from 'nodemailer';
+
+import dotenv from "dotenv";
+
+dotenv.config();  // Ensure env variables are loaded
+
+// Utility function for error handling
+const handleError = (res: Response, error: any) => {
+    console.error("Error:", error);
+    if (error instanceof ValidationException) {
+        return res.status(400).send({ message: error.message });
+    }
+    res.status(500).send({ message: "Internal server error" });
+};
+
 
 
 export const newCustomer =  async (req: Request, res:Response)=>{
@@ -40,7 +55,14 @@ export const newCustomer =  async (req: Request, res:Response)=>{
     if(validateEmail?.length){
         throw new ValidationException("Email already exist")
     }
-    const {customerid,...updatePayload} = payload;
+  const validateMobile = await customerDetailsRepoistry.findBy({
+      mobilenumber:payload.mobilenumber
+  })
+  if(validateMobile.length){
+      throw new ValidationException("mobilenumber already exist")
+  }
+
+   const {customerid,...updatePayload} = payload;
     await customerDetailsRepoistry.save(updatePayload)
     res.status(200).send({
         IsSuccess: "User Details added SuccessFully",
@@ -54,6 +76,65 @@ export const newCustomer =  async (req: Request, res:Response)=>{
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
+export const Userlogin = async (req: Request, res: Response) => {
+    const payload :  {emailorMobile : string,password : string}  = req.body;
+    console.log(req.body, "Login attempt");
+    let isLogInSucces : boolean;
+    try {
+    const customerDetailsRepo = appSource.getRepository(customerDetails);
+
+    let loginCustomerDetails;
+ 
+    const checkEmailExist = await customerDetailsRepo.findOneBy({
+        email: payload.emailorMobile 
+    })
+
+    if(checkEmailExist){
+         loginCustomerDetails = checkEmailExist;
+         if(checkEmailExist.password == payload.password){
+            isLogInSucces = true
+         }else{
+            throw new ValidationException('Wrong Password')
+         }
+    }
+    
+    if(!checkEmailExist){
+        const checkMobExist = await customerDetailsRepo.findOneBy({
+            mobilenumber : payload.emailorMobile
+        });
+
+        if(checkMobExist){
+            loginCustomerDetails = checkMobExist;
+            if(checkMobExist.password == payload.password){
+                isLogInSucces = true
+             }else{
+                throw new ValidationException('Wrong Password')
+             }
+        }
+
+        if(!checkMobExist){
+            throw new ValidationException('No Customer Found')
+        }
+    }
+    res.status(200).send({
+    message: "Login successful",
+    customer: loginCustomerDetails,
+    });
+}
+catch (error) {
+    if (error instanceof ValidationException) {
+        return res.status(400).send({
+            message: error?.message,
+        });
+    }
+    res.status(500).send(error);
+}  
+   
+
+}
+  
+
 
 
 export const getCustomer = async (req: Request, res: Response) => {
@@ -108,6 +189,38 @@ export const deleteCustomer = async (req: Request, res: Response) => {
       res.status(500).send(error);
   }
 }
+
+
+
+export const  requestPasswordReset = async(req:Request,res:Response) =>{
+     const {email} = req.params
+     console.log(email,"no email")
+      
+     try {
+        const customerDetailsRepo = appSource.getRepository(customerDetails)
+        const customer = await customerDetailsRepo.findOneBy
+        ( {email:email})
+
+        if(!customer) {
+            throw new ValidationException ("invalid email")
+        }
+        res.status(200).send({
+            message: "Login successful",
+            email:customer.email,
+            });
+     } 
+     catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+
+     }     
+
+}
+
 
 
 
