@@ -3,11 +3,13 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 @Entity()
 export class allOrders {
     @PrimaryGeneratedColumn()
-    orderid: number;
+    customerid: number;
     @Column()
     customer_name: string;
     @Column()
     total_amount: number;
+    @Column()
+    orderid: number;
     @Column()
     action_date: number;
     @Column({'nullable': true})
@@ -20,4 +22,14 @@ export class allOrders {
     updatedAt: Date;
     @Column({default: true})
     status: boolean;
+    @Column()
+    mobile_number: string;
+    @Column()
+    Address: string;
+    @Column()
+    landmark: string;
+    @Column()
+    pincode: number;
+    @Column()
+    payment_method: string;
 }

@@ -17,9 +17,7 @@ const Entities: any[] = [
   Category,
   CategoryNested,
   customerDetails,
-  allOrders
-  
-  
+  allOrders,
 ]
 export const appSource = new DataSource({
   type: "mssql",

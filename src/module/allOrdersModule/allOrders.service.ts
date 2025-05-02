@@ -8,49 +8,47 @@ import {
 } from "./allOrders.dto";
 import { allOrders } from "./allOrders.model";
 
-export const newAllOrders = async (req: Request, res: Response) => {
+export const addAllOrders = async (req: Request, res: Response) => {
   const payload: allOrdersDto = req.body;
-  console.log(payload, "payload");
   try {
-    const AllOrdersRepository = appSource.getRepository(allOrders);
-    if (payload.orderid) {
-      console.log("came nto update");
+    const ProductRepository = appSource.getRepository(allOrders);
+    if (payload.customerid) {
       const validation = updateAllOrdersValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
-      const bannerDetails = await AllOrdersRepository.findOneBy({
-        orderid: payload.orderid,
+      const productDetails = await ProductRepository.findOneBy({
+        customerid: payload.customerid,
       });
-      if (!bannerDetails?.orderid) {
-        throw new ValidationException("banner not found");
+      if (!productDetails?.customerid) {
+        throw new ValidationException("Product not found");
       }
-      const { cuid, orderid, ...updatePayload } = payload;
-      await AllOrdersRepository.update(
-        { orderid: payload.orderid },
+      const { cuid, customerid, ...updatePayload } = payload;
+      await ProductRepository.update(
+        { customerid: payload.customerid },
         updatePayload
       );
       res.status(200).send({
-        IsSuccess: "banner Details updated SuccessFully",
+        IsSuccess: "Product Details updated SuccessFully",
       });
       return;
     }
+    const validation = allOrdersValidation.validate(payload);
+    if (validation?.error) {
+      throw new ValidationException(validation.error.message);
+    }
 
-    const existingProduct = await AllOrdersRepository.findOneBy({
+    const existingProduct = await ProductRepository.findOneBy({
       customer_name: payload.customer_name,
     });
     if (existingProduct) {
       throw new ValidationException("Product name already exists");
     }
-
-    const validation = allOrdersValidation.validate(payload);
-    if (validation?.error) {
-      throw new ValidationException(validation.error.message);
-    }
-    const { orderid, ...updatePayload } = payload;
-    await AllOrdersRepository.save(updatePayload);
+    
+    const { customerid, ...updatePayload } = payload;
+    await ProductRepository.save(updatePayload);
     res.status(200).send({
-      IsSuccess: "banner Details added SuccessFully",
+      IsSuccess: "Product Details added SuccessFully",
     });
   } catch (error) {
     console.log(error, "error");
