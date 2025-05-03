@@ -8,7 +8,7 @@ import {
 } from "./allOrders.dto";
 import { allOrders } from "./allOrders.model";
 
-export const newAllOrders = async (req: Request, res: Response) => {
+export const addAllOrders = async (req: Request, res: Response) => {
   const payload: allOrdersDto = req.body;
   console.log(payload, "payload");
   try {
@@ -19,11 +19,11 @@ export const newAllOrders = async (req: Request, res: Response) => {
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
-      const bannerDetails = await AllOrdersRepository.findOneBy({
+      const orderDetails = await AllOrdersRepository.findOneBy({
         orderid: payload.orderid,
       });
-      if (!bannerDetails?.orderid) {
-        throw new ValidationException("banner not found");
+      if (!orderDetails?.orderid) {
+        throw new ValidationException("Orders not found");
       }
       const { cuid, orderid, ...updatePayload } = payload;
       await AllOrdersRepository.update(
@@ -31,17 +31,17 @@ export const newAllOrders = async (req: Request, res: Response) => {
         updatePayload
       );
       res.status(200).send({
-        IsSuccess: "banner Details updated SuccessFully",
+        IsSuccess: "Orders Details updated SuccessFully",
       });
       return;
     }
 
-    const existingProduct = await AllOrdersRepository.findOneBy({
-      customer_name: payload.customer_name,
-    });
-    if (existingProduct) {
-      throw new ValidationException("Product name already exists");
-    }
+    // const existingProduct = await AllOrdersRepository.findOneBy({
+    //   title: payload.title,
+    // });
+    // if (existingProduct) {
+    //   throw new ValidationException("Product name already exists");
+    // }
 
     const validation = allOrdersValidation.validate(payload);
     if (validation?.error) {
@@ -50,7 +50,7 @@ export const newAllOrders = async (req: Request, res: Response) => {
     const { orderid, ...updatePayload } = payload;
     await AllOrdersRepository.save(updatePayload);
     res.status(200).send({
-      IsSuccess: "banner Details added SuccessFully",
+      IsSuccess: "Orders Details added SuccessFully",
     });
   } catch (error) {
     console.log(error, "error");
