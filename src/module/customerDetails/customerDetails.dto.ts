@@ -5,6 +5,7 @@ export interface customerDetailsDto {
   email: string;
   customername: string;
   customeraddress: string;
+  pincode:string;
   mobilenumber: string;
   password: string;
   confirmpassword: string;
@@ -17,6 +18,7 @@ export const customerDetailsValiadtion = Joi.object({
         customername: Joi.string().required(),
         mobilenumber:Joi.string().length(10).required(),
         customeraddress:Joi.string().required(),
+        pincode:Joi.string().required(),
         password: Joi.string().required(),
         confirmpassword: Joi.string().required(),
         cuid: Joi.optional().allow(null , ''),
@@ -29,6 +31,7 @@ export const customerDetailsValiadtion = Joi.object({
     customername: Joi.string().required(),
     mobilenumber:Joi.string().length(10).required(),
     customeraddress:Joi.string().required(),
+    pincode:Joi.string().required(),
     password: Joi.string().required(),
     confirmpassword: Joi.string().required(),
     cuid: Joi.optional().allow(null , ''),
