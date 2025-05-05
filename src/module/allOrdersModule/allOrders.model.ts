@@ -32,4 +32,8 @@ export class allOrders {
     payment_method: string;
     @Column()
     quantity: number;
+    @Column()
+    productid: number;
+    @Column()
+    product_name: string;
 }

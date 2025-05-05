@@ -35,20 +35,26 @@ export const addAllOrders = async (req: Request, res: Response) => {
       });
       return;
     }
-
-    // const existingProduct = await AllOrdersRepository.findOneBy({
-    //   title: payload.title,
-    // });
-    // if (existingProduct) {
-    //   throw new ValidationException("Product name already exists");
-    // }
-
     const validation = allOrdersValidation.validate(payload);
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
-    const { orderid, ...updatePayload } = payload;
-    await AllOrdersRepository.save(updatePayload);
+
+    const { orderItems, orderid, ...commonFields } = payload;
+
+    for (const item of orderItems) {
+      const order = new allOrders();
+      Object.assign(order, {
+        ...commonFields, 
+        productid: item.productid,
+        product_name: item.product_name,
+        quantity: item.quantity,
+        // total_amount: item.offer_price
+      });
+
+      await AllOrdersRepository.save(order); // Save each item individually
+    }
+
     res.status(200).send({
       IsSuccess: "Orders Details added SuccessFully",
     });
@@ -60,5 +66,23 @@ export const addAllOrders = async (req: Request, res: Response) => {
       });
     }
     res.status(500).send({ message: "Internal server error" });
+  }
+};
+
+export const getAllOrderDetails = async (req: Request, res: Response) => {
+  try {
+    const Repository = appSource.getRepository(allOrders);
+    const ordersList = await Repository.createQueryBuilder().getMany();
+
+    res.status(200).send({
+      Result: ordersList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
   }
 };
