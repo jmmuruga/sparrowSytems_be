@@ -6,6 +6,8 @@ import { customerDetails } from "./customerDetails.model";
 import nodemailer from 'nodemailer';
 
 import dotenv from "dotenv";
+const jwt = require("jsonwebtoken");
+
 
 dotenv.config();  // Ensure env variables are loaded
 
@@ -116,12 +118,24 @@ export const Userlogin = async (req: Request, res: Response) => {
         if(!checkMobExist){
             throw new ValidationException('No Customer Found')
         }
-    }
-    res.status(200).send({
-    message: "Login successful",
-    customer: loginCustomerDetails,
-    });
-}
+        if (!loginCustomerDetails) {
+            throw new ValidationException("Invalid email/mobile or password");
+        }
+      
+        // Generate token
+        const token = jwt.sign(
+            { customerid: loginCustomerDetails.customerid },
+            process.env.JWT_SECRET!,
+            { expiresIn: "7d" }
+        );
+
+        res.status(200).send({
+            message: "Login successful",
+            token: token, // Ensure token is explicitly assigned
+            customer: loginCustomerDetails,
+        });
+
+        }    }
 catch (error) {
     if (error instanceof ValidationException) {
         return res.status(400).send({

@@ -17,6 +17,8 @@ import {
     @Column()
     customeraddress: string;
     @Column()
+    pincode: string;
+    @Column()
     mobilenumber: string;
     @Column()
     password: string;
