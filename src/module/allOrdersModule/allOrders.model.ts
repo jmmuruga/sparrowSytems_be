@@ -36,4 +36,6 @@ export class allOrders {
     productid: number;
     @Column()
     product_name: string;
+    @Column()
+    offer_price: number;
 }

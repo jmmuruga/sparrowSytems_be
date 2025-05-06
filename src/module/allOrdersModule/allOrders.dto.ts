@@ -3,8 +3,6 @@ import Joi from "joi";
 export interface allOrdersDto {
   orderid: number;
   customer_name: string;
-  total_amount: number;
-//   action_date: number;
   cuid: number;
   muid: number;
   status: boolean;
@@ -13,11 +11,15 @@ export interface allOrdersDto {
   landmark: string;
   pincode: number;
   payment_method: string;
-  orderItems: Array<{
-    productid: number;
-    product_name: string;
-    quantity: number;
-  }>;
+  orderItems: orderTitemsDto[];
+}
+
+export interface orderTitemsDto {
+  productid: number;
+  product_name: string;
+  quantity: number;
+  total_amount: number;
+  offer_price: number
 }
 
 export interface allOrdersStatusDto {
@@ -27,7 +29,7 @@ export interface allOrdersStatusDto {
 
 export const allOrdersValidation = Joi.object({
   customer_name: Joi.string().required(),
-  total_amount: Joi.number().required(),
+  // total_amount: Joi.number().required(),
 //   action_date: Joi.number().optional(),
   cuid: Joi.number().optional(),
   muid: Joi.number().optional(),
@@ -42,6 +44,8 @@ export const allOrdersValidation = Joi.object({
       productid: Joi.number().required(),
       product_name: Joi.string().required(),
       quantity: Joi.number().required(),
+      offer_price: Joi.number().required(),
+      total_amount: Joi.number().required(),
     })
   ).required(),
 });
@@ -49,7 +53,7 @@ export const allOrdersValidation = Joi.object({
 export const updateAllOrdersValidation = Joi.object({
   orderid: Joi.number().required(),
   customer_name: Joi.string().required(),
-  total_amount: Joi.number().required(),
+  // total_amount: Joi.number().required(),
 //   action_date: Joi.number().optional(),
   cuid: Joi.number().optional(),
   muid: Joi.number().optional(),
@@ -65,6 +69,8 @@ export const updateAllOrdersValidation = Joi.object({
       productid: Joi.number().required(),
       product_name: Joi.string().required(),
       quantity: Joi.number().required(),
+      offer_price: Joi.number().required(),
+      total_amount: Joi.number().required(),
     })
   ).required(),
 });
