@@ -9,6 +9,7 @@ import { Category,  } from "../module/categorymodule/category.model";
 import { CategoryNested } from "../module/categoryNested/categoryNested.model";
 import { customerDetails } from "../module/customerDetails/customerDetails.model";
 import { allOrders } from "../module/allOrdersModule/allOrders.model";
+import { CustomerCart } from "../module/customerCartModule/customerCart.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -18,6 +19,7 @@ const Entities: any[] = [
   CategoryNested,
   customerDetails,
   allOrders,
+  CustomerCart,
 ]
 export const appSource = new DataSource({
   type: "mssql",
