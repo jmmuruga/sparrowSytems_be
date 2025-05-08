@@ -10,11 +10,9 @@ import { allOrders } from "./allOrders.model";
 
 export const addAllOrders = async (req: Request, res: Response) => {
   const payload: allOrdersDto = req.body;
-  console.log(payload, "payload");
   try {
     const AllOrdersRepository = appSource.getRepository(allOrders);
     if (payload.orderid) {
-      console.log("came nto update");
       const validation = updateAllOrdersValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -49,7 +47,8 @@ export const addAllOrders = async (req: Request, res: Response) => {
         productid: item.productid,
         product_name: item.product_name,
         quantity: item.quantity,
-        // total_amount: item.offer_price
+        offer_price : item.offer_price,
+        total_amount: item.offer_price * item.quantity
       });
 
       await AllOrdersRepository.save(order); // Save each item individually

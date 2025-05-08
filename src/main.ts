@@ -13,6 +13,7 @@ import categoryRouter from "./module/categorymodule/category.controller";
 import categoryNestedRouter from "./module/categoryNested/categoryNested.controller";
 import customerDetailRouter from "./module/customerDetails/customerDetails.controller";
 import allOrdersRouter from "./module/allOrdersModule/allOrders.controller";
+import customerCartRouter from "./module/customerCartModule/customerCart.controller";
 
 
 const app = express();
@@ -37,7 +38,8 @@ app.use('/brandRouter', cors(corsOptions), brandRouter);
 app.use('/categoryRouter', cors(corsOptions),categoryRouter );
 app.use('/categoryNestedRouter', cors(corsOptions),categoryNestedRouter );
 app.use('/customerDetailRouter', cors(corsOptions),customerDetailRouter );
-app.use('/allOrdersRouter', cors(corsOptions), allOrdersRouter)
+app.use('/allOrdersRouter', cors(corsOptions), allOrdersRouter);
+app.use('/customerCartRoute', cors(corsOptions), customerCartRouter);
 
 
 
