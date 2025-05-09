@@ -4,7 +4,7 @@ import { changeStatusBanner, deleteBanner, getBannerDetail, newBanner } from "./
 const bannerRouter = Router();
 
 bannerRouter.post('/newBanner', (req, res) => { newBanner(req, res); });
-bannerRouter.post('/getBannerDetail', (req, res) => { getBannerDetail(req, res); });
+bannerRouter.get('/getBannerDetail', (req, res) => { getBannerDetail(req, res); });
 bannerRouter.delete('/deleteBanner/:bannerid' , (req, res) => { deleteBanner(req, res); });
 bannerRouter.post('/changestatus',(req, res) => { changeStatusBanner(req, res);});
 
