@@ -16,7 +16,7 @@ import {
     customername: string;
     @Column()
     customeraddress: string;
-    @Column()
+    @Column({'nullable' : true})
     pincode: string;
     @Column()
     mobilenumber: string;

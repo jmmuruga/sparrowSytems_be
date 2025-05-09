@@ -69,7 +69,7 @@ export const addProducts = async (req: Request, res: Response) => {
     if (existingProduct) {
       throw new ValidationException("Product name already exists");
     }
-    
+
     const { productid, ...updatePayload } = payload;
     await ProductRepository.save(updatePayload);
     res.status(200).send({
@@ -89,12 +89,15 @@ export const addProducts = async (req: Request, res: Response) => {
 export const getProductsDetails = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(products);
-    const productList : productDetailsDto[] = await Repository.createQueryBuilder().getMany();
+    const productList: productDetailsDto[] =
+      await Repository.createQueryBuilder().getMany();
     const categoryRepoistry = appSource.getRepository(Category);
     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
-    productList.forEach((x) =>{
-      x.categoryName = categoryList.find((y) => y.categoryid === +x.category_name)?.categoryname;
-    })
+    productList.forEach((x) => {
+      x.categoryName = categoryList.find(
+        (y) => y.categoryid === +x.category_name
+      )?.categoryname;
+    });
     res.status(200).send({
       Result: productList,
     });
@@ -254,18 +257,16 @@ WHERE ranked.rn = 1
 ORDER BY ranked.updated_date DESC`
     );
 
-    let categoryList : any[] = [];
+    let categoryList: any[] = [];
 
-    for (const x of details){
+    for (const x of details) {
       const productsOfCategory = await ProductRepository.query(
         `select top 5 * from products  where category_name  = '${x.categoryId}'
          order by  updated_at DESC;`
-      )
-       categoryList.push(...productsOfCategory);
+      );
+      categoryList.push(...productsOfCategory);
     }
-    res.status(200).send({ Result: details ,
-      categoryList: categoryList
-    });
+    res.status(200).send({ Result: details, categoryList: categoryList });
   } catch (error) {
     console.log(error);
     if (error instanceof ValidationException) {

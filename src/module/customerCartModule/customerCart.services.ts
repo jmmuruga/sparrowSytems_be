@@ -62,4 +62,33 @@ export const removeCustomerCart = async (req: Request, res: Response) => {
   }
 };
 
-
+export const getCustomerCartDetails = async (req: Request, res: Response) => {
+  try {
+    const customerid = req.params.customerid
+    const cartRepository = appSource.getRepository(CustomerCart);
+    const details: CustomerCartDto[] = await cartRepository.query(
+      `SELECT 
+    cc.productid,
+    cc.customerid,
+    cc.quantity,
+    p.product_name,
+    p.image1,
+    p.offer_price
+FROM 
+    [SPARROW_SYSTEMS].[dbo].[customer_cart] AS cc
+INNER JOIN 
+    [SPARROW_SYSTEMS].[dbo].[products] AS p
+    ON cc.productid = p.productid
+    where cc.customerid = '${customerid}'`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
