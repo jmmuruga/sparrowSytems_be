@@ -14,6 +14,7 @@ import categoryNestedRouter from "./module/categoryNested/categoryNested.control
 import customerDetailRouter from "./module/customerDetails/customerDetails.controller";
 import allOrdersRouter from "./module/allOrdersModule/allOrders.controller";
 import customerCartRouter from "./module/customerCartModule/customerCart.controller";
+import customerAddressRouter from "./module/Address/customerAddress.controller";
 
 
 const app = express();
@@ -40,6 +41,8 @@ app.use('/categoryNestedRouter', cors(corsOptions),categoryNestedRouter );
 app.use('/customerDetailRouter', cors(corsOptions),customerDetailRouter );
 app.use('/allOrdersRouter', cors(corsOptions), allOrdersRouter);
 app.use('/customerCartRoute', cors(corsOptions), customerCartRouter);
+app.use('/customerAddressRouter', cors(corsOptions), customerAddressRouter);
+
 
 
 
