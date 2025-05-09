@@ -16,7 +16,7 @@ dotenv.config(); // Ensure env variables are loaded
 
 // Utility function for error handling
 const handleError = (res: Response, error: any) => {
-  console.error("Error:", error);
+ 
   if (error instanceof ValidationException) {
     return res.status(400).send({ message: error.message });
   }
@@ -127,7 +127,7 @@ export const Userlogin = async (req: Request, res: Response) => {
 
       // Generate token
 
-      console.log(loginCustomerDetails, "login details");
+     
     }
     res.status(200).send({
       message: "Login successful",
@@ -135,7 +135,7 @@ export const Userlogin = async (req: Request, res: Response) => {
       customer: loginCustomerDetails,
     });
   } catch (error) {
-    console.log(error);
+   
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -196,7 +196,7 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
   const { email } = req.params;
-  console.log(email, "no email");
+ 
 
   try {
     const customerDetailsRepo = appSource.getRepository(customerDetails);

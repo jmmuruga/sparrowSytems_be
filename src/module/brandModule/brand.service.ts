@@ -43,7 +43,6 @@ export const addBrand = async (req: Request, res: Response) => {
       IsSuccess: "Brand Details added SuccessFully",
     });
   } catch (error) {
-    console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -161,9 +160,6 @@ export const getTopBrandDetail = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-
-
 
 export const updateBrand = async (req: Request, res: Response) => {
   const payload: brandDto = req.body;
