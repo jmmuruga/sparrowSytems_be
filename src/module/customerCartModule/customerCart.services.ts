@@ -92,3 +92,30 @@ INNER JOIN
     res.status(500).send(error);
   }
 };
+
+export const clearCustomerCart = async (req: Request, res: Response) => {
+  try {
+    const customerid = parseInt(req.params.customerid, 10);
+
+    if (isNaN(customerid)) {
+      return res.status(400).send({ message: "Invalid customerid" });
+    }
+
+    const cartRepository = appSource.getRepository(CustomerCart);
+
+    // Double check and delete only entries matching the exact customerid
+    const deleted = await cartRepository
+      .createQueryBuilder()
+      .delete()
+      .from(CustomerCart)
+      .where("customerid = :customerid", { customerid })
+      .execute();
+
+    res.status(200).send({ message: "Customer cart cleared", deletedCount: deleted.affected });
+  } catch (error) {
+    console.error("Error clearing customer cart:", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
+
+
