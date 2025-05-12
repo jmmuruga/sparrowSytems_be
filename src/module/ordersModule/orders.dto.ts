@@ -24,6 +24,10 @@ export interface ordersDto {
   status: string;
   orderItems: OrderItem[]; // ✅ Add this
 }
+export interface orderStatusDto {
+  orderid: number;
+  status: string;
+}
 
 export const ordersDtoValidation = Joi.object({
   customerid: Joi.number().required(),
