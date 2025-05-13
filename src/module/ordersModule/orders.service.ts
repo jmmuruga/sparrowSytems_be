@@ -114,7 +114,6 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
   try {
     const status: orderStatusDto = req.body;
     status.status = status.status.toString();
-    console.log(status, "status");
     if (
       !status.orderid ||
       status.status === undefined ||
