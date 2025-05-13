@@ -33,7 +33,7 @@ export interface ordersDto {
 export interface orderStatusDto {
   orderid: number;
   status: string;
-  date : Date;
+  date: Date;
 }
 
 export const ordersDtoValidation = Joi.object({
