@@ -1,6 +1,12 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
-@Entity('orders')
+@Entity("orders")
 export class orders {
   @PrimaryGeneratedColumn()
   orderid: number;
@@ -22,4 +28,16 @@ export class orders {
   createdAt: Date;
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
+  @Column({ nullable: true })
+  open_orders_date: Date;
+  @Column({ nullable: true })
+  processing_orders_date: Date;
+  @Column({ nullable: true })
+  failure_orders_date: Date;
+  @Column({ nullable: true })
+  canceled_orders_date: Date;
+  @Column({ nullable: true })
+  shipped_orders_date: Date;
+  @Column({ nullable: true })
+  closed_orders_date: Date;
 }
