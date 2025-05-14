@@ -82,21 +82,43 @@ export const getOrderDetails = async (req: Request, res: Response) => {
     p.product_name,
     o.payment_method,
     o.open_orders_date,
-	o.processing_orders_date,
-	o.failure_orders_date,
-	o.canceled_orders_date,
-	o.shipped_orders_date,
-	o.closed_orders_date,
-  p.delivery_amount,
-    c.categoryname AS category
+    o.processing_orders_date,
+    o.failure_orders_date,
+    o.canceled_orders_date,
+    o.shipped_orders_date,
+    o.closed_orders_date,
+    p.delivery_amount,
+    o.address_id,
+    c.categoryname AS category,
+    cd.mobilenumber,
+
+    CASE 
+        WHEN o.address_id IS NULL THEN cd.customeraddress
+        ELSE 
+            CONCAT(
+                ISNULL(ca.door_no, '') + ', ',
+                ISNULL(ca.house_name, '') + ', ',
+                ISNULL(ca.street_name1, '') + ', ',
+                ISNULL(ca.street_name2, '') + ', ', 
+                ISNULL(ca.place, '') + ', ',
+                ISNULL(ca.post, '') + ', ',
+                ISNULL(ca.taluk, '') + ', ',
+                ISNULL(ca.district, '') + ', ',
+                ISNULL(ca.pincode, '')
+            )
+    END AS orderAddress
 FROM 
     [SPARROW_SYSTEMS].[dbo].[orders] AS o
 INNER JOIN 
     [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
     [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.category_name = c.categoryid
+LEFT JOIN 
+    [SPARROW_SYSTEMS].[dbo].[customer_address] AS ca ON o.address_id = ca.id
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid where o.orderid = ${orderid} ; `
+    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid 
+WHERE 
+    o.orderid = ${orderid} ; `
     );
     res.status(200).send({ Result: details });
   } catch (error) {
