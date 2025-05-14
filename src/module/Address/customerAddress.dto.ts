@@ -11,6 +11,7 @@ export interface customerAddressDto {
   post: string;
   taluk: string;
   district: string;
+  isdelete: boolean;
   pincode: string;
   cuid: number;
   muid: number;
@@ -24,15 +25,16 @@ export const customerAddressValiadtion = Joi.object({
   place: Joi.string().required(),
   post: Joi.string().required(),
   taluk: Joi.string().required(),
+  isdelete: Joi.boolean().required(),
   district: Joi.string().required(),
   pincode: Joi.string().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
-  customerid :  Joi.number().required(),
+  customerid: Joi.number().required(),
 });
 
 export const customerUpadteValidation = Joi.object({
-  id:Joi.number().required(),
+  id: Joi.number().required(),
   door_no: Joi.string().required(),
   house_name: Joi.string().required(),
   street_name1: Joi.string().length(10).required(),
@@ -44,5 +46,10 @@ export const customerUpadteValidation = Joi.object({
   pincode: Joi.string().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
-  customerid :  Joi.number().required(),
+  customerid: Joi.number().required(),
 });
+
+
+export interface deleteAddressDto{
+  id : number;
+}

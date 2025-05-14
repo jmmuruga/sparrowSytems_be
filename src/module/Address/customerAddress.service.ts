@@ -4,6 +4,7 @@ import { appSource } from "../../core/db";
 import {
   customerAddressDto,
   customerAddressValiadtion,
+  deleteAddressDto,
 } from "./customerAddress.dto";
 import { customerAddress } from "./customerAddress.model";
 import { customerDetailsValiadtion } from "../customerDetails/customerDetails.dto";
@@ -48,6 +49,39 @@ export const getAddress = async (req: Request, res: Response) => {
       Result:result,
     });
   } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error.message, // Ensure the error message is sent properly
+      });
+    }
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
+
+
+export const updateCustomerAddress = async (req: Request, res: Response) => {
+  try{
+    const payload : deleteAddressDto = req.body;
+   const addressRespositary = appSource.getRepository(customerAddress);
+    const customerAddressDetails = await addressRespositary.findOneBy({
+      id : payload.id
+    })
+    if(!customerAddressDetails){
+      throw new ValidationException("Address not found");
+    }
+    await addressRespositary
+    .createQueryBuilder()
+    .update(customerAddress)
+    .set({ isdelete : true})
+    .where({id : payload.id})
+    .execute();
+
+    res.status(200).send({
+      IsSuccess: "customer Details added SuccessFully",
+    });
+
+  }
+  catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message, // Ensure the error message is sent properly
