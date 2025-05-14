@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AddNewAddres, getAddress } from "./customerAddress.service";
+import { AddNewAddres,  getAddress, updateCustomerAddress } from "./customerAddress.service";
 
 const customerAddressRouter = Router()
  
@@ -8,6 +8,9 @@ customerAddressRouter.post("/addAddress",(req,res) => {
 })
 customerAddressRouter.get("/getAddress/:customerid", (req, res) => {
   getAddress(req, res);
+});
+customerAddressRouter.post('/changeDelete', (req, res) => {
+  updateCustomerAddress(req, res);
 });
 
 

@@ -24,6 +24,8 @@ import { Column,CreateDateColumn,Entity,PrimaryGeneratedColumn,UpdateDateColumn 
   district:string;
   @Column()
   pincode:string;
+  @Column({default: false})
+  isdelete: boolean;
   @Column({nullable: true})
   cuid:number;
   @Column({nullable: true})
