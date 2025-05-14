@@ -40,4 +40,6 @@ export class orders {
   shipped_orders_date: Date;
   @Column({ nullable: true })
   closed_orders_date: Date;
+  @Column({'nullable': true})
+  address_id: number;
 }
