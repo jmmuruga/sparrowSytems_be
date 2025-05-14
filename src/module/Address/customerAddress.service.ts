@@ -12,6 +12,7 @@ import { customerDetails } from "../customerDetails/customerDetails.model";
 
 export const AddNewAddres = async (req: Request, res: Response) => {
   const payload: customerAddressDto = req.body;
+  payload.isdelete = false;
 
   try {
     const CustomerAddressRepositary = appSource.getRepository(customerAddress);
