@@ -37,7 +37,7 @@ export const customerUpadteValidation = Joi.object({
   id: Joi.number().required(),
   door_no: Joi.string().required(),
   house_name: Joi.string().required(),
-  street_name1: Joi.string().length(10).required(),
+  street_name1: Joi.string().required(),
   street_name2: Joi.string().required(),
   place: Joi.string().required(),
   post: Joi.string().required(),
