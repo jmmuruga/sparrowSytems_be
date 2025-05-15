@@ -29,6 +29,8 @@ export interface ordersDto {
   canceled_orders_date?: Date;
   shipped_orders_date?: Date;
   closed_orders_date?: Date;
+  delivery_orders_date: Date;
+  return_orders_date: Date;
   address_id: number;
 }
 export interface orderStatusDto {
@@ -38,10 +40,11 @@ export interface orderStatusDto {
 }
 
 export const ordersDtoValidation = Joi.object({
+  orderid: Joi.number().required(),
   customerid: Joi.number().required(),
   payment_method: Joi.string().required(),
   status: Joi.string().required(),
-  address_id:Joi.number().allow(null),
+  address_id: Joi.number().allow(null),
   orderItems: Joi.array()
     .items(
       Joi.object({
@@ -52,3 +55,4 @@ export const ordersDtoValidation = Joi.object({
     )
     .required(),
 });
+// zzxz
