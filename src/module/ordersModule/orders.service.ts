@@ -212,7 +212,6 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
         .execute();
     }
 
-
     return res.status(200).send({
       IsSuccess: `Status for order updated successfully!`,
     });
@@ -285,6 +284,36 @@ export const getOrderId = async (req: Request, res: Response) => {
     res.status(200).send({
       Result: id + 1,
     });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getLatestOrders = async (req: Request, res: Response) => {
+  try {
+    const orderRepository = appSource.getRepository(orders);
+    const details: ordersDto[] = await orderRepository.query(
+  `SELECT TOP 10
+    o.orderid,
+    cd.customername,
+    o.total_amount,
+    o.created_at,
+    o.status
+  FROM 
+    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+  INNER JOIN 
+    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd 
+     ON o.customerid = cd.customerid 
+  ORDER BY 
+    o.updated_at DESC;`
+  );
+    res.status(200).send({ Result: details });
   } catch (error) {
     console.log(error);
     if (error instanceof ValidationException) {
