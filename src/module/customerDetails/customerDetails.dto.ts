@@ -5,7 +5,7 @@ export interface customerDetailsDto {
   email: string;
   customername: string;
   customeraddress: string;
-  pincode:string;
+  pincode: string;
   mobilenumber: string;
   password: string;
   confirmpassword: string;
@@ -14,26 +14,26 @@ export interface customerDetailsDto {
 }
 
 export const customerDetailsValiadtion = Joi.object({
-        email: Joi.string().required(),
-        customername: Joi.string().required(),
-        mobilenumber:Joi.string().length(10).required(),
-        customeraddress:Joi.string().required(),
-        pincode:Joi.string().required(),
-        password: Joi.string().required(),
-        confirmpassword: Joi.string().required(),
-        cuid: Joi.optional().allow(null , ''),
-        muid: Joi.optional().allow(null , ''),
-  })
+  email: Joi.string().required(),
+  customername: Joi.string().required(),
+  mobilenumber: Joi.string().length(10).required(),
+  customeraddress: Joi.string().required(),
+  pincode: Joi.string().required(),
+  password: Joi.string().required(),
+  confirmpassword: Joi.string().required(),
+  cuid: Joi.optional().allow(null, ""),
+  muid: Joi.optional().allow(null, ""),
+});
 
-  export const customerDetailsUpdateValidation = Joi.object({
-    customerid: Joi.number().required(),
-    email: Joi.string().required(),
-    customername: Joi.string().required(),
-    mobilenumber:Joi.string().length(10).required(),
-    customeraddress:Joi.string().required(),
-    pincode:Joi.string().required(),
-    password: Joi.string().required(),
-    confirmpassword: Joi.string().required(),
-    cuid: Joi.optional().allow(null , ''),
-    muid: Joi.optional().allow(null , ''),
-  })
+export const customerDetailsUpdateValidation = Joi.object({
+  customerid: Joi.number().required(),
+  email: Joi.string().required(),
+  customername: Joi.string().required(),
+  mobilenumber: Joi.string().length(10).required(),
+  customeraddress: Joi.string().required(),
+  pincode: Joi.string().required(),
+  // password: Joi.string().required(),
+  // confirmpassword: Joi.string().required(),
+  cuid: Joi.optional().allow(null, ""),
+  muid: Joi.optional().allow(null, ""),
+});

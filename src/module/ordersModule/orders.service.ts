@@ -301,7 +301,7 @@ export const getLatestOrders = async (req: Request, res: Response) => {
   try {
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
-  `SELECT TOP 10
+      `SELECT TOP 10
     o.orderid,
     cd.customername,
     o.total_amount,
@@ -314,7 +314,7 @@ export const getLatestOrders = async (req: Request, res: Response) => {
      ON o.customerid = cd.customerid 
   ORDER BY 
     o.updated_at DESC;`
-  );
+    );
     res.status(200).send({ Result: details });
   } catch (error) {
     console.log(error);
