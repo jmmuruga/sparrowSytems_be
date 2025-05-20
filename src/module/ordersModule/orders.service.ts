@@ -18,21 +18,21 @@ export const addAllOrders = async (req: Request, res: Response) => {
 
     const { orderItems, orderid, ...commonFields } = payload;
 
-    // If updating an existing order
-    if (orderid) {
-      const existingOrders = await AllOrdersRepository.find({
-        where: { orderid },
-      });
+    // // If updating an existing order
+    // if (orderid) {
+    //   const existingOrders = await AllOrdersRepository.find({
+    //     where: { orderid },
+    //   });
 
-      if (existingOrders.length === 0) {
-        throw new ValidationException("Order not found for update");
-      }
+    //   if (existingOrders.length === 0) {
+    //     throw new ValidationException("Order not found for update");
+    //   }
 
-      // Delete existing order items (to replace with updated ones)
-      await AllOrdersRepository.delete({ orderid });
+    //   // Delete existing order items (to replace with updated ones)
+    //   await AllOrdersRepository.delete({ orderid });
 
-      // Proceed to insert new ones with the same orderid
-    }
+    //   // Proceed to insert new ones with the same orderid
+    // }
 
     // Create new order items
     for (const item of orderItems) {
@@ -91,6 +91,8 @@ export const getOrderDetails = async (req: Request, res: Response) => {
     o.address_id,
     c.categoryname AS category,
     cd.mobilenumber,
+    o.delivery_orders_date,
+	  o.return_orders_date,
 
     CASE 
         WHEN o.address_id IS NULL THEN cd.customeraddress
@@ -196,6 +198,18 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
         .set({ closed_orders_date: status.date })
         .where({ orderid: Number(status.orderid) })
         .execute();
+    } else if (status.status == "7") {
+      await OrderRepository.createQueryBuilder()
+        .update(orders)
+        .set({ delivery_orders_date: status.date })
+        .where({ orderid: Number(status.orderid) })
+        .execute();
+    } else if (status.status == "8") {
+      await OrderRepository.createQueryBuilder()
+        .update(orders)
+        .set({ return_orders_date: status.date })
+        .where({ orderid: Number(status.orderid) })
+        .execute();
     }
 
     return res.status(200).send({
@@ -242,6 +256,63 @@ INNER JOIN
 INNER JOIN 
     [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid; `
     );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getOrderId = async (req: Request, res: Response) => {
+  try {
+    const orderRepoistry = appSource.getRepository(orders);
+    const orderDetails = await orderRepoistry.query(
+      `SELECT orderid
+            FROM [SPARROW_SYSTEMS].[dbo].[orders]
+            Group by orderid
+            ORDER BY CAST(orderid AS INT) DESC;`
+    );
+    let id = 0;
+    if (orderDetails?.length > 0) {
+      id = orderDetails[0].orderid;
+    }
+    res.status(200).send({
+      Result: id + 1,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getLatestOrders = async (req: Request, res: Response) => {
+  try {
+    const orderRepository = appSource.getRepository(orders);
+    const details: ordersDto[] = await orderRepository.query(
+  `SELECT TOP 10
+    o.orderid,
+    cd.customername,
+    o.total_amount,
+    o.created_at,
+    o.status
+  FROM 
+    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+  INNER JOIN 
+    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd 
+     ON o.customerid = cd.customerid 
+  ORDER BY 
+    o.updated_at DESC;`
+  );
     res.status(200).send({ Result: details });
   } catch (error) {
     console.log(error);

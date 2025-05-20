@@ -9,44 +9,6 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 import { banner } from "./banner.model";
 
-// export const newBanner = async (req: Request, res: Response) => {
-//     const payload: bannerDetailsDto = req.body;
-
-//     try {
-//         // Validate incoming data
-//         const validation = bannerDetailsValidation.validate(payload);
-//         if (validation?.error) {
-//             throw new ValidationException(validation.error.message);
-//         }
-
-//         const bannerRepo = appSource.getRepository(banner);
-
-//         if (payload.banner_id > 0) {
-//             const existingBanner = await bannerRepo.findOneBy({ bannerid: payload.banner_id });
-
-//             if (existingBanner) {
-//                 const { banner_id, cuid, ...updatePayload } = payload;
-//                 await bannerRepo.update({ bannerid: payload.banner_id }, updatePayload);
-
-//                 return res.status(200).send({ IsSuccess: "Banner updated successfully" });
-//             } else {
-//                 return res.status(404).send({ message: "Banner not found" });
-//             }
-
-//         } else {
-//             // const { banner_id, ...newBannerPayload } = payload;
-//             // const newBanner = bannerRepo.create(newBannerPayload);
-//             await bannerRepo.save(payload);
-
-//             return res.status(200).send({ IsSuccess: "Banner added successfully" });
-//         }
-//     } catch (error) {
-//         if (error instanceof ValidationException) {
-//             return res.status(400).send({ message: error.message });
-//         }
-//         return res.status(500).send({ message: "Internal server error" });
-//     }
-// };
 
 export const newBanner = async (req: Request, res: Response) => {
   const payload: bannerDetailsDto = req.body;
@@ -154,28 +116,68 @@ export const deleteBanner = async (req: Request, res: Response) => {
   }
 };
 
+// export const changeStatusBanner = async (req: Request, res: Response) => {
+//   const status: bannerStatusDto = req.body;
+//   const BannerRepository = appSource.getRepository(banner);
+//   const details = await BannerRepository.findOneBy({
+//     bannerid: Number(status.bannerid),
+//   });
+//   try {
+//     if (!details) throw new HttpException("bannerDetails not Found", 400);
+//     await BannerRepository.createQueryBuilder()
+//       .update(banner)
+//       .set({ status: status.status })
+//       .where({ bannerid: Number(status.bannerid) })
+//       .execute();
+//     res.status(200).send({
+//       IsSuccess: `Status for banner ${details.title} Updated successfully!`,
+//     });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
+
 export const changeStatusBanner = async (req: Request, res: Response) => {
-  const status: bannerStatusDto = req.body;
+  const { bannerid, status } = req.body;
+
   const BannerRepository = appSource.getRepository(banner);
-  const details = await BannerRepository.findOneBy({
-    bannerid: Number(status.bannerid),
-  });
+
   try {
-    if (!details) throw new HttpException("bannerDetails not Found", 400);
-    await BannerRepository.createQueryBuilder()
-      .update(banner)
-      .set({ status: status.status })
-      .where({ bannerid: Number(status.bannerid) })
-      .execute();
-    res.status(200).send({
-      IsSuccess: `Status for banner ${details.title} Updated successfully!`,
+    const bannerDetails = await BannerRepository.findOneBy({
+      bannerid: Number(bannerid),
     });
-  } catch (error) {
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
+
+    if (!bannerDetails) {
+      return res.status(400).json({ message: "Banner not found" });
     }
-    res.status(500).send(error);
+
+    const isActive = status === 'true'; // ✅ Ensure boolean
+
+    const updateResult = await BannerRepository.createQueryBuilder()
+      .update(banner)
+      .set({ status: isActive })
+      .where("bannerid = :id", { id: Number(bannerid) })
+      .execute();
+
+    console.log("Update result:", updateResult); // ✅ Check affected rows
+
+    if (updateResult.affected === 0) {
+      return res.status(400).json({ message: "Update failed (no rows affected)" });
+    }
+
+    res.status(200).json({
+      message: `Banner ${bannerDetails.title} updated to status ${isActive}`,
+    });
+  } catch (err) {
+    console.error("Update Error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+

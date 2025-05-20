@@ -9,6 +9,8 @@ import {
 @Entity("orders")
 export class orders {
   @PrimaryGeneratedColumn()
+  id: number;
+  @Column({generated: false})
   orderid: number;
   @Column()
   productid: number;
@@ -40,6 +42,10 @@ export class orders {
   shipped_orders_date: Date;
   @Column({ nullable: true })
   closed_orders_date: Date;
+  @Column({ nullable: true })
+  delivery_orders_date: Date;
+  @Column({nullable: true})
+  return_orders_date: Date;
   @Column({'nullable': true})
   address_id: number;
 }
