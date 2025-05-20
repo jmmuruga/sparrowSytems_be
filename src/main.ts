@@ -17,6 +17,9 @@ import customerCartRouter from "./module/customerCartModule/customerCart.control
 import customerAddressRouter from "./module/Address/customerAddress.controller";
 import ordersRouter from "./module/ordersModule/orders.controller";
 import eventRouter from "./module/eventModule/event.controller";
+import breadcrampsRouter from "./module/breadcramps/breadcramps.controller";
+import currentOpeningsRouter from "./module/currentOpenings/currentOpenings.controller";
+
 
 
 const app = express();
@@ -46,6 +49,8 @@ app.use('/customerCartRoute', cors(corsOptions), customerCartRouter);
 app.use('/customerAddressRouter', cors(corsOptions), customerAddressRouter);
 app.use('/ordersRouter', cors(corsOptions), ordersRouter);
 app.use('/eventRouter', cors(corsOptions), eventRouter);
+app.use('/breadcrampsRouter', cors(corsOptions), breadcrampsRouter);
+app.use('/currentOpeningsRouter', cors(corsOptions), currentOpeningsRouter);
 
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

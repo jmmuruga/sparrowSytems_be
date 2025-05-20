@@ -13,6 +13,8 @@ import { CustomerCart } from "../module/customerCartModule/customerCart.model";
 import { customerAddress } from "../module/Address/customerAddress.model";
 import { orders } from "../module/ordersModule/orders.model";
 import { events } from "../module/eventModule/event.model";
+import { breadCramps } from "../module/breadcramps/breadcramps.model";
+import { currentOpenings } from "../module/currentOpenings/currentOpenings.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -26,6 +28,8 @@ const Entities: any[] = [
   customerAddress,
   orders,
   events,
+  breadCramps,
+  currentOpenings,
 
 ]
 export const appSource = new DataSource({
