@@ -12,6 +12,7 @@ import { customerDetails } from "../customerDetails/customerDetails.model";
 
 export const AddNewAddres = async (req: Request, res: Response) => {
   const payload: customerAddressDto = req.body;
+  console.log("payload", payload);
   payload.isdelete = false;
 
   try {

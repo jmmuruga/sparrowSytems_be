@@ -32,8 +32,8 @@ export const customerDetailsValiadtion = Joi.object({
     mobilenumber:Joi.string().length(10).required(),
     customeraddress:Joi.string().required(),
     pincode:Joi.string().required(),
-    password: Joi.string().required(),
-    confirmpassword: Joi.string().required(),
+    // password: Joi.string().required(),
+    // confirmpassword: Joi.string().required(),
     cuid: Joi.optional().allow(null , ''),
     muid: Joi.optional().allow(null , ''),
   })
