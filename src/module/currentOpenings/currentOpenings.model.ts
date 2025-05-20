@@ -6,16 +6,15 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-
 @Entity()
 export class currentOpenings {
- @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn()
   id: number;
   @Column()
   JobName: string;
-  @Column()
-  Description:string
-  @Column({ type: "ntext" })
+  @Column({type: 'text', nullable: true})
+  Description: string;
+  @Column({ default: true })
   status: boolean;
   @Column({ nullable: true })
   cuid: number;
@@ -25,7 +24,4 @@ export class currentOpenings {
   createdAt: Date;
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
-  
-
-
 }
