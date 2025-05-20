@@ -12,6 +12,7 @@ import { allOrders } from "../module/allOrdersModule/allOrders.model";
 import { CustomerCart } from "../module/customerCartModule/customerCart.model";
 import { customerAddress } from "../module/Address/customerAddress.model";
 import { orders } from "../module/ordersModule/orders.model";
+import { events } from "../module/eventModule/event.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -23,7 +24,9 @@ const Entities: any[] = [
   allOrders,
   CustomerCart,
   customerAddress,
-  orders
+  orders,
+  events,
+
 ]
 export const appSource = new DataSource({
   type: "mssql",
