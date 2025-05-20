@@ -10,7 +10,7 @@ import {
 export class orders {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({generated: false})
+  @Column()
   orderid: number;
   @Column()
   productid: number;
