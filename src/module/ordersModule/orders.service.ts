@@ -246,7 +246,9 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
 	  o.canceled_orders_date,
 	  o.shipped_orders_date,
 	  o.closed_orders_date,
-    c.categoryname AS category
+    c.categoryname AS category,
+    p.image1,
+    o.customerid,
 FROM 
     [SPARROW_SYSTEMS].[dbo].[orders] AS o
 INNER JOIN 
