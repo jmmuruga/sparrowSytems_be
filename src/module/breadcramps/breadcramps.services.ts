@@ -67,3 +67,38 @@ export const getDetail = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
+export const deleteDetail = async(req: Request, res: Response) =>{
+   const id = req.params.id;
+     const Repo = appSource.getRepository(breadCramps);
+   
+   try {
+         const deleteUser = await Repo
+             .createQueryBuilder('breadCramps')
+             .where("breadCramps.id = :id", {
+                 id: id,
+             })
+             .getOne();
+         if (!deleteUser?.id) {
+             throw new HttpException("id not Found", 400);
+         }
+         await Repo
+             .createQueryBuilder("breadCramps")
+             .delete()
+             .from(breadCramps)
+             .where("id = :id", { id: id })
+             .execute();
+         res.status(200).send({
+             IsSuccess: `id  deleted successfully!`,
+         });
+     }
+     catch (error) {
+         if (error instanceof ValidationException) {
+             return res.status(400).send({
+                 message: error?.message,
+             });
+         }
+         res.status(500).send(error);
+     }
+
+}

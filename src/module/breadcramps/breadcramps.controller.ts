@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { addData, getDetail } from "./breadcramps.services";
+import { addData, deleteDetail, getDetail } from "./breadcramps.services";
 
 const breadcrampsRouter = Router();
 const storage = multer.memoryStorage();
@@ -9,6 +9,9 @@ breadcrampsRouter.post('/addata',upload.single("brandimage"),(req, res) => { add
  });
 
  breadcrampsRouter.get('/getData',(req, res) => { getDetail (req, res);
+ });
+
+ breadcrampsRouter.delete('/deletedata/:id',(req, res) => { deleteDetail (req, res);
  });
  
 
