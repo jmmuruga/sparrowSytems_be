@@ -106,3 +106,32 @@ export const deleteUser = async (req: Request, res: Response) => {
       res.status(500).send(error);
   }
 }
+
+export const updatePassword = async (req: Request, res: Response) => {
+  const { userid, password } = req.body;
+
+  try {
+    const userRepo = appSource.getRepository(UserDetails);
+    const user = await userRepo.findOneBy({ userid });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // OPTIONAL: Hash password (recommended for production)
+    // const hashed = await bcrypt.hash(password, 10);
+    // user.password = hashed;
+    // user.confirmPassword = hashed;
+
+    user.password = password;
+    user.confirmPassword = password;
+
+    await userRepo.save(user);
+
+    return res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Password update failed:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
