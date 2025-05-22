@@ -3,46 +3,43 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import { applicationDto, applicationUpdateValidation, applicationValidate } from "./application.dto";
 import { application } from "./Application.model";
+import { currentOpenings } from "../currentOpenings/currentOpenings.model";
 
 
 
 export const newApplication = async (req: Request, res: Response) => {
   const payload: applicationDto = req.body;
+  console.log("payload", payload);
   try {
     const Repoistry = appSource.getRepository(application);
-      if (payload.application_id) {
-           const validation = applicationUpdateValidation.validate(payload);
-           if (validation?.error) {
-             throw new ValidationException(validation.error.message);
-           }
-           const userDetails = await  Repoistry .findOneBy({
-            application_id: payload.application_id,
-           });
-           if (!userDetails?.application_id) {
-             throw new ValidationException("user details  not found");
-           }
-           const { cuid, application_id, ...updatePayload } = payload;
-           await  Repoistry .update({ application_id: payload.application_id }, updatePayload);
-           res.status(200).send({
-             IsSuccess: "user  Details updated SuccessFully",
-           });
-           return;
-         }
-
+     
     const validation = applicationValidate.validate(payload);
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
     // const UserDetailsRepoistry = appSource.getRepository(UserDetails);
 
-    const validateTypeName = await  Repoistry .findBy({
-      mail_id: payload.mail_id,
-    });
-    if (validateTypeName?.length) {
-      throw new ValidationException("Email already exist");
-    }
+   
     const { application_id, ...updatePayload } = payload;
     await Repoistry.save(updatePayload);
+
+    // update no of applied
+    const currentOpeningsRepoistry = appSource.getRepository(currentOpenings);
+    const currentOpeningsDetails = await currentOpeningsRepoistry.findOneBy({
+      id: payload.jobtitle,
+    });
+    if (!currentOpeningsDetails?.id) {
+      throw new ValidationException("Opening Details not found");
+    }
+    const alreadyAppliedCount = currentOpeningsDetails.noOfApplied || 0;
+    const uppdatedCount = alreadyAppliedCount + 1;
+    await currentOpeningsRepoistry
+    .createQueryBuilder()
+    .update(currentOpenings)
+    .set({noOfApplied : uppdatedCount})
+    .where({id : payload.jobtitle})
+    .execute();
+
     res.status(200).send({
       IsSuccess: "User Details added SuccessFully",
     });
@@ -55,3 +52,30 @@ export const newApplication = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
+
+export const getPersonDetails = async (req: Request, res: Response) => {
+
+  const id = req.params.id
+  console.log("id", id);
+  try {
+    const Repository = appSource.getRepository(application);
+
+    const Data = await Repository.createQueryBuilder().
+    where("application.jobtitle =:id",{
+      id: id,
+  }).getMany();
+    res.status(200).send({
+      Result: Data,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+

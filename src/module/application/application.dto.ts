@@ -3,7 +3,7 @@ import Joi from "joi";
 export interface applicationDto {
   application_id: number;
   name: string;
-  jobtitle: string;
+  jobtitle: number;
   contact_number: string;
   mail_id: string;
   Description: string;
@@ -14,7 +14,7 @@ export interface applicationDto {
 }
 
 export const applicationValidate = Joi.object({
-  jobtitle: Joi.string().required(),
+  jobtitle: Joi.number().required(),
   name: Joi.string().required(),
   contact_number: Joi.string().required(),
   mail_id: Joi.string().required(),

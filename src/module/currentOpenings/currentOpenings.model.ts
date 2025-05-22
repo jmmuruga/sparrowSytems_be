@@ -16,6 +16,8 @@ export class currentOpenings {
   Description: string;
   @Column({ default: true })
   status: boolean;
+  @Column({default : 0})
+  noOfApplied : number;
   @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })

@@ -11,7 +11,7 @@ export class application {
   @PrimaryGeneratedColumn()
   application_id: number;
   @Column()
-  jobtitle: string;
+  jobtitle: number;
   @Column()
   name: string;
   @Column()
@@ -22,7 +22,7 @@ export class application {
   Description: string;
   @Column({ default: true })
   count: boolean;
-  @Column()
+  @Column({type: 'text'})
   file: string;
   @Column({ nullable: true })
   cuid: number;
