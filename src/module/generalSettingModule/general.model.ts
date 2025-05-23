@@ -1,19 +1,15 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity ()
-export class homeSettings {
+@Entity()
+export class GeneralSettings {
     @PrimaryGeneratedColumn()
     id: number;
     @Column()
-    visible: boolean;
+    products_per_page: number;
     @Column()
-    category_Id: number;
+    column_count: number;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
     updated_at: Date;
-    @Column({nullable: true})
-    column_count: number;
-    @Column({nullable: true})
-    list_count: number;
 }

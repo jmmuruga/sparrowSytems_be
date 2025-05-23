@@ -6,7 +6,6 @@ import { Request, Response } from "express";
 
 export const addNewEvent = async (req: Request, res: Response) => {
   const payload: eventDetailsDto = req.body;
-  console.log(payload, "payload");
   try {
     const EventRepository = appSource.getRepository(events);
     if (payload.eventid) {

@@ -9,5 +9,15 @@ export interface homeSettingsDto {
 export const homeSettingsDtoValidation = Joi.object({
     // id: Joi.number().required(),
     visible: Joi.boolean().required(),
-    category_Id: Joi.number().required()
+    category_Id: Joi.number().required(),
+    column_count: Joi.number().required(),
+    list_count: Joi.number().required()
+});
+
+export const updateHomeSettingsValidation = Joi.object({
+    id: Joi.number().required(),
+    visible: Joi.boolean().required(),
+    category_Id: Joi.number().required(),
+    column_count: Joi.number().required(),
+    list_count: Joi.number().required()
 });
