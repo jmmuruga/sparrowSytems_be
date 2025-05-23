@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPersonDetails, newApplication } from "./application.services";
+import { getPersonDetail, getPersonDetails, newApplication } from "./application.services";
 import multer from "multer";
 
 
@@ -13,6 +13,11 @@ applicationRouter.post('/apply',upload.single("brandimage"),(req, res) => { newA
 applicationRouter.get("/getperson/:id", (req, res) => {
   getPersonDetails(req, res);
 });
+
+applicationRouter.get("/getPersons/:applicationid", (req, res) => {
+  getPersonDetail(req, res);
+});
+
 
 
 

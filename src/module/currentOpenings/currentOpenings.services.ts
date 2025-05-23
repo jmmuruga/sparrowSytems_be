@@ -10,7 +10,6 @@ import { currentOpenings } from "./currentOpenings.model";
 
 export const addOpenings = async (req: Request, res: Response) => {
   const payload: currentOpeningsDto = req.body;
-  console.log("payload", payload);
   try {
     const Repository = appSource.getRepository(currentOpenings);
 
