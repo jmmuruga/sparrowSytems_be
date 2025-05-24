@@ -19,6 +19,8 @@ import ordersRouter from "./module/ordersModule/orders.controller";
 import eventRouter from "./module/eventModule/event.controller";
 import breadcrampsRouter from "./module/breadcramps/breadcramps.controller";
 import currentOpeningsRouter from "./module/currentOpenings/currentOpenings.controller";
+import applicationRouter from "./module/application/application.controller";
+import courierRouter from "./module/courier/courier.controller";
 
 
 
@@ -51,6 +53,8 @@ app.use('/ordersRouter', cors(corsOptions), ordersRouter);
 app.use('/eventRouter', cors(corsOptions), eventRouter);
 app.use('/breadcrampsRouter', cors(corsOptions), breadcrampsRouter);
 app.use('/currentOpeningsRouter', cors(corsOptions), currentOpeningsRouter);
+app.use('/applicationRouter', cors(corsOptions), applicationRouter);
+app.use('/courierRouter', cors(corsOptions),courierRouter);
 
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
