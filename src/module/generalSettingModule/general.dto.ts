@@ -13,6 +13,6 @@ export const generalSettingsdtovalidation = Joi.object({
 
 export const updateGeneralSettingsvalidation = Joi.object({
     id: Joi.number().required(),
-    products_per_page: Joi.object().required(),
+    products_per_page: Joi.number().required(),
     column_count: Joi.number().required(),
 })
