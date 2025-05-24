@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteUser, newUser } from "./userDetails.service";
+import { deleteUser, newUser, updatePassword } from "./userDetails.service";
 import { getUser } from "./userDetails.service";
 // import { auth } from "../../shared/helper";
 const userDetailRouter = Router();
@@ -13,6 +13,8 @@ userDetailRouter.delete('/deleteuser/:userid',(req, res) => { deleteUser(req, re
 
 userDetailRouter.delete('/deleteuser/:userid',(req, res) => { deleteUser(req, res);
 });
+
+userDetailRouter.put('/updatePassword',(req, res) => {updatePassword(req, res); });
 
 
 

@@ -12,7 +12,7 @@ import { banner } from "./banner.model";
 
 export const newBanner = async (req: Request, res: Response) => {
   const payload: bannerDetailsDto = req.body;
-  console.log(payload, "payload");
+  console.log(payload.status, "payload");
   try {
     const BannerRepository = appSource.getRepository(banner);
     if (payload.bannerid) {
@@ -144,9 +144,7 @@ export const deleteBanner = async (req: Request, res: Response) => {
 
 export const changeStatusBanner = async (req: Request, res: Response) => {
   const { bannerid, status } = req.body;
-
   const BannerRepository = appSource.getRepository(banner);
-
   try {
     const bannerDetails = await BannerRepository.findOneBy({
       bannerid: Number(bannerid),

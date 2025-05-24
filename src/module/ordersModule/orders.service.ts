@@ -18,22 +18,6 @@ export const addAllOrders = async (req: Request, res: Response) => {
 
     const { orderItems, orderid, ...commonFields } = payload;
 
-    // // If updating an existing order
-    // if (orderid) {
-    //   const existingOrders = await AllOrdersRepository.find({
-    //     where: { orderid },
-    //   });
-
-    //   if (existingOrders.length === 0) {
-    //     throw new ValidationException("Order not found for update");
-    //   }
-
-    //   // Delete existing order items (to replace with updated ones)
-    //   await AllOrdersRepository.delete({ orderid });
-
-    //   // Proceed to insert new ones with the same orderid
-    // }
-
     // Create new order items
     for (const item of orderItems) {
       const order = new orders();
@@ -248,7 +232,7 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
 	  o.closed_orders_date,
     c.categoryname AS category,
     p.image1,
-    o.customerid,
+    o.customerid
 FROM 
     [SPARROW_SYSTEMS].[dbo].[orders] AS o
 INNER JOIN 
