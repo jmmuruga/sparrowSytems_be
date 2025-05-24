@@ -7,17 +7,15 @@ import {
 } from "typeorm";
 
 @Entity()
-export class currentOpenings {
+export class courier {
   @PrimaryGeneratedColumn()
-  id: number;
+  courier_id: number;
   @Column()
-  JobName: string;
-  @Column({type: 'text', nullable: true})
-  Description: string;
+  Courier_Name: string;
+  @Column()
+  Courier_Link: string;
   @Column({ default: true })
   status: boolean;
-  @Column({default : 0})
-  noOfApplied : number;
   @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })

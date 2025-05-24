@@ -47,7 +47,7 @@ export const getAddress = async (req: Request, res: Response) => {
 
     res.status(200).send({
       IsSuccess: "customer Details added SuccessFully",
-      Result:result,
+      Result: result,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -59,30 +59,27 @@ export const getAddress = async (req: Request, res: Response) => {
   }
 };
 
-
 export const updateCustomerAddress = async (req: Request, res: Response) => {
-  try{
-    const payload : deleteAddressDto = req.body;
-   const addressRespositary = appSource.getRepository(customerAddress);
+  try {
+    const payload: deleteAddressDto = req.body;
+    const addressRespositary = appSource.getRepository(customerAddress);
     const customerAddressDetails = await addressRespositary.findOneBy({
-      id : payload.id
-    })
-    if(!customerAddressDetails){
+      id: payload.id,
+    });
+    if (!customerAddressDetails) {
       throw new ValidationException("Address not found");
     }
     await addressRespositary
-    .createQueryBuilder()
-    .update(customerAddress)
-    .set({ isdelete : true})
-    .where({id : payload.id})
-    .execute();
+      .createQueryBuilder()
+      .update(customerAddress)
+      .set({ isdelete: true })
+      .where({ id: payload.id })
+      .execute();
 
     res.status(200).send({
       IsSuccess: "customer Details added SuccessFully",
     });
-
-  }
-  catch (error) {
+  } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message, // Ensure the error message is sent properly

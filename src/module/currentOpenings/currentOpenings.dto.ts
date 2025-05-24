@@ -17,8 +17,7 @@ export const currentOpeningsValidation = Joi.object({
   muid: Joi.optional().allow(null, ""),
 });
 
-
-export const  currentOpeningsUpdateValidation = Joi.object({
+export const currentOpeningsUpdateValidation = Joi.object({
   id: Joi.number().required(),
   JobName: Joi.string().required(),
   Description: Joi.string().required(),
