@@ -6,7 +6,7 @@ import {
   applicationUpdateValidation,
   applicationValidate,
 } from "./application.dto";
-import { application } from "./Application.model";
+import { application } from "./application.model";
 import { currentOpenings } from "../currentOpenings/currentOpenings.model";
 
 export const newApplication = async (req: Request, res: Response) => {
