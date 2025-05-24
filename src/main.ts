@@ -21,6 +21,8 @@ import breadcrampsRouter from "./module/breadcramps/breadcramps.controller";
 import currentOpeningsRouter from "./module/currentOpenings/currentOpenings.controller";
 import applicationRouter from "./module/application/application.controller";
 import courierRouter from "./module/courier/courier.controller";
+import homeSettingRouter from "./module/homePageSettingsModule/homeSettings.controller";
+import generalSettingRouter from "./module/generalSettingModule/general.controller";
 
 
 
@@ -55,6 +57,7 @@ app.use('/breadcrampsRouter', cors(corsOptions), breadcrampsRouter);
 app.use('/currentOpeningsRouter', cors(corsOptions), currentOpeningsRouter);
 app.use('/applicationRouter', cors(corsOptions), applicationRouter);
 app.use('/courierRouter', cors(corsOptions),courierRouter);
-
+app.use('/homeSettingRouter', cors(corsOptions), homeSettingRouter);
+app.use('/generalSettingRouter', cors(corsOptions), generalSettingRouter)
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
