@@ -5,7 +5,7 @@ import { UserDetails } from "../module/userDetails/userDetails.model";
 import { products } from "../module/productModule/product.model";
 import { banner } from "../module/bannerModule/banner.model";
 import { BrandDetail } from "../module/brandModule/brand.model";
-import { Category,  } from "../module/categorymodule/category.model";
+import { Category, } from "../module/categorymodule/category.model";
 import { CategoryNested } from "../module/categoryNested/categoryNested.model";
 import { customerDetails } from "../module/customerDetails/customerDetails.model";
 import { allOrders } from "../module/allOrdersModule/allOrders.model";
@@ -17,6 +17,8 @@ import { breadCramps } from "../module/breadcramps/breadcramps.model";
 import { currentOpenings } from "../module/currentOpenings/currentOpenings.model";
 import { application } from "../module/application/application.model";
 import { courier } from "../module/courier/courier.model";
+import { homeSettings } from "../module/homePageSettingsModule/homeSettings.model";
+import { GeneralSettings } from "../module/generalSettingModule/general.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -33,7 +35,9 @@ const Entities: any[] = [
   breadCramps,
   currentOpenings,
   application,
-   courier,
+  courier,
+  homeSettings,
+  GeneralSettings,
 
 ]
 export const appSource = new DataSource({
