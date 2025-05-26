@@ -75,33 +75,3 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-// export const updateHomesettings = async (req: Request, res: Response) => {
-//     const id = parseInt(req.params.id);
-//     const payload: Partial<homeSettingsDto> = req.body;
-
-//     if (isNaN(id)) {
-//         return res.status(400).send({ message: "Invalid ID" });
-//     }
-
-//     try {
-//         const homeSettingsRepository = appSource.getRepository(homeSettings);
-
-//         const existing = await homeSettingsRepository.findOneBy({ id });
-
-//         if (!existing) {
-//             return res.status(404).send({ message: "Home setting not found" });
-//         }
-
-//         homeSettingsRepository.merge(existing, payload);
-//         const result = await homeSettingsRepository.save(existing);
-
-//         return res.status(200).send({
-//             message: "Home setting updated successfully",
-//             data: result,
-//         });
-//     } catch (error) {
-//         console.error("Error updating home settings:", error);
-//         return res.status(500).send({ message: "Internal server error" });
-//     }
-// };
