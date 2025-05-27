@@ -23,6 +23,10 @@ import applicationRouter from "./module/application/application.controller";
 import courierRouter from "./module/courier/courier.controller";
 import homeSettingRouter from "./module/homePageSettingsModule/homeSettings.controller";
 import generalSettingRouter from "./module/generalSettingModule/general.controller";
+import recentoffersRouter from "./module/recentOffersModule/recentOffers.controller";
+import recentOffersRouter from "./module/recentOffersModule/recentOffers.controller";
+import newProductsRouter from "./module/newProductsModule/newProducts.controller";
+import getInTouchRouter from "./module/getInTouchModule/getInTouch.controller";
 
 
 
@@ -58,6 +62,9 @@ app.use('/currentOpeningsRouter', cors(corsOptions), currentOpeningsRouter);
 app.use('/applicationRouter', cors(corsOptions), applicationRouter);
 app.use('/courierRouter', cors(corsOptions),courierRouter);
 app.use('/homeSettingRouter', cors(corsOptions), homeSettingRouter);
-app.use('/generalSettingRouter', cors(corsOptions), generalSettingRouter)
+app.use('/generalSettingRouter', cors(corsOptions), generalSettingRouter);
+app.use('/recentOffersRouter', cors(corsOptions), recentOffersRouter);
+app.use('/newProductsRouter', cors(corsOptions), newProductsRouter);
+app.use('/getInTouchRouter', cors(corsOptions), getInTouchRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
