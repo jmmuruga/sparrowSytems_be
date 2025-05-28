@@ -81,7 +81,11 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
        ro.status,
        ro.products_Id,
        s.value AS product_id,
-       p.product_name
+       p.product_name,
+       p.image1,
+	   p.discount,
+	   p.offer_price,
+	   p.mrp
 FROM [SPARROW_SYSTEMS].[dbo].[recent_offers] ro
 CROSS APPLY (
     SELECT LTRIM(RTRIM(m.n.value('.', 'VARCHAR(100)'))) AS value
