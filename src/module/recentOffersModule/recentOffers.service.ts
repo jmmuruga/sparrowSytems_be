@@ -84,6 +84,7 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
        p.product_name,
        p.image1,
 	   p.discount,
+     p.productid,
 	   p.offer_price,
 	   p.mrp
 FROM [SPARROW_SYSTEMS].[dbo].[recent_offers] ro

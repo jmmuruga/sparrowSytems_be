@@ -52,6 +52,7 @@ export const addAllOrders = async (req: Request, res: Response) => {
 export const getOrderDetails = async (req: Request, res: Response) => {
   try {
     const orderid = req.params.orderid;
+    console.log(orderid, 'order')
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
       `  SELECT 
