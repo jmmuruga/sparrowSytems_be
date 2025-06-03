@@ -1,5 +1,6 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
+import { customerDetails } from "../customerDetails/customerDetails.model";
 import { ordersDto, ordersDtoValidation, orderStatusDto } from "./orders.dto";
 import { orders } from "./orders.model";
 import { Request, Response } from "express";
@@ -31,6 +32,23 @@ export const addAllOrders = async (req: Request, res: Response) => {
       });
 
       await AllOrdersRepository.save(order);
+
+      //upadte the no order count
+      const customerRespositary = appSource.getRepository(customerDetails);
+      const customerData = await customerRespositary.findOneBy({
+        customerid: payload.customerid,
+      });
+      if (!customerData?.customerid) {
+        throw new ValidationException("customer id is not found ");
+      }
+      const alreadyOrdersCount = customerData.orderCount || 0;
+      const updateOrderCount = alreadyOrdersCount + 1;
+      await customerRespositary
+        .createQueryBuilder()
+        .update(customerDetails)
+        .set({ orderCount: updateOrderCount })
+        .where({ customerid: payload.customerid })
+        .execute();
     }
 
     res.status(200).send({
@@ -232,6 +250,7 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
 	  o.closed_orders_date,
     c.categoryname AS category,
     p.image1,
+    o.delivery_orders_date,
     o.customerid
 FROM 
     [SPARROW_SYSTEMS].[dbo].[orders] AS o
@@ -253,6 +272,61 @@ INNER JOIN
     res.status(500).send(error);
   }
 };
+
+
+export const getOrderDetailsByCustomer = async (req: Request, res: Response) => {
+   const  customerid  = req.params.customerid
+
+  try {
+    const orderRepository = appSource.getRepository(orders);
+    const details: ordersDto[] = await orderRepository.query(
+      `  SELECT 
+    o.orderid,
+    cd.customername,
+    o.total_amount,
+    o.created_at,
+    o.status,
+    o.updated_at,
+    o.quantity,
+    o.offer_price,
+    o.payment_method,
+    p.product_name,
+    p.delivery_amount,
+    o.open_orders_date,
+	  o.processing_orders_date,
+	  o.failure_orders_date,
+	  o.canceled_orders_date,
+	  o.shipped_orders_date,
+	  o.closed_orders_date,
+    c.categoryname AS category,
+    p.image1,
+    o.delivery_orders_date,
+    o.customerid
+FROM 
+    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+INNER JOIN 
+    [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
+INNER JOIN 
+    [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.category_name = c.categoryid
+INNER JOIN 
+    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
+    WHERE 
+    o.customerid = ${customerid}; `
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+
 
 export const getOrderId = async (req: Request, res: Response) => {
   try {
