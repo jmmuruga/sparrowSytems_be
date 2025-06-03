@@ -78,7 +78,7 @@ export const getEventDetails = async (req: Request, res: Response) => {
 
 export const deleteEvent = async (req: Request, res: Response) => {
   const id = req.params.eventid;
-  console.log("Received Event ID:", id);
+  // console.log("Received Event ID:", id);
   const eventRepo = appSource.getRepository(events);
   try {
     const typeNameFromDb = await eventRepo

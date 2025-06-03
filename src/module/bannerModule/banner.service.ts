@@ -178,6 +178,3 @@ export const changeStatusBanner = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-
-
