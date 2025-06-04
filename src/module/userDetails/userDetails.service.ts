@@ -130,7 +130,6 @@ export const updatePassword = async (req: Request, res: Response) => {
 
     return res.json({ message: 'Password updated successfully' });
   } catch (error) {
-    console.error('Password update failed:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -38,7 +38,6 @@ export const addCourier = async (req: Request, res: Response) => {
       IsSuccess: " Courier added SuccessFully",
     });
   } catch (error) {
-    console.log("error", error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -68,8 +67,6 @@ export const getCourier = async (req: Request, res: Response) => {
 
 export const courierStatus = async (req: Request, res: Response) => {
   const id = req.params.id;
-  console.log(id,"hh")
-
   const statusVal: boolean = req.params.status === "true";
   const repo = appSource.getRepository(courier);
 

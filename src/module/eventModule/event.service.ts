@@ -9,7 +9,6 @@ export const addNewEvent = async (req: Request, res: Response) => {
   try {
     const EventRepository = appSource.getRepository(events);
     if (payload.eventid) {
-      console.log("came nto update");
       const validation = updateEventValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -48,7 +47,6 @@ export const addNewEvent = async (req: Request, res: Response) => {
       IsSuccess: "event Details added SuccessFully",
     });
   } catch (error) {
-    console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -78,7 +76,6 @@ export const getEventDetails = async (req: Request, res: Response) => {
 
 export const deleteEvent = async (req: Request, res: Response) => {
   const id = req.params.eventid;
-  console.log("Received Event ID:", id);
   const eventRepo = appSource.getRepository(events);
   try {
     const typeNameFromDb = await eventRepo

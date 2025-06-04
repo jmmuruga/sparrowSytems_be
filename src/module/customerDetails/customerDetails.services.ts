@@ -223,8 +223,6 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 export const sendOtpInEmail = async(req : Request , res : Response) =>{
   try{
      const payload: customerDetailsDto = req.body;
-     console.log(payload,"helo")
-
      const newlyGeneratedOtp = generateOpt();
 
      const transporter = nodemailer.createTransport({
@@ -265,7 +263,6 @@ export const resendPasswordOtp  = async (req:Request,res:Response) => {
   try{
 
     const email = req.params.email;
-    console.log
     const otpGenerate = generateOpt();
     const repo = appSource.getRepository(customerDetails);
     const isEmail  = await repo.findOneBy({ email: email });
