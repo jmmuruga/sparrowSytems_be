@@ -95,8 +95,8 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
     p.[image1],
     p.[created_at],
     p.[status]
-FROM [SPARROW_SYSTEMS].[dbo].[home_settings] hs
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[category] c
+FROM [${process.env.DB_name}].[dbo].[home_settings] hs
+INNER JOIN [${process.env.DB_name}].[dbo].[category] c
     ON hs.[category_Id] = c.[categoryid]
 OUTER APPLY (
     SELECT TOP (hs.[list_count])
@@ -108,8 +108,8 @@ OUTER APPLY (
            pr.[image1],
            pr.[created_at],
            pr.[status]
-    FROM [SPARROW_SYSTEMS].[dbo].[products] pr
-    WHERE pr.[category_name] = hs.[category_Id]
+    FROM [${process.env.DB_name}].[dbo].[products] pr
+    WHERE pr.[category_name] = hs.[category_Id] and pr.status = 1
     ORDER BY pr.[productid] DESC
 ) p; `
     );

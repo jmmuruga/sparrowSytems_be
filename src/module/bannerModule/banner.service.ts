@@ -9,10 +9,9 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 import { banner } from "./banner.model";
 
-
 export const newBanner = async (req: Request, res: Response) => {
   const payload: bannerDetailsDto = req.body;
-  console.log(payload.status, "payload");
+  // console.log(payload.status, "payload");
   try {
     const BannerRepository = appSource.getRepository(banner);
     if (payload.bannerid) {
@@ -28,6 +27,7 @@ export const newBanner = async (req: Request, res: Response) => {
         throw new ValidationException("banner not found");
       }
       const { cuid, bannerid, ...updatePayload } = payload;
+      updatePayload.status = Boolean(updatePayload.status)
       await BannerRepository.update(
         { bannerid: payload.bannerid },
         updatePayload
@@ -50,12 +50,13 @@ export const newBanner = async (req: Request, res: Response) => {
       throw new ValidationException(validation.error.message);
     }
     const { bannerid, ...updatePayload } = payload;
+    updatePayload.status = Boolean(updatePayload.status)
     await BannerRepository.save(updatePayload);
     res.status(200).send({
       IsSuccess: "banner Details added SuccessFully",
     });
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -85,7 +86,7 @@ export const getBannerDetail = async (req: Request, res: Response) => {
 
 export const deleteBanner = async (req: Request, res: Response) => {
   const id = req.params.bannerid;
-  console.log("Received Banner ID:", id);
+  // console.log("Received Banner ID:", id);
   const bannerRepo = appSource.getRepository(banner);
   try {
     const typeNameFromDb = await bannerRepo
@@ -115,41 +116,6 @@ export const deleteBanner = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-// export const changeStatusBanner = async (req: Request, res: Response) => {
-//   const { bannerid, status } = req.body;
-//   const BannerRepository = appSource.getRepository(banner);
-//   try {
-//     const bannerDetails = await BannerRepository.findOneBy({
-//       bannerid: Number(bannerid),
-//     });
-
-//     if (!bannerDetails) {
-//       return res.status(400).json({ message: "Banner not found" });
-//     }
-
-//     const isActive = status === 'true'; // ✅ Ensure boolean
-
-//     const updateResult = await BannerRepository.createQueryBuilder()
-//       .update(banner)
-//       .set({ status: isActive })
-//       .where("bannerid = :id", { id: Number(bannerid) })
-//       .execute();
-
-//     console.log("Update result:", updateResult); // ✅ Check affected rows
-
-//     if (updateResult.affected === 0) {
-//       return res.status(400).json({ message: "Update failed (no rows affected)" });
-//     }
-
-//     res.status(200).json({
-//       message: `Banner ${bannerDetails.title} updated to status ${isActive}`,
-//     });
-//   } catch (err) {
-//     console.error("Update Error:", err);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
 
 export const changeStatusBanner = async (req: Request, res: Response) => {
   const status: bannerStatusDto = req.body;

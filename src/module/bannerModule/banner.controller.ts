@@ -8,5 +8,4 @@ bannerRouter.get('/getBannerDetail', (req, res) => { getBannerDetail(req, res)})
 bannerRouter.delete('/deleteBanner/:bannerid' , (req, res) => { deleteBanner(req, res)});
 bannerRouter.post('/changestatus',(req, res) => { changeStatusBanner(req, res)});
 
-
 export default bannerRouter;

@@ -75,9 +75,9 @@ export const getCustomerCartDetails = async (req: Request, res: Response) => {
     p.image1,
     p.offer_price
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[customer_cart] AS cc
+    [${process.env.DB_name}].[dbo].[customer_cart] AS cc
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[products] AS p
+    [${process.env.DB_name}].[dbo].[products] AS p
     ON cc.productid = p.productid
     where cc.customerid = '${customerid}'`
     );

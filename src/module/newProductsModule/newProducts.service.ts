@@ -86,12 +86,13 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
   p.offer_price,
   p.mrp,
   p.image1
-FROM [SPARROW_SYSTEMS].[dbo].[newproducts] np
+FROM [${process.env.DB_name}].[dbo].[newproducts] np
 OUTER APPLY (
     SELECT TOP (np.products_Limit) *
-    FROM [SPARROW_SYSTEMS].[dbo].[products] p
+    FROM [${process.env.DB_name}].[dbo].[products] p
     ORDER BY p.created_at DESC 
-) p`
+) p 
+ WHERE p.status = 1`
     );
     res.status(200).send({ Result: details });
   } catch (error) {

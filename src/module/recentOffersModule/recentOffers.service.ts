@@ -10,7 +10,7 @@ export const addRecentOffersSettings = async (req: Request, res: Response) => {
   const recentOffersRepository = appSource.getRepository(RecentOffers);
   try {
     if (payload.id) {
-      console.log("Updating Recent Offers settings");
+      // console.log("Updating Recent Offers settings");
 
       const updateError = updateRecentOffersValidation.validate(payload);
       if (updateError.error) {
@@ -87,7 +87,7 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
      p.productid,
 	   p.offer_price,
 	   p.mrp
-FROM [SPARROW_SYSTEMS].[dbo].[recent_offers] ro
+FROM [${process.env.DB_name}].[dbo].[recent_offers] ro
 CROSS APPLY (
     SELECT LTRIM(RTRIM(m.n.value('.', 'VARCHAR(100)'))) AS value
     FROM (
@@ -97,8 +97,9 @@ CROSS APPLY (
     ) AS t
     CROSS APPLY x.nodes('/XMLRoot/RowData') m(n)
 ) s
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[products] p
-    ON CAST(s.value AS INT) = p.productid;`
+INNER JOIN [${process.env.DB_name}].[dbo].[products] p
+    ON CAST(s.value AS INT) = p.productid
+    WHERE p.status = 1 ;`
     );
     res.status(200).send({ Result: details });
   } catch (error) {
