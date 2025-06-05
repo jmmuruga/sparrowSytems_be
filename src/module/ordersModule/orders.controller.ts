@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addAllOrders, changeOrderStatus, getAllOrderDetails, getLatestOrders, getOrderDetails, getOrderId } from "./orders.service";
+import { addAllOrders, changeOrderStatus, getAllOrderDetails, getLatestOrders, getOrderDetails, getOrderDetailsByCustomer, getOrderId } from "./orders.service";
 
 const ordersRouter = Router();
 
@@ -9,5 +9,8 @@ ordersRouter.post('/changeOrderStatus/', (req, res) => {changeOrderStatus(req, r
 ordersRouter.get('/getAllOrderDetails', (req, res) => {getAllOrderDetails(req, res)});
 ordersRouter.get('/getOrderId', (req, res) => {getOrderId(req, res); });
 ordersRouter.get('/getLatestOrders', (req, res) => {getLatestOrders(req, res); });
+ordersRouter.get('/getcustomerOrderDetails/:customerid', (req, res) => {getOrderDetailsByCustomer(req, res); });
+
+
 
 export default ordersRouter;

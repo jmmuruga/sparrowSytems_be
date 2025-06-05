@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteCustomer, getCustomer, newCustomer,requestPasswordReset,Userlogin } from "./customerDetails.services";
+import { deleteCustomer, getCustomer, newCustomer,requestPasswordReset,resendPasswordOtp,sendOtpInEmail,Userlogin } from "./customerDetails.services";
 
 const customerDetailRouter = Router();
 
@@ -17,6 +17,14 @@ customerDetailRouter.delete('/deletecustomer/:customerid',(req, res) => { delete
 });
 
  customerDetailRouter.get('/forgotPassword/:email', (req , res) => {requestPasswordReset(req, res)});
+
+customerDetailRouter.post('/otprequest', (req , res) => {sendOtpInEmail(req, res)});
+
+customerDetailRouter.get('/otpsend/:email', (req , res) => {resendPasswordOtp(req, res)});
+
+
+
+
 
 
 export default customerDetailRouter;

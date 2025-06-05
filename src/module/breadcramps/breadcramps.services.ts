@@ -66,7 +66,6 @@ export const getDetail = async (req: Request, res: Response) => {
       });
     }
     res.status(500).send(error);
-    console.log("error", error);
   }
 };
 

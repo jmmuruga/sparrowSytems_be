@@ -27,6 +27,7 @@ import recentoffersRouter from "./module/recentOffersModule/recentOffers.control
 import recentOffersRouter from "./module/recentOffersModule/recentOffers.controller";
 import newProductsRouter from "./module/newProductsModule/newProducts.controller";
 import getInTouchRouter from "./module/getInTouchModule/getInTouch.controller";
+import variationRouter from "./module/variation/variation.controller";
 
 
 
@@ -66,5 +67,7 @@ app.use('/generalSettingRouter', cors(corsOptions), generalSettingRouter);
 app.use('/recentOffersRouter', cors(corsOptions), recentOffersRouter);
 app.use('/newProductsRouter', cors(corsOptions), newProductsRouter);
 app.use('/getInTouchRouter', cors(corsOptions), getInTouchRouter);
+app.use('/variationRouter', cors(corsOptions), variationRouter);
+
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

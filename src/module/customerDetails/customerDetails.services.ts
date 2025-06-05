@@ -207,7 +207,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     }
     res.status(200).send({
       Result: customer,
-      message: "Login successful",
+      message: "password updated succesfully",
       // email: customer.email
     });
   } catch (error) {
@@ -219,3 +219,94 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
+export const sendOtpInEmail = async(req : Request , res : Response) =>{
+  try{
+     const payload: customerDetailsDto = req.body;
+     const newlyGeneratedOtp = generateOpt();
+
+     const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    let response = await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: payload.email,
+      subject: 'Create a new customer',
+      text:`Please enter the OTP: ${newlyGeneratedOtp} to create a customer.`
+    });
+
+    res.status(200).send({
+      Result : newlyGeneratedOtp
+    })
+
+  }
+  catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+}
+
+
+
+export const resendPasswordOtp  = async (req:Request,res:Response) => {
+  try{
+
+    const email = req.params.email;
+    const otpGenerate = generateOpt();
+    const repo = appSource.getRepository(customerDetails);
+    const isEmail  = await repo.findOneBy({ email: email });
+    if (!isEmail){
+        throw new ValidationException("invalid email");
+    }
+   if(isEmail){
+
+   const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    let response = await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: email,
+      subject: 'Create a new customer',
+      text:`Please enter the OTP: ${ otpGenerate} to change the forgot password.`
+    });
+
+    res.status(200).send({
+      Result :otpGenerate
+    })
+
+
+   }
+
+  } 
+  catch (error){
+      handleError(res, error);
+
+  }
+
+}
+
+export function generateOpt(): string {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  return otp;
+}
+
+
+

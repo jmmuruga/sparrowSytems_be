@@ -22,6 +22,7 @@ import { GeneralSettings } from "../module/generalSettingModule/general.model";
 import { RecentOffers } from "../module/recentOffersModule/recentOffers.model";
 import { Newproducts } from "../module/newProductsModule/newProducts.model";
 import { GetInTouch } from "../module/getInTouchModule/getInTouch.model";
+import { variation } from "../module/variation/variation.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -44,6 +45,7 @@ const Entities: any[] = [
   RecentOffers,
   Newproducts,
   GetInTouch,
+  variation,
 
 ]
 export const appSource = new DataSource({

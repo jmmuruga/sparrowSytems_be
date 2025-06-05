@@ -6,26 +6,21 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+
 @Entity()
-export class customerDetails {
+export class variation {
   @PrimaryGeneratedColumn()
-  customerid: number;
+  id: number;
   @Column()
-  email: string;
+  variationid:string;
   @Column()
-  customername: string;
+  variationGroup: string;
   @Column()
-  customeraddress: string;
-  @Column({ nullable: true })
-  pincode: string;
+  name: string;
   @Column()
-  mobilenumber: string;
-  @Column()
-  password: string;
-  @Column()
-  confirmpassword: string;
-  @Column({ default: 0 })
-  orderCount: number;
+  itemId: string;
+  @Column({ default: true })
+  status: boolean;
   @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
