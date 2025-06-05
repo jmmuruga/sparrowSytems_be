@@ -12,24 +12,25 @@ export interface bannerDetailsDto {
 }
 
 export interface bannerStatusDto{
-    bannerid: string;
+    bannerid: number;
     status: boolean;
 }
 
 export const bannerDetailsValidation = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
-    link: Joi.string().required(),
+    link: Joi.string().optional(),
     image: Joi.string().required(),
     cuid: Joi.number().optional(),
-    muid: Joi.number().optional()
+    muid: Joi.number().optional(),
+    status:Joi.boolean().optional()
 });
 
 export const updateBannerValidation = Joi.object({
     bannerid: Joi.number().required(),
     title: Joi.string().required(),
     description: Joi.string().required(),
-    link: Joi.string().required(),
+    link: Joi.string().optional(),
     image: Joi.string().required(),
     cuid: Joi.number().optional(),
     muid: Joi.number().optional(),

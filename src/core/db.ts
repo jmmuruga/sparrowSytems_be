@@ -8,7 +8,7 @@ import { BrandDetail } from "../module/brandModule/brand.model";
 import { Category, } from "../module/categorymodule/category.model";
 import { CategoryNested } from "../module/categoryNested/categoryNested.model";
 import { customerDetails } from "../module/customerDetails/customerDetails.model";
-import { allOrders } from "../module/allOrdersModule/allOrders.model";
+// import { allOrders } from "../module/allOrdersModule/allOrders.model";
 import { CustomerCart } from "../module/customerCartModule/customerCart.model";
 import { customerAddress } from "../module/Address/customerAddress.model";
 import { orders } from "../module/ordersModule/orders.model";
@@ -31,7 +31,7 @@ const Entities: any[] = [
   Category,
   CategoryNested,
   customerDetails,
-  allOrders,
+  // allOrders,
   CustomerCart,
   customerAddress,
   orders,

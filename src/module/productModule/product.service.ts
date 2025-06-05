@@ -169,111 +169,111 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const getRecentOffers = async (req: Request, res: Response) => {
-  try {
-    const ProductRepository = appSource.getRepository(products);
-    const details: productDetailsDto[] = await ProductRepository.query(
-      `  SELECT TOP 5  
-    productid,
-    product_name,
-    mrp,
-    discount,
-    offer_price,
-    image1,
-    created_at,
-    status
-FROM [${process.env.DB_name}].[dbo].[products]
-WHERE [offer_price] IS NOT NULL
-ORDER BY [updated_at] DESC;`
-    );
-    res.status(200).send({ Result: details });
-  } catch (error) {
-    console.log(error);
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
-    }
-    res.status(500).send(error);
-  }
-};
+// export const getRecentOffers = async (req: Request, res: Response) => {
+//   try {
+//     const ProductRepository = appSource.getRepository(products);
+//     const details: productDetailsDto[] = await ProductRepository.query(
+//       `  SELECT TOP 5  
+//     productid,
+//     product_name,
+//     mrp,
+//     discount,
+//     offer_price,
+//     image1,
+//     created_at,
+//     status
+// FROM [${process.env.DB_name}].[dbo].[products]
+// WHERE [offer_price] IS NOT NULL
+// ORDER BY [updated_at] DESC;`
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     console.log(error);
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
 
-export const getNewProducts = async (req: Request, res: Response) => {
-  try {
-    const ProductRepository = appSource.getRepository(products);
-    const details: productDetailsDto[] = await ProductRepository.query(
-      `  SELECT TOP 15
-    productid,
-    product_name,
-    mrp,
-    discount,
-    offer_price,
-    image1,
-    created_at,
-    status
-FROM [SPARROW_SYSTEMS].[dbo].[products]
-ORDER BY [created_at] DESC;`
-    );
-    res.status(200).send({ Result: details });
-  } catch (error) {
-    console.log(error);
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
-    }
-    res.status(500).send(error);
-  }
-};
+// export const getNewProducts = async (req: Request, res: Response) => {
+//   try {
+//     const ProductRepository = appSource.getRepository(products);
+//     const details: productDetailsDto[] = await ProductRepository.query(
+//       `  SELECT TOP 15
+//     productid,
+//     product_name,
+//     mrp,
+//     discount,
+//     offer_price,
+//     image1,
+//     created_at,
+//     status
+// FROM [${process.env.DB_name}].[dbo].[products]
+// ORDER BY [created_at] DESC;`
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     console.log(error);
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
 
-export const getLatestUpdatedCategory = async (req: Request, res: Response) => {
-  try {
-    const ProductRepository = appSource.getRepository(products);
-    const details: any[] = await ProductRepository.query(
-      ` SELECT TOP 2 
-    ranked.productid,
-    ranked.product_name,
-    ranked.mrp,
-    ranked.discount,
-    ranked.offer_price,
-    ranked.image1,
-    ranked.status,
-    category.categoryname AS categoryFullName,
-    ranked.category_name as categoryId
-FROM (
-    SELECT 
-        *,
-        CAST(updated_at AS DATE) AS updated_date,
-        ROW_NUMBER() OVER (
-            PARTITION BY category_name 
-            ORDER BY CAST(updated_at AS DATE) DESC
-        ) AS rn
-    FROM [SPARROW_SYSTEMS].[dbo].[products]
-    WHERE category_name IS NOT NULL
-) AS ranked
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[category] category 
-    ON category.categoryid = ranked.category_name
-WHERE ranked.rn = 1
-ORDER BY ranked.updated_date DESC`
-    );
+// export const getLatestUpdatedCategory = async (req: Request, res: Response) => {
+//   try {
+//     const ProductRepository = appSource.getRepository(products);
+//     const details: any[] = await ProductRepository.query(
+//       ` SELECT TOP 2 
+//     ranked.productid,
+//     ranked.product_name,
+//     ranked.mrp,
+//     ranked.discount,
+//     ranked.offer_price,
+//     ranked.image1,
+//     ranked.status,
+//     category.categoryname AS categoryFullName,
+//     ranked.category_name as categoryId
+// FROM (
+//     SELECT 
+//         *,
+//         CAST(updated_at AS DATE) AS updated_date,
+//         ROW_NUMBER() OVER (
+//             PARTITION BY category_name 
+//             ORDER BY CAST(updated_at AS DATE) DESC
+//         ) AS rn
+//     FROM  [${process.env.DB_name}].[dbo].[products]
+//     WHERE category_name IS NOT NULL
+// ) AS ranked
+// INNER JOIN  [${process.env.DB_name}].[dbo].[category] category 
+//     ON category.categoryid = ranked.category_name
+// WHERE ranked.rn = 1
+// ORDER BY ranked.updated_date DESC`
+//     );
 
-    let categoryList: any[] = [];
+//     let categoryList: any[] = [];
 
-    for (const x of details) {
-      const productsOfCategory = await ProductRepository.query(
-        `select top 5 * from products  where category_name  = '${x.categoryId}'
-         order by  updated_at DESC;`
-      );
-      categoryList.push(...productsOfCategory);
-    }
-    res.status(200).send({ Result: details, categoryList: categoryList });
-  } catch (error) {
-    console.log(error);
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
-    }
-    res.status(500).send(error);
-  }
-};
+//     for (const x of details) {
+//       const productsOfCategory = await ProductRepository.query(
+//         `select top 5 * from products  where category_name  = '${x.categoryId}'
+//          order by  updated_at DESC;`
+//       );
+//       categoryList.push(...productsOfCategory);
+//     }
+//     res.status(200).send({ Result: details, categoryList: categoryList });
+//   } catch (error) {
+//     console.log(error);
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
