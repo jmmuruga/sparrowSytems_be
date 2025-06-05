@@ -9,8 +9,6 @@ export const addHomesettings = async (req: Request, res: Response) => {
   const homeRepository = appSource.getRepository(homeSettings);
   try {
     if (payload.id) {
-      console.log("Updating home settings");
-
       const { error: updateError } = updateHomeSettingsValidation.validate(payload);
       if (updateError) {
         throw new ValidationException(updateError.message);
@@ -46,7 +44,6 @@ export const addHomesettings = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error("Error adding home settings:", error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -115,7 +112,6 @@ OUTER APPLY (
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

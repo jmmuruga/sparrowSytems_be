@@ -10,6 +10,7 @@ import {
 import { Category } from "./category.model";
 import { console } from "inspector/promises";
 import { CategoryNested } from "../categoryNested/categoryNested.model";
+import { products } from "../productModule/product.model";
 
 export const addCategory = async (req: Request, res: Response) => {
   const payload: CategoryDto = req.body;
@@ -145,36 +146,52 @@ export const getHeaderCategory = async (req: Request, res: Response) => {
 };
 
 export const deleteCategory = async (req: Request, res: Response) => {
-  const id = req.params.categoryid;
+  const categoryid = Number(req.params.categoryid);
+
+  if (isNaN(categoryid)) {
+    return res.status(400).send({ message: "Invalid category ID" });
+  }
+
   const categoryRepo = appSource.getRepository(Category);
+  const productRepo = appSource.getRepository(products);
+
   try {
-    const typeNameFromDb = await categoryRepo
-      .createQueryBuilder("Category")
-      .where("category.categoryid = :categoryid", {
-        categoryid: id,
-      })
-      .getOne();
-    if (!typeNameFromDb?.categoryid) {
-      throw new HttpException("brand not Found", 400);
+    // Step 1: Fetch category by ID
+    const category = await categoryRepo.findOneBy({ categoryid });
+
+    if (!category) {
+      throw new HttpException("Category not found", 400);
     }
-    await categoryRepo
-      .createQueryBuilder("Category")
-      .delete()
-      .from(Category)
-      .where("categoryid = :categoryid", { categoryid: id })
-      .execute();
+
+    const categoryName = category.categoryname.trim().toLowerCase();
+
+    // Step 2: Check if any products use this category name
+    const usedInProducts = await productRepo
+      .createQueryBuilder("product")
+      .where("LOWER(TRIM(product.category_name)) = :categoryName", {
+        categoryName,
+      })
+      .getCount(); // More efficient than getMany if we only need count
+
+    if (usedInProducts > 0) {
+      throw new ValidationException("Unable to delete category. It is currently used by products.");
+    }
+
+    // Step 3: Delete the category
+    await categoryRepo.delete({ categoryid });
+
     res.status(200).send({
-      IsSuccess: `category deleted successfully!`,
+      IsSuccess: "Category deleted successfully!",
     });
   } catch (error) {
     if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
+      return res.status(400).send({ message: error.message });
     }
     res.status(500).send(error);
   }
 };
+
+
 
 export const changeStatusCategory = async (req: Request, res: Response) => {
   const categoryStatus: changeCategroyStatusDto = req.body;

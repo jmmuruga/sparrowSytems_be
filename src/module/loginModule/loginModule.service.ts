@@ -12,7 +12,6 @@ dotenv.config();  // Ensure env variables are loaded
 
 // Utility function for error handling
 const handleError = (res: Response, error: any) => {
-    console.error("Error:", error);
     if (error instanceof ValidationException) {
         return res.status(400).send({ message: error.message });
     }
@@ -22,7 +21,6 @@ const handleError = (res: Response, error: any) => {
 export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.params;
-        console.log(email , password)
         const userRepository = appSource.getRepository(UserDetails);
         const user = await userRepository.findOneBy({ email  : email});
 
@@ -31,7 +29,6 @@ export const login = async (req: Request, res: Response) => {
         }
 
        if(user.password != password){
-        console.log(user.password , password , 'pass')
         throw new ValidationException("Incorrect Password!");
        }
 
@@ -84,7 +81,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
                 Best regards,\nSaveData InfoTech Solutions`
             });
         }
-        console.log(isThereEmail.userid, "forget pawd")
         res.status(200).send({
             IsSuccess: true,
             otp: randomOtp,

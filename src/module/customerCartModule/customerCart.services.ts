@@ -35,7 +35,6 @@ export const addCustomerCart = async (req: Request, res: Response) => {
       IsSuccess: "MyCart updated successfully",
     });
   } catch (error) {
-    console.error(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
     }
@@ -57,7 +56,6 @@ export const removeCustomerCart = async (req: Request, res: Response) => {
 
     res.status(200).send({ message: "Product removed from cart" });
   } catch (error) {
-    console.error("Error removing product:", error);
     res.status(500).send({ message: "Internal server error" });
   }
 };
@@ -83,7 +81,6 @@ INNER JOIN
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -113,7 +110,6 @@ export const clearCustomerCart = async (req: Request, res: Response) => {
 
     res.status(200).send({ message: "Customer cart cleared", deletedCount: deleted.affected });
   } catch (error) {
-    console.error("Error clearing customer cart:", error);
     res.status(500).send({ message: "Internal server error" });
   }
 };

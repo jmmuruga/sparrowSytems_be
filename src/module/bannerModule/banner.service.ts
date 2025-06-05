@@ -11,11 +11,9 @@ import { banner } from "./banner.model";
 
 export const newBanner = async (req: Request, res: Response) => {
   const payload: bannerDetailsDto = req.body;
-  // console.log(payload.status, "payload");
   try {
     const BannerRepository = appSource.getRepository(banner);
     if (payload.bannerid) {
-      // console.log("came nto update");
       const validation = updateBannerValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -56,7 +54,6 @@ export const newBanner = async (req: Request, res: Response) => {
       IsSuccess: "banner Details added SuccessFully",
     });
   } catch (error) {
-    // console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -86,7 +83,6 @@ export const getBannerDetail = async (req: Request, res: Response) => {
 
 export const deleteBanner = async (req: Request, res: Response) => {
   const id = req.params.bannerid;
-  // console.log("Received Banner ID:", id);
   const bannerRepo = appSource.getRepository(banner);
   try {
     const typeNameFromDb = await bannerRepo

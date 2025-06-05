@@ -39,7 +39,6 @@ export const addGeneralsettings = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    console.error("Error in addGeneralsettings:", error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

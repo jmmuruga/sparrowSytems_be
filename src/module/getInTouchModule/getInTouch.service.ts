@@ -10,8 +10,6 @@ export const addGetInTouch = async (req: Request, res: Response) => {
     const getInTouchRepository = appSource.getRepository(GetInTouch);
     try {
         if (payload.id) {
-            console.log("Updating Button settings");
-
             const updateError  = updateGetInTouchValidation.validate(payload);
             if (updateError.error) {
                 throw new ValidationException(updateError.error.message);
@@ -43,7 +41,6 @@ export const addGetInTouch = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.error("Error adding Button settings:", error);
         if (error instanceof ValidationException) {
             return res.status(400).send({
                 message: error.message,

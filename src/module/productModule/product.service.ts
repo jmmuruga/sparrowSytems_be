@@ -9,29 +9,7 @@ import {
 } from "./product.dto";
 import { products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
-
-// export const addProducts = async (req: Request, res: Response) => {
-//     try {
-//         const payload: productDetailsDto = req.body;
-//        console.log("called" );
-//        const validation = productDetailsValidation.validate(payload);
-//         if (validation.error) {
-//             console.warn("❌ Validation error:", validation.error.message);
-//             throw new ValidationException(validation.error.message);
-//         }
-//         const productRepoisry = appSource.getRepository(products);
-//         await productRepoisry.save(payload)
-//         return res.status(200).send({ IsSuccess: "Product added successfully" });
-//     } catch (error) {
-//         if (error instanceof ValidationException) {
-//             return res.status(400).json({ success: false, message: error.message });
-//         }
-
-//         // Log all other unexpected errors
-//         console.error("🔥 Unexpected error while adding product:", error);
-//         return res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// };
+import { orders } from "../ordersModule/orders.model";
 
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto = req.body;
@@ -76,7 +54,6 @@ export const addProducts = async (req: Request, res: Response) => {
       IsSuccess: "Product Details added SuccessFully",
     });
   } catch (error) {
-    console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -112,32 +89,49 @@ export const getProductsDetails = async (req: Request, res: Response) => {
 };
 
 export const deleteProduct = async (req: Request, res: Response) => {
-  const id = req.params.productid;
+  const productid = Number(req.params.productid);
+
+  if (Number.isNaN(productid)) {
+    return res.status(400).send({ message: "Invalid product ID" });
+  }
+
   const productRepo = appSource.getRepository(products);
+  const orderItemRepo = appSource.getRepository(orders); // ✅ Use the correct table
+
   try {
-    const typeNameFromDb = await productRepo
-      .createQueryBuilder("ProductDetail")
-      .where("ProductDetail.productid = :productid", {
-        productid: id,
-      })
-      .getOne();
-    if (!typeNameFromDb?.productid) {
-      throw new HttpException("product not Found", 400);
+    // ✅ Check if product is used in any order items
+    const existingOrderItems = await orderItemRepo.findBy({
+      productid: productid,
+    });
+
+    if (existingOrderItems.length > 0) {
+      throw new ValidationException('Unable to delete product. It is currently in use.');
     }
-    await productRepo
+
+    // ✅ Check if product exists
+    const productExists = await productRepo
       .createQueryBuilder("ProductDetail")
+      .where("ProductDetail.productid = :productid", { productid })
+      .getOne();
+
+    if (!productExists) {
+      throw new HttpException("Product not found", 400);
+    }
+
+    // ✅ Delete the product
+    await productRepo
+      .createQueryBuilder()
       .delete()
       .from(products)
-      .where("productid = :productid", { productid: id })
+      .where("productid = :productid", { productid })
       .execute();
+
     res.status(200).send({
-      IsSuccess: `product deleted successfully!`,
+      IsSuccess: `Product deleted successfully!`,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
+      return res.status(400).send({ message: error.message });
     }
     res.status(500).send(error);
   }
@@ -188,7 +182,6 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
 //     );
 //     res.status(200).send({ Result: details });
 //   } catch (error) {
-//     console.log(error);
 //     if (error instanceof ValidationException) {
 //       return res.status(400).send({
 //         message: error?.message,
@@ -216,7 +209,6 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
 //     );
 //     res.status(200).send({ Result: details });
 //   } catch (error) {
-//     console.log(error);
 //     if (error instanceof ValidationException) {
 //       return res.status(400).send({
 //         message: error?.message,
@@ -268,7 +260,6 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
 //     }
 //     res.status(200).send({ Result: details, categoryList: categoryList });
 //   } catch (error) {
-//     console.log(error);
 //     if (error instanceof ValidationException) {
 //       return res.status(400).send({
 //         message: error?.message,
