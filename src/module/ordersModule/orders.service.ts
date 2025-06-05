@@ -52,6 +52,7 @@ export const addAllOrders = async (req: Request, res: Response) => {
 export const getOrderDetails = async (req: Request, res: Response) => {
   try {
     const orderid = req.params.orderid;
+    console.log(orderid, 'order')
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
       `  SELECT 
@@ -94,15 +95,15 @@ export const getOrderDetails = async (req: Request, res: Response) => {
             )
     END AS orderAddress
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+    [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
+    [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.category_name = c.categoryid
+    [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
 LEFT JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_address] AS ca ON o.address_id = ca.id
+    [${process.env.DB_name}].[dbo].[customer_address] AS ca ON o.address_id = ca.id
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid 
+    [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid 
 WHERE 
     o.orderid = ${orderid} ; `
     );
@@ -234,13 +235,13 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
     p.image1,
     o.customerid
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+    [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
+    [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.category_name = c.categoryid
+    [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid; `
+    [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid; `
     );
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -259,7 +260,7 @@ export const getOrderId = async (req: Request, res: Response) => {
     const orderRepoistry = appSource.getRepository(orders);
     const orderDetails = await orderRepoistry.query(
       `SELECT orderid
-            FROM [SPARROW_SYSTEMS].[dbo].[orders]
+            FROM [${process.env.DB_name}].[dbo].[orders]
             Group by orderid
             ORDER BY CAST(orderid AS INT) DESC;`
     );
@@ -292,9 +293,9 @@ export const getLatestOrders = async (req: Request, res: Response) => {
     o.created_at,
     o.status
   FROM 
-    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+    [${process.env.DB_name}].[dbo].[orders] AS o
   INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd 
+    [${process.env.DB_name}].[dbo].[customer_details] AS cd 
      ON o.customerid = cd.customerid 
   ORDER BY 
     o.updated_at DESC;`

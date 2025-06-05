@@ -32,11 +32,11 @@ export class products {
     description: string;
     @Column()
     terms: string;
-    @Column()
+    @Column({ nullable: true })
     delivery_days: string;
     @Column()
     warranty: string;
-    @Column({ nullable: true })
+    @Column({ type: 'ntext' , nullable: true })
     document: string;
     @Column({ type: 'ntext' , nullable: true })
     image1: string;

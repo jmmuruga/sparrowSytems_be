@@ -51,7 +51,6 @@ export const addGeneralsettings = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getGeneralSettingsDetails = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(GeneralSettings);
