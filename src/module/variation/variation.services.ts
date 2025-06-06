@@ -19,7 +19,7 @@ export const addVariation = async (req: Request, res: Response) => {
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
-      const { cuid, id, ...updatePayload } = payload;
+      const { id,cuid, ...updatePayload } = payload;
       await Repository.update(
         { variationid: payload.variationid },
         updatePayload
