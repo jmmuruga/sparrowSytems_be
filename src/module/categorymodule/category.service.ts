@@ -10,6 +10,7 @@ import {
 import { Category } from "./category.model";
 import { console } from "inspector/promises";
 import { CategoryNested } from "../categoryNested/categoryNested.model";
+import { products } from "../productModule/product.model";
 
 export const addCategory = async (req: Request, res: Response) => {
   const payload: CategoryDto = req.body;
@@ -147,7 +148,15 @@ export const getHeaderCategory = async (req: Request, res: Response) => {
 export const deleteCategory = async (req: Request, res: Response) => {
   const id = req.params.categoryid;
   const categoryRepo = appSource.getRepository(Category);
+  const productrepo = appSource.getRepository(products)
   try {
+     const existingProduct = await productrepo.findBy({
+     category_name:id
+    })
+    
+     if (existingProduct.length > 0) {
+      throw new ValidationException('Unable to delete category. It is currently in use.');
+     }
     const typeNameFromDb = await categoryRepo
       .createQueryBuilder("Category")
       .where("category.categoryid = :categoryid", {
