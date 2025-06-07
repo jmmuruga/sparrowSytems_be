@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addVariation, generateVariationId, getvariation } from "./variation.services";
+import { addVariation, generateVariationId, getvariation, getVariationGroup, getVariationName } from "./variation.services";
 
 
 
@@ -10,4 +10,9 @@ variationRouter.get('/getVariationid' , (req , res) => {generateVariationId(req 
 variationRouter.get('/getVariation' , (req , res) => {getvariation(req , res)});
 
 
+
+
+
+variationRouter.get('/getVariationGroup', (req, res) => { getVariationGroup(req, res)});
+variationRouter.get('/getVariationName', (req, res) => { getVariationName(req, res)});
 export default  variationRouter
