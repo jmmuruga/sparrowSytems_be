@@ -19,7 +19,7 @@ export class variation {
   name: string;
   @Column()
   itemId: string;
-  @Column()
+  @Column({ nullable: true })
   rowId: string;
   @Column({ default: true })
   status: boolean;
