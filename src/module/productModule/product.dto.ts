@@ -29,7 +29,8 @@ export interface productDetailsDto {
   cuid: number;
   muid: number;
   status: boolean;
-  categoryName? :string;
+  categoryName?: string;
+  subcategoryid: string;
 }
 export interface productStatusDto {
   productid: string;
@@ -40,7 +41,8 @@ export const productDetailsValidation = Joi.object({
   product_name: Joi.string().required(),
   stock: Joi.string().required(), // or Joi.number() if it's a quantity
   brand_name: Joi.string().required(),
-  category_name: Joi.string().required(),
+  category_name: Joi.string().optional(),
+  subcategoryid: Joi.string().optional(),
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
@@ -72,6 +74,7 @@ export const updateDetailsValidation = Joi.object({
   stock: Joi.string().required(), // or Joi.number() if it's a quantity
   brand_name: Joi.string().required(),
   category_name: Joi.string().required(),
+  subcategoryid: Joi.string().optional(),
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
