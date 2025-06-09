@@ -4,44 +4,100 @@ import { Request, Response } from "express";
 import { variation } from "./variation.model";
 import { variationUpdateValidate, variationValidate } from "./variation.dto";
 
+// export const addVariation = async (req: Request, res: Response) => {
+//   const payload: variation = req.body;
+
+//   try {
+//     const Repository = appSource.getRepository(variation);
+
+//     const checkWhetherExist = await Repository.findOneBy({
+//       variationid: payload.variationid,
+//     });
+
+//     if (checkWhetherExist) {
+//       const validation = variationUpdateValidate.validate(payload);
+//       if (validation?.error) {
+//         throw new ValidationException(validation.error.message);
+//       }
+//       const { id,cuid, ...updatePayload } = payload;
+//       await Repository.update(
+//         { variationid: payload.variationid },
+//         updatePayload
+//       );
+//       res.status(200).send({
+//         IsSuccess: " variation updated SuccessFully",
+//       });
+//       return;
+//     } else {
+//       const validation = variationValidate.validate(payload);
+//       if (validation?.error) {
+//         throw new ValidationException(validation.error.message);
+//       }
+
+//       const { id, ...updatePayload } = payload;
+//       await Repository.save(updatePayload);
+//       res.status(200).send({
+//         IsSuccess: " variation added SuccessFully",
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error , 'error')
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error.message,
+//       });
+//     }
+//     res.status(500).send({ message: "Internal server error" });
+//   }
+// };
+
+
+
 export const addVariation = async (req: Request, res: Response) => {
   const payload: variation = req.body;
+  console.log(payload,"hellos")
 
   try {
     const Repository = appSource.getRepository(variation);
 
-    const checkWhetherExist = await Repository.findOneBy({
-      variationid: payload.variationid,
-    });
-
-    if (checkWhetherExist) {
+    if (payload.id) {
+      // ✅ Update specific variation row by id
       const validation = variationUpdateValidate.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
-      const { id,cuid, ...updatePayload } = payload;
-      await Repository.update(
-        { variationid: payload.variationid },
-        updatePayload
-      );
-      res.status(200).send({
-        IsSuccess: " variation updated SuccessFully",
-      });
-      return;
-    } else {
-      const validation = variationValidate.validate(payload);
-      if (validation?.error) {
-        throw new ValidationException(validation.error.message);
+
+      const { id, cuid, ...updatePayload } = payload;
+
+      const existing = await Repository.findOneBy({ id });
+      if (!existing) {
+        return res.status(404).send({ message: "Variation not found for update" });
       }
 
-      const { id, ...updatePayload } = payload;
-      await Repository.save(updatePayload);
+      await Repository.update({ id }, updatePayload);
+
       res.status(200).send({
-        IsSuccess: " variation added SuccessFully",
+        IsSuccess: "Variation updated successfully",
       });
+      return;
     }
+
+    // ✅ Insert new variation row
+    const validation = variationValidate.validate(payload);
+    if (validation?.error) {
+      throw new ValidationException(validation.error.message);
+    }
+
+    const { id, ...insertPayload } = payload;
+
+    await Repository.save(insertPayload);
+
+    res.status(200).send({
+      IsSuccess: "Variation added successfully",
+    });
+
   } catch (error) {
-    console.log(error , 'error')
+    console.log(error, 'error');
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -50,6 +106,7 @@ export const addVariation = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
 
 export const generateVariationId = async (req: Request, res: Response) => {
   try {
