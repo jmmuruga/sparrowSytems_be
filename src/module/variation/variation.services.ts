@@ -55,7 +55,6 @@ import { variationUpdateValidate, variationValidate } from "./variation.dto";
 
 export const addVariation = async (req: Request, res: Response) => {
   const payload: variation = req.body;
-  console.log(payload,"hellos")
 
   try {
     const Repository = appSource.getRepository(variation);
