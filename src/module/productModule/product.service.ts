@@ -108,7 +108,7 @@ export const getProductsDetails = async (req: Request, res: Response) => {
           p.variation_group,
           STUFF((
               SELECT ', ' + v2.name
-              FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+              FROM [${process.env.DB_name}].[dbo].[variation] v2
               WHERE v2.variationGroup = p.variation_group
               FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
           p.description,
@@ -129,7 +129,7 @@ export const getProductsDetails = async (req: Request, res: Response) => {
           p.delivery_days,
           p.document
       FROM 
-          [SPARROW_SYSTEMS].[dbo].[products] p;
+          [${process.env.DB_name}].[dbo].[products] p;
     `);
 
     // Category mapping logic remains the same

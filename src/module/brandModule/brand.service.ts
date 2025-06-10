@@ -28,16 +28,16 @@ export const addBrand = async (req: Request, res: Response) => {
       });
       return;
     }
-    const validation = brandValidation.validate(payload);
-    if (validation?.error) {
-      throw new ValidationException(validation.error.message);
-    }
-    const validateTypeName = await BrandRepository.findBy({
-      email: payload.email,
-    });
-    if (validateTypeName?.length) {
-      throw new ValidationException("Email already exist");
-    }
+    // const validation = brandValidation.validate(payload);
+    // if (validation?.error) {
+    //   throw new ValidationException(validation.error.message);
+    // }
+    // const validateTypeName = await BrandRepository.findBy({
+    //   email: payload.email,
+    // });
+    // if (validateTypeName?.length) {
+    //   throw new ValidationException("Email already exist");
+    // }
     const { brandid, ...updatePayload } = payload;
     await BrandRepository.save(updatePayload);
     res.status(200).send({
