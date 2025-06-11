@@ -51,8 +51,6 @@ import { variationDto, variationUpdateValidate, variationValidate } from "./vari
 //   }
 // };
 
-
-
 export const addVariation = async (req: Request, res: Response) => {
   const payload: variation = req.body;
 
@@ -106,13 +104,12 @@ export const addVariation = async (req: Request, res: Response) => {
   }
 };
 
-
 export const generateVariationId = async (req: Request, res: Response) => {
   try {
     const variationRepoistry = appSource.getRepository(variation);
     const variationList = await variationRepoistry.query(
       `SELECT variationid
-            FROM [SPARROW_SYSTEMS].[dbo].[variation]
+            FROM [${process.env.DB_name}].[dbo].[variation]
             Group by variationid
             ORDER BY CAST(variationid AS INT) DESC;`
     );
@@ -238,7 +235,6 @@ export const variationStatus = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 }
-
 
 export const deleteVariationid = async (req: Request, res: Response) => {
   const id = req.params.id;
