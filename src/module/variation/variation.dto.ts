@@ -6,6 +6,7 @@ export interface variationDto {
   variationGroup: string;
   name: string;
   itemId: string;
+  rowId: string;
   status: boolean;
   cuid: number;
   muid: number;
@@ -16,7 +17,9 @@ export const variationValidate = Joi.object({
   variationid: Joi.string().required(),
   name: Joi.string().required(),
   itemId: Joi.string().required(),
-  // status: Joi.boolean().required(),
+  rowId: Joi.string().required(),
+
+   status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });
@@ -26,7 +29,8 @@ export const variationUpdateValidate = Joi.object({
   variationGroup: Joi.string().required(),
   variationid: Joi.string().required(),
   name: Joi.string().required(),
-  itemId: Joi.string().required(),
+  rowId: Joi.string().required(),
+   itemId: Joi.string().required(),
   status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),

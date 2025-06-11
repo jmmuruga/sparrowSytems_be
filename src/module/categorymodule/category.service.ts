@@ -145,41 +145,35 @@ export const getHeaderCategory = async (req: Request, res: Response) => {
   }
 };
 
+
+
 export const deleteCategory = async (req: Request, res: Response) => {
   const categoryid = Number(req.params.categoryid);
-
+  console.log(categoryid)
   if (isNaN(categoryid)) {
     return res.status(400).send({ message: "Invalid category ID" });
   }
-
   const categoryRepo = appSource.getRepository(Category);
   const productRepo = appSource.getRepository(products);
-
   try {
     // Step 1: Fetch category by ID
     const category = await categoryRepo.findOneBy({ categoryid });
-
     if (!category) {
       throw new HttpException("Category not found", 400);
     }
-
-    const categoryName = category.categoryname.trim().toLowerCase();
-
+    // const categoryName = category.categoryname.trim().toLowerCase();
     // Step 2: Check if any products use this category name
     const usedInProducts = await productRepo
       .createQueryBuilder("product")
-      .where("LOWER(TRIM(product.category_name)) = :categoryName", {
-        categoryName,
+      .where("product.category_name= :categoryid", {
+       categoryid,
       })
       .getCount(); // More efficient than getMany if we only need count
-
     if (usedInProducts > 0) {
-      throw new ValidationException("Unable to delete category. It is currently used by products.");
+      throw new HttpException("Unable to delete category. It is currently used by products.",400);
     }
-
     // Step 3: Delete the category
     await categoryRepo.delete({ categoryid });
-
     res.status(200).send({
       IsSuccess: "Category deleted successfully!",
     });
