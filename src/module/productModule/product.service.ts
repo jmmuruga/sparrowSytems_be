@@ -53,7 +53,9 @@ export const addProducts = async (req: Request, res: Response) => {
     res.status(200).send({
       IsSuccess: "Product Details added SuccessFully",
     });
-  } catch (error) {
+  } catch (error) 
+  {
+    console.error("Error while adding/updating product:", error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

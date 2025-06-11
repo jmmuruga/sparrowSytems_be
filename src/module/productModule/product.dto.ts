@@ -37,12 +37,45 @@ export interface productStatusDto {
   status: boolean;
 }
 
+// export const productDetailsValidation = Joi.object({
+//   product_name: Joi.string().required(),
+//   stock: Joi.string().required(), // or Joi.number() if it's a quantity
+//   brand_name: Joi.string().required(),
+//   category_name: Joi.string().optional(),
+//   subcategoryid: Joi.string().optional(),
+//   mrp: Joi.number().required(),
+//   discount: Joi.number().required(),
+//   offer_price: Joi.number().required(),
+//   min_qty: Joi.number().required(),
+//   max_qty: Joi.number().required(),
+//   delivery_charges: Joi.string().required(),
+//   delivery_amount: Joi.number().optional().allow(null, ""),
+//   variation_group: Joi.string().optional().allow(null, ""),
+//   description: Joi.string().required(),
+//   terms: Joi.string().required(),
+//   delivery_days: Joi.string().required(),
+//   warranty: Joi.string().required(),
+//   document: Joi.string().optional().allow(null, ""),
+//   image1: Joi.string().optional().allow(null, ""),
+//   image2: Joi.string().optional().allow(null, ""),
+//   image3: Joi.string().optional().allow(null, ""),
+//   image4: Joi.string().optional().allow(null, ""),
+//   image5: Joi.string().optional().allow(null, ""),
+//   image6: Joi.string().optional().allow(null, ""),
+//   image7: Joi.string().optional().allow(null, ""),
+//   cuid: Joi.number().allow(null, ""),
+//   muid: Joi.number().allow(null, ""),
+//   status: Joi.boolean().optional(),
+// });
+
 export const productDetailsValidation = Joi.object({
   product_name: Joi.string().required(),
-  stock: Joi.string().required(), // or Joi.number() if it's a quantity
+  stock: Joi.string().required(),
   brand_name: Joi.string().required(),
-  category_name: Joi.string().optional(),
-  subcategoryid: Joi.string().optional(),
+
+  category_name: Joi.string().allow("", null),
+  subcategoryid: Joi.string().allow("", null),
+
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
@@ -66,15 +99,49 @@ export const productDetailsValidation = Joi.object({
   cuid: Joi.number().allow(null, ""),
   muid: Joi.number().allow(null, ""),
   status: Joi.boolean().optional(),
-});
+}).xor("category_name", "subcategoryid"); // ✅ ensures exactly one is present
+
+// export const updateDetailsValidation = Joi.object({
+//   productid: Joi.number().required(),
+//   product_name: Joi.string().required(),
+//   stock: Joi.string().required(), // or Joi.number() if it's a quantity
+//   brand_name: Joi.string().required(),
+//   category_name: Joi.string().optional(),
+//   subcategoryid: Joi.string().optional(),
+//   mrp: Joi.number().required(),
+//   discount: Joi.number().required(),
+//   offer_price: Joi.number().required(),
+//   min_qty: Joi.number().required(),
+//   max_qty: Joi.number().required(),
+//   delivery_charges: Joi.string().required(),
+//   delivery_amount: Joi.number().optional().allow(null, ""),
+//   variation_group: Joi.string().optional().allow(null, ""),
+//   description: Joi.string().required(),
+//   terms: Joi.string().required(),
+//   delivery_days: Joi.string().required(),
+//   warranty: Joi.string().required(),
+//   document: Joi.string().optional().allow(null, ""),
+//   image1: Joi.string().optional().allow(null, ""),
+//   image2: Joi.string().optional().allow(null, ""),
+//   image3: Joi.string().optional().allow(null, ""),
+//   image4: Joi.string().optional().allow(null, ""),
+//   image5: Joi.string().optional().allow(null, ""),
+//   image6: Joi.string().optional().allow(null, ""),
+//   image7: Joi.string().optional().allow(null, ""),
+//   cuid: Joi.number().allow(null, ""),
+//   muid: Joi.number().allow(null, ""),
+//   status: Joi.boolean().optional(),
+// });
 
 export const updateDetailsValidation = Joi.object({
   productid: Joi.number().required(),
   product_name: Joi.string().required(),
-  stock: Joi.string().required(), // or Joi.number() if it's a quantity
+  stock: Joi.string().required(),
   brand_name: Joi.string().required(),
-  category_name: Joi.string().required(),
-  subcategoryid: Joi.string().optional(),
+
+  category_name: Joi.string().allow("", null),
+  subcategoryid: Joi.string().allow("", null),
+
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
@@ -98,4 +165,4 @@ export const updateDetailsValidation = Joi.object({
   cuid: Joi.number().allow(null, ""),
   muid: Joi.number().allow(null, ""),
   status: Joi.boolean().optional(),
-});
+}).xor("category_name", "subcategoryid");

@@ -19,7 +19,7 @@ export interface bannerStatusDto{
 export const bannerDetailsValidation = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
-    link: Joi.string().optional(),
+    link: Joi.string().allow('', null).optional(),
     image: Joi.string().required(),
     cuid: Joi.number().optional(),
     muid: Joi.number().optional(),
@@ -30,7 +30,7 @@ export const updateBannerValidation = Joi.object({
     bannerid: Joi.number().required(),
     title: Joi.string().required(),
     description: Joi.string().required(),
-    link: Joi.string().optional(),
+    link: Joi.string().allow('', null).optional(),
     image: Joi.string().required(),
     cuid: Joi.number().optional(),
     muid: Joi.number().optional(),

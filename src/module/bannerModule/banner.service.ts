@@ -14,6 +14,7 @@ export const newBanner = async (req: Request, res: Response) => {
   try {
     const BannerRepository = appSource.getRepository(banner);
     if (payload.bannerid) {
+      // console.log(payload.status, typeof payload.status, 'status initially')
       const validation = updateBannerValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -25,7 +26,13 @@ export const newBanner = async (req: Request, res: Response) => {
         throw new ValidationException("banner not found");
       }
       const { cuid, bannerid, ...updatePayload } = payload;
-      updatePayload.status = Boolean(updatePayload.status)
+
+      // Safe conversion from "true"/"false"/true/false to boolean
+      updatePayload.status = String(payload.status).toLowerCase() === "true";
+
+      // console.log(payload.status, typeof payload.status, 'status initially');
+      // console.log(updatePayload.status, typeof updatePayload.status, 'converted status');
+
       await BannerRepository.update(
         { bannerid: payload.bannerid },
         updatePayload
@@ -120,7 +127,7 @@ export const changeStatusBanner = async (req: Request, res: Response) => {
   const details = await BannerRepository.findOneBy({
     bannerid: Number(status.bannerid),
   });
-  
+
   try {
     if (!details) throw new HttpException("banner not Found", 400);
     await BannerRepository.createQueryBuilder()
