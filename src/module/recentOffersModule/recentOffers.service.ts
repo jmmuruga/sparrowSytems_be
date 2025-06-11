@@ -10,8 +10,6 @@ export const addRecentOffersSettings = async (req: Request, res: Response) => {
   const recentOffersRepository = appSource.getRepository(RecentOffers);
   try {
     if (payload.id) {
-      // console.log("Updating Recent Offers settings");
-
       const updateError = updateRecentOffersValidation.validate(payload);
       if (updateError.error) {
         throw new ValidationException(updateError.error.message);
@@ -43,7 +41,6 @@ export const addRecentOffersSettings = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error("Error adding Recent Offers settings:", error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -103,7 +100,6 @@ INNER JOIN [${process.env.DB_name}].[dbo].[products] p
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

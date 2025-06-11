@@ -57,7 +57,6 @@ export const addAllOrders = async (req: Request, res: Response) => {
         : "Order placed successfully",
     });
   } catch (error) {
-    console.error(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -70,7 +69,6 @@ export const addAllOrders = async (req: Request, res: Response) => {
 export const getOrderDetails = async (req: Request, res: Response) => {
   try {
     const orderid = req.params.orderid;
-    console.log(orderid, 'order')
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
       `  SELECT 
@@ -127,7 +125,6 @@ WHERE
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -219,7 +216,6 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
       IsSuccess: `Status for order updated successfully!`,
     });
   } catch (error: any) {
-    console.log(error);
     return res.status(error.statusCode || 500).send({
       IsSuccess: false,
       Message: error.message || "Something went wrong",
@@ -264,7 +260,6 @@ INNER JOIN
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -316,7 +311,6 @@ INNER JOIN
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -346,7 +340,6 @@ export const getOrderId = async (req: Request, res: Response) => {
       Result: id + 1,
     });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -376,7 +369,6 @@ export const getLatestOrders = async (req: Request, res: Response) => {
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

@@ -28,6 +28,9 @@ import recentOffersRouter from "./module/recentOffersModule/recentOffers.control
 import newProductsRouter from "./module/newProductsModule/newProducts.controller";
 import getInTouchRouter from "./module/getInTouchModule/getInTouch.controller";
 import variationRouter from "./module/variation/variation.controller";
+import razorPayRouter from "./module/razorpaymentModule/razorpay.controller";
+import contactRouter from "./module/contactFormModule/contactForm.controller";
+
 
 
 
@@ -68,6 +71,7 @@ app.use('/recentOffersRouter', cors(corsOptions), recentOffersRouter);
 app.use('/newProductsRouter', cors(corsOptions), newProductsRouter);
 app.use('/getInTouchRouter', cors(corsOptions), getInTouchRouter);
 app.use('/variationRouter', cors(corsOptions), variationRouter);
-
+app.use('/razorPayRouter', cors(corsOptions), razorPayRouter);
+app.use('/contactRouter', cors(corsOptions), contactRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

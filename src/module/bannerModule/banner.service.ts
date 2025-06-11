@@ -11,11 +11,10 @@ import { banner } from "./banner.model";
 
 export const newBanner = async (req: Request, res: Response) => {
   const payload: bannerDetailsDto = req.body;
-  // console.log(payload.status, "payload");
   try {
     const BannerRepository = appSource.getRepository(banner);
     if (payload.bannerid) {
-      // console.log("came nto update");
+      // console.log(payload.status, typeof payload.status, 'status initially')
       const validation = updateBannerValidation.validate(payload);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -27,7 +26,13 @@ export const newBanner = async (req: Request, res: Response) => {
         throw new ValidationException("banner not found");
       }
       const { cuid, bannerid, ...updatePayload } = payload;
-      updatePayload.status = Boolean(updatePayload.status)
+
+      // Safe conversion from "true"/"false"/true/false to boolean
+      updatePayload.status = String(payload.status).toLowerCase() === "true";
+
+      // console.log(payload.status, typeof payload.status, 'status initially');
+      // console.log(updatePayload.status, typeof updatePayload.status, 'converted status');
+
       await BannerRepository.update(
         { bannerid: payload.bannerid },
         updatePayload
@@ -56,7 +61,6 @@ export const newBanner = async (req: Request, res: Response) => {
       IsSuccess: "banner Details added SuccessFully",
     });
   } catch (error) {
-    // console.log(error, "error");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -86,7 +90,6 @@ export const getBannerDetail = async (req: Request, res: Response) => {
 
 export const deleteBanner = async (req: Request, res: Response) => {
   const id = req.params.bannerid;
-  // console.log("Received Banner ID:", id);
   const bannerRepo = appSource.getRepository(banner);
   try {
     const typeNameFromDb = await bannerRepo
@@ -124,7 +127,7 @@ export const changeStatusBanner = async (req: Request, res: Response) => {
   const details = await BannerRepository.findOneBy({
     bannerid: Number(status.bannerid),
   });
-  
+
   try {
     if (!details) throw new HttpException("banner not Found", 400);
     await BannerRepository.createQueryBuilder()

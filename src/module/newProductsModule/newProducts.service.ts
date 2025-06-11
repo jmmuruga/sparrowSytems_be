@@ -10,7 +10,6 @@ export const addNewProducts = async (req: Request, res: Response) => {
   const newProductsRepository = appSource.getRepository(Newproducts);
   try {
     if (payload.id) {
-      console.log("Updating New Products settings");
 
       const updateError = updateNewProductsValidation.validate(payload);
       if (updateError.error) {
@@ -43,7 +42,6 @@ export const addNewProducts = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error("Error adding New Products settings:", error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -96,7 +94,6 @@ OUTER APPLY (
     );
     res.status(200).send({ Result: details });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

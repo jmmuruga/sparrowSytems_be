@@ -2,7 +2,7 @@ import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import { variation } from "./variation.model";
-import { variationUpdateValidate, variationValidate } from "./variation.dto";
+import { variationDto, variationUpdateValidate, variationValidate } from "./variation.dto";
 
 // export const addVariation = async (req: Request, res: Response) => {
 //   const payload: variation = req.body;
@@ -149,29 +149,50 @@ export const getvariation = async (req: Request, res: Response) => {
     }
     res.status(500).send(error);
   }
+}
+export const getVariationGroup = async (req: Request, res: Response) => {
+  try {
+    const orderRepository = appSource.getRepository(variation);
+    const details: variationDto[] = await orderRepository.query(
+      `SELECT 
+    variationid,
+    MAX(id) AS id,
+    MAX(variationGroup) AS variationGroup,
+    MAX(name) AS name,
+    MAX(itemId) AS itemId,
+    MAX(CAST(status AS INT)) AS status,
+    MAX(cuid) AS cuid,
+    MAX(muid) AS muid,
+    MAX(created_at) AS created_at,
+    MAX(updated_at) AS updated_at
+FROM [${process.env.DB_name}].[dbo].[variation]
+GROUP BY variationid`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
 };
 
-export const deleteVariationid = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const Repo = appSource.getRepository(variation);
-
+export const getVariationName = async (req: Request, res: Response) => {
   try {
-    const deleteVariation = await Repo.createQueryBuilder("variation")
-      .where("variation.variationid = :id", {
-        id: id,
-      })
-      .getOne();
-    if (!deleteVariation) {
-      throw new HttpException("id not Found", 400);
-    }
-    await Repo.createQueryBuilder("variation")
-      .delete()
-      .from(variation)
-      .where("variationid = :id", { id: id })
-      .execute();
-    res.status(200).send({
-      IsSuccess: `id  deleted successfully!`,
-    });
+    const orderRepository = appSource.getRepository(variation);
+    const details: variationDto[] = await orderRepository.query(
+      `SELECT TOP 1000 
+    p.productid,
+    p.variation_group,
+    v.id AS variation_id,
+    v.name AS variation_name
+FROM [${process.env.DB_name}].[dbo].[products] p
+INNER JOIN [${process.env.DB_name}].[dbo].[variation] v
+    ON p.variation_group = v.variationGroup`
+    );
+    res.status(200).send({ Result: details });
   } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -207,7 +228,8 @@ export const variationStatus = async (req: Request, res: Response) => {
     res.status(200).send({
       IsSuccess: `Status Updated successfully!`,
     });
-  } catch (error) {
+  }
+  catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -215,4 +237,36 @@ export const variationStatus = async (req: Request, res: Response) => {
     }
     res.status(500).send(error);
   }
-};
+}
+
+
+export const deleteVariationid = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const Repo = appSource.getRepository(variation);
+
+  try {
+    const deleteVariation = await Repo.createQueryBuilder("variation")
+      .where("variation.variationid = :id", {
+        id: id,
+      })
+      .getOne();
+    if (!deleteVariation) {
+      throw new HttpException("id not Found", 400);
+    }
+    await Repo.createQueryBuilder("variation")
+      .delete()
+      .from(variation)
+      .where("variationid = :id", { id: id })
+      .execute();
+    res.status(200).send({
+      IsSuccess: `id  deleted successfully!`,
+    });
+  }catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+}

@@ -62,5 +62,6 @@ export class products {
     updatedAt: Date;
     @Column({default: true})
     status: boolean;
-
+    @Column({nullable: true})
+    subcategoryid: string;
 }

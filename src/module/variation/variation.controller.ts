@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addVariation, deleteVariationid, generateVariationId, getvariation, variationStatus } from "./variation.services";
+import { addVariation, deleteVariationid, generateVariationId, getvariation, getVariationGroup, getVariationName, variationStatus } from "./variation.services";
 
 
 
@@ -14,4 +14,9 @@ variationRouter.delete("/deletevariationid/:id", (req, res) => {
 variationRouter.put('/update-status/:status/:id',(req, res) => {  variationStatus(req, res);
 });
 
+
+
+
+variationRouter.get('/getVariationGroup', (req, res) => { getVariationGroup(req, res)});
+variationRouter.get('/getVariationName', (req, res) => { getVariationName(req, res)});
 export default  variationRouter
