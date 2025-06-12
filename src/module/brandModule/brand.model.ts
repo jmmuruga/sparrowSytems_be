@@ -42,6 +42,8 @@ export class BrandDetail {
   @Column({ type: "ntext" })
   brandimage: string;
   @Column({ nullable: true })
+  productcount: number;
+  @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
   muid: number;

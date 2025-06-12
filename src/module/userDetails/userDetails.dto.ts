@@ -2,6 +2,7 @@ import Joi from "joi";
 
 export interface userDetailsDto {
     userid: number;
+    username:string;
     email: string;
     userType: string;
     password: string;
@@ -12,6 +13,7 @@ export interface userDetailsDto {
 }
 export const userDetailsValidation = Joi.object({
     email: Joi.string().required(),
+    username: Joi.string().required(),
     userType: Joi.string().required(),
     password: Joi.string().required(),
     confirmPassword: Joi.string().required(),
@@ -23,6 +25,7 @@ export const userDetailsValidation = Joi.object({
 export const userDetailsUpadteValidation = Joi.object({
     userid: Joi.number().required(),
     email: Joi.string().required(),
+    username: Joi.string().required(),
     userType: Joi.string().required(),
     password: Joi.string().required(),
     confirmPassword: Joi.string().required(),
