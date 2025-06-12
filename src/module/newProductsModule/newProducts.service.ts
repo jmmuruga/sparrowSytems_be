@@ -71,7 +71,7 @@ export const getNewProductsDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
+export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   try {
     const recentOffersRepository = appSource.getRepository(Newproducts);
     const details: NewProductsDto[] = await recentOffersRepository.query(
@@ -82,8 +82,23 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
   p.product_name,
   p.discount,
   p.offer_price,
+  p.stock,
+  p.delivery_days,
   p.mrp,
-  p.image1
+  p.document,
+  p.image1,
+  p.brand_name,
+  p.delivery_amount,
+  p.variation_group,
+  STUFF((
+    SELECT ', ' + v2.name
+    FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+    WHERE v2.variationGroup = p.variation_group
+    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+ p.description,
+ p.terms,
+ p.warranty
+
 FROM [${process.env.DB_name}].[dbo].[newproducts] np
 OUTER APPLY (
     SELECT TOP (np.products_Limit) *
@@ -102,3 +117,65 @@ OUTER APPLY (
     res.status(500).send(error);
   }
 };
+
+
+// export const getNewProductsToDisplay = async (req: Request, res: Response) => {
+//   try {
+//     const recentOffersRepository = appSource.getRepository(Newproducts);
+//     const details: NewProductsDto[] = await recentOffersRepository.query(
+//       `  SELECT
+//   np.status,
+//   np.products_Limit,
+//   p.productid,
+//           p.product_name,
+//           p.stock,
+//           p.brand_name,
+//           p.category_name,
+//           p.mrp,
+//           p.discount,
+//           p.offer_price,
+//           p.min_qty,
+//           p.max_qty,
+//           p.delivery_charges,
+//           p.delivery_amount,
+//           p.variation_group,
+//           STUFF((
+//               SELECT ', ' + v2.name
+//               FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//               WHERE v2.variationGroup = p.variation_group
+//               FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+//           p.description,
+//           p.terms,
+//           p.warranty,
+//           p.image1,
+//           p.image2,
+//           p.image3,
+//           p.image4,
+//           p.image5,
+//           p.image6,
+//           p.image7,
+//           p.cuid,
+//           p.muid,
+//           p.created_at,
+//           p.updated_at,
+//           p.status,
+//           p.delivery_days,
+//           p.document
+// FROM [SPARROW_SYSTEMS].[dbo].[newproducts] np
+// OUTER APPLY (
+//     SELECT TOP (np.products_Limit) *
+//     FROM [SPARROW_SYSTEMS].[dbo].[products] p
+//     ORDER BY p.created_at DESC 
+// ) p 
+//  WHERE p.status = 1`
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
