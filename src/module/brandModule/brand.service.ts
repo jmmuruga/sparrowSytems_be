@@ -1,6 +1,6 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
-import { brandDto, brandValidation, updateBrandValidation } from "./brand.dto";
+import { brandDto, brandValidation, changebrandStatusDto, updateBrandValidation } from "./brand.dto";
 import { Request, Response } from "express";
 import { BrandDetail } from "./brand.model";
 import { products } from "../productModule/product.model";
@@ -96,26 +96,22 @@ export const deleteBrand = async (req: Request, res: Response) => {
 };
 
 export const changeStatusBrand = async (req: Request, res: Response) => {
-  const id = req.params.albumid;
-
-  const statusVal: boolean = req.params.status === "true";
-  const repo = appSource.getRepository(BrandDetail);
+  const  brandStatus: changebrandStatusDto = req.body;
+  console.log( brandStatus, "categoryStatus");
+  const brandRepository = appSource.getRepository(BrandDetail);
 
   try {
-    const typeNameFromDb = await repo
-      .createQueryBuilder("BrandDetail")
-      .where("BrandDetail.brandid = :brandid", {
-        albumid: id,
-      })
-      .getOne();
-    if (!typeNameFromDb?.brandid) {
+    const categoryFromDB = await brandRepository.findBy({
+      brandid:brandStatus.brandid,
+    });
+    if (categoryFromDB.length == 0) {
       throw new HttpException("Data not Found", 400);
     }
-    await repo
+    await brandRepository
       .createQueryBuilder()
       .update(BrandDetail)
-      .set({ status: statusVal })
-      .where({ brandid: id })
+      .set({ status:brandStatus.status })
+      .where("brandid = :brandid", { brandid: brandStatus.brandid })
       .execute();
 
     res.status(200).send({
@@ -130,6 +126,7 @@ export const changeStatusBrand = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
 
 export const getBrandDetail = async (req: Request, res: Response) => {
   try {
@@ -221,3 +218,59 @@ export const updateBrand = async (req: Request, res: Response) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
+
+
+
+export const getBrandCount = async (req: Request, res: Response) => {
+  try {
+    const brandid = req.params.brandid
+    const brandRepository = appSource.getRepository(BrandDetail);
+    const details:brandDto[] = await brandRepository. query(
+     `
+     select brandid from [${process.env.DB_name}].[dbo].[brand_detail] 
+     inner join [${process.env.DB_name}].[dbo].[products]
+     on brand_detail.brandname = products.brand_name 
+     where brand_detail.brandid = ${brandid};
+     `
+
+    );
+    res.status(200).send({ Result: details });
+   
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+export const getActiveBrandCount = async (req: Request, res: Response) => {
+  try {
+    const brandname = req.params.brandname
+    const brandRepository = appSource.getRepository(BrandDetail);
+    const details:brandDto[] = await brandRepository. query(
+     `
+     select products.brand_name from [${process.env.DB_name}].[dbo].[brand_detail] 
+     inner join [${process.env.DB_name}].[dbo].[products]
+     on brand_detail.brandname = products.brand_name 
+     where products.status = 1 and products.brand_name = '${brandname}';
+     `
+
+    );
+    res.status(200).send({ Result: details });
+   
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+

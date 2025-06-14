@@ -9,8 +9,8 @@ import {
 export class UserDetails {
   @PrimaryGeneratedColumn()
   userid: number;
-  // @Column()
-  // user_name: string;
+   @Column({ nullable: true })
+   username: string;
   // @Column()
   // role: String;
   @Column()

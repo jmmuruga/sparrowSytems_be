@@ -28,11 +28,11 @@ export const brandValidation = Joi.object({
   pincode: Joi.string().required(),
   city: Joi.string().required(),
   state: Joi.string().required(),
-  country: Joi.string().required(),
-  contact_number: Joi.string().required(),
-  mobile_number: Joi.string().required(),
-  customercare_number: Joi.string().required(),
-  tollfree_number: Joi.string().required(),
+  country:Joi.string().required(),
+  contact_number:Joi.string().required(),
+  mobile_number: Joi.string().optional(),
+  customercare_number: Joi.string().allow("", null).optional(),
+  tollfree_number:Joi.string().allow("", null).optional(),
   email: Joi.string().required(),
   website: Joi.string().required(),
   status: Joi.boolean().required(),
@@ -40,6 +40,13 @@ export const brandValidation = Joi.object({
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });
+
+
+
+export interface changebrandStatusDto {
+  brandid: number;
+  status: boolean;
+}
 export const updateBrandValidation = Joi.object({
     brandid: Joi.number().required(),
     brandname: Joi.string().required(),
@@ -50,10 +57,10 @@ export const updateBrandValidation = Joi.object({
      city: Joi.string().required(),
      state: Joi.string().required(),
      country: Joi.string().required(),
-     contact_number: Joi.string().required(),
-     mobile_number: Joi.string().required(),
-     customercare_number: Joi.string().required(),
-     tollfree_number: Joi.string().required(),
+     contact_number:Joi.string().required(),
+     mobile_number:  Joi.string().allow("", null).optional(),
+     customercare_number:Joi.string().allow("", null).optional(),
+     tollfree_number: Joi.string().allow("", null).optional(),
     email: Joi.string().required(),
     website: Joi.string().required(),
     status: Joi.boolean().required(),
