@@ -68,38 +68,38 @@ export interface productStatusDto {
 //   status: Joi.boolean().optional(),
 // });
 
-export const productDetailsValidation = Joi.object({
-  product_name: Joi.string().required(),
-  stock: Joi.string().required(),
-  brand_name: Joi.string().required(),
+// export const productDetailsValidation = Joi.object({
+//   product_name: Joi.string().required(),
+//   stock: Joi.string().required(),
+//   brand_name: Joi.string().required(),
 
-  category_name: Joi.string().allow("", null),
-  subcategoryid: Joi.string().allow("", null),
+//   category_name: Joi.string().allow("", null),
+//   subcategoryid: Joi.string().allow("", null),
 
-  mrp: Joi.number().required(),
-  discount: Joi.number().required(),
-  offer_price: Joi.number().required(),
-  min_qty: Joi.number().required(),
-  max_qty: Joi.number().required(),
-  delivery_charges: Joi.string().required(),
-  delivery_amount: Joi.number().optional().allow(null, ""),
-  variation_group: Joi.string().optional().allow(null, ""),
-  description: Joi.string().required(),
-  terms: Joi.string().required(),
-  delivery_days: Joi.string().required(),
-  warranty: Joi.string().required(),
-  document: Joi.string().optional().allow(null, ""),
-  image1: Joi.string().optional().allow(null, ""),
-  image2: Joi.string().optional().allow(null, ""),
-  image3: Joi.string().optional().allow(null, ""),
-  image4: Joi.string().optional().allow(null, ""),
-  image5: Joi.string().optional().allow(null, ""),
-  image6: Joi.string().optional().allow(null, ""),
-  image7: Joi.string().optional().allow(null, ""),
-  cuid: Joi.number().allow(null, ""),
-  muid: Joi.number().allow(null, ""),
-  status: Joi.boolean().optional(),
-}).xor("category_name", "subcategoryid"); // ✅ ensures exactly one is present
+//   mrp: Joi.number().required(),
+//   discount: Joi.number().required(),
+//   offer_price: Joi.number().required(),
+//   min_qty: Joi.number().required(),
+//   max_qty: Joi.number().required(),
+//   delivery_charges: Joi.string().required(),
+//   delivery_amount: Joi.number().optional().allow(null, ""),
+//   variation_group: Joi.string().optional().allow(null, ""),
+//   description: Joi.string().required(),
+//   terms: Joi.string().required(),
+//   delivery_days: Joi.string().required(),
+//   warranty: Joi.string().required(),
+//   document: Joi.string().optional().allow(null, ""),
+//   image1: Joi.string().optional().allow(null, ""),
+//   image2: Joi.string().optional().allow(null, ""),
+//   image3: Joi.string().optional().allow(null, ""),
+//   image4: Joi.string().optional().allow(null, ""),
+//   image5: Joi.string().optional().allow(null, ""),
+//   image6: Joi.string().optional().allow(null, ""),
+//   image7: Joi.string().optional().allow(null, ""),
+//   cuid: Joi.number().allow(null, ""),
+//   muid: Joi.number().allow(null, ""),
+//   status: Joi.boolean().optional(),
+// }).xor("category_name", "subcategoryid"); // ✅ ensures exactly one is present
 
 // export const updateDetailsValidation = Joi.object({
 //   productid: Joi.number().required(),
@@ -132,6 +132,36 @@ export const productDetailsValidation = Joi.object({
 //   muid: Joi.number().allow(null, ""),
 //   status: Joi.boolean().optional(),
 // });
+
+export const productDetailsValidation = Joi.object({
+  product_name: Joi.string().required(),
+  stock: Joi.string().required(),
+  brand_name: Joi.string().required(),
+  category_name: Joi.string().optional(),
+  mrp: Joi.number().required(),
+  discount: Joi.number().required(),
+  offer_price: Joi.number().required(),
+  min_qty: Joi.number().required(),
+  max_qty: Joi.number().required(),
+  delivery_charges: Joi.string().required(),
+  delivery_amount: Joi.number().optional().allow(null),
+  variation_group: Joi.string().allow('').optional(),
+  description: Joi.string().required(),
+  terms: Joi.string().required(),
+  delivery_days: Joi.string().optional(),
+  warranty: Joi.string().required(),
+  document: Joi.string().optional().allow(""), // base64 document
+  subcategoryid: Joi.string().optional().allow("", null),
+
+
+  // ✅ Add this:
+  images: Joi.array().items(
+    Joi.object({
+      image: Joi.string().required(),
+      image_title: Joi.string().allow(""),
+    })
+  ).optional(),
+});
 
 export const updateDetailsValidation = Joi.object({
   productid: Joi.number().required(),

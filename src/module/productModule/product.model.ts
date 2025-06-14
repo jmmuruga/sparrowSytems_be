@@ -38,24 +38,6 @@ export class products {
     warranty: string;
     @Column({ type: 'ntext' , nullable: true })
     document: string;
-    @Column({ type: 'ntext' , nullable: true })
-    image1: string;
-    @Column({ type: 'ntext' , nullable: true })
-    image2: string;
-    @Column({ type: 'ntext' , nullable: true })
-    image3: string;
-    @Column({ type: 'ntext'  , nullable: true})
-    image4: string;
-    @Column({ type: 'ntext' , nullable: true })
-    image5: string;
-    @Column({ type: 'ntext' , nullable: true })
-    image6: string;
-    @Column({ type: 'ntext' , nullable: true })
-    image7: string;
-    @Column({ nullable: true })
-    cuid: number;
-    @Column({ nullable: true })
-    muid: number;
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;
     @UpdateDateColumn({ name: "updated_at" })
@@ -64,4 +46,19 @@ export class products {
     status: boolean;
     @Column({nullable: true})
     subcategoryid: string;
+}
+@Entity()
+export class ProductNested {
+    @PrimaryGeneratedColumn()
+    id: number;
+    @Column()
+    productid: number;
+    @Column({ type: 'ntext' , nullable: true })
+    image: string;
+    @Column()
+    image_title: string;
+    @CreateDateColumn()
+    createdAt: Date;
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

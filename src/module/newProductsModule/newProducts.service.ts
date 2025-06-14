@@ -71,6 +71,52 @@ export const getNewProductsDetails = async (req: Request, res: Response) => {
   }
 };
 
+// export const getNewProductsToDisplay = async (req: Request, res: Response) => {
+//   try {
+//     const recentOffersRepository = appSource.getRepository(Newproducts);
+//     const details: NewProductsDto[] = await recentOffersRepository.query(
+//       `  SELECT
+//   np.status,
+//   np.products_Limit,
+//   p.productid,
+//   p.product_name,
+//   p.discount,
+//   p.offer_price,
+//   p.stock,
+//   p.delivery_days,
+//   p.mrp,
+//   p.document,
+//   p.image1,
+//   p.brand_name,
+//   p.delivery_amount,
+//   p.variation_group,
+//   STUFF((
+//     SELECT ', ' + v2.name
+//     FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//     WHERE v2.variationGroup = p.variation_group
+//     FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+//  p.description,
+//  p.terms,
+//  p.warranty
+
+// FROM [${process.env.DB_name}].[dbo].[newproducts] np
+// OUTER APPLY (
+//     SELECT TOP (np.products_Limit) *
+//     FROM [${process.env.DB_name}].[dbo].[products] p
+//     ORDER BY p.created_at DESC 
+// ) p 
+//  WHERE p.status = 1`
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
 export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   try {
     const recentOffersRepository = appSource.getRepository(Newproducts);
@@ -86,26 +132,44 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   p.delivery_days,
   p.mrp,
   p.document,
-  p.image1,
   p.brand_name,
   p.delivery_amount,
   p.variation_group,
+
+  -- Variation names
   STUFF((
     SELECT ', ' + v2.name
     FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
     WHERE v2.variationGroup = p.variation_group
     FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
- p.description,
- p.terms,
- p.warranty
 
-FROM [${process.env.DB_name}].[dbo].[newproducts] np
+  p.description,
+  p.terms,
+  p.warranty,
+
+  -- Top 1 image and image title from product_nested
+  pn.image AS top_image,
+  pn.image_title AS top_image_title
+
+FROM [SPARROW_SYSTEMS].[dbo].[newproducts] np
+
 OUTER APPLY (
     SELECT TOP (np.products_Limit) *
-    FROM [${process.env.DB_name}].[dbo].[products] p
+    FROM [SPARROW_SYSTEMS].[dbo].[products] p
+    WHERE p.status = 1
     ORDER BY p.created_at DESC 
-) p 
- WHERE p.status = 1`
+) p
+
+-- Nested OUTER APPLY to get top 1 image per product
+OUTER APPLY (
+    SELECT TOP 1 
+        CAST(pn.image AS NVARCHAR(MAX)) AS image,
+        CAST(pn.image_title AS NVARCHAR(MAX)) AS image_title
+    FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    ORDER BY pn.id -- or created_at, if available
+) pn;
+`
     );
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -117,7 +181,6 @@ OUTER APPLY (
     res.status(500).send(error);
   }
 };
-
 
 // export const getNewProductsToDisplay = async (req: Request, res: Response) => {
 //   try {
@@ -165,8 +228,8 @@ OUTER APPLY (
 // OUTER APPLY (
 //     SELECT TOP (np.products_Limit) *
 //     FROM [SPARROW_SYSTEMS].[dbo].[products] p
-//     ORDER BY p.created_at DESC 
-// ) p 
+//     ORDER BY p.created_at DESC
+// ) p
 //  WHERE p.status = 1`
 //     );
 //     res.status(200).send({ Result: details });
