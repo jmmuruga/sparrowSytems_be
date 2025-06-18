@@ -9,9 +9,9 @@ export class products {
     @Column()
     stock: string;
     @Column()
-    brand_name: string;
+    brandid: number;
     @Column()
-    category_name: string;
+    categoryid: number;
     @Column()
     mrp: number;
     @Column()
@@ -45,7 +45,7 @@ export class products {
     @Column({default: true})
     status: boolean;
     @Column({nullable: true})
-    subcategoryid: string;
+    subcategoryid: number;
 }
 @Entity()
 export class ProductNested {

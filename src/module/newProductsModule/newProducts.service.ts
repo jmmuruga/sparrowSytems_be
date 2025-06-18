@@ -122,7 +122,7 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
     const recentOffersRepository = appSource.getRepository(Newproducts);
     const details: NewProductsDto[] = await recentOffersRepository.query(
       `  SELECT
-  np.status,
+  np.status AS newproduct_status,
   np.products_Limit,
   p.productid,
   p.product_name,
@@ -132,7 +132,9 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   p.delivery_days,
   p.mrp,
   p.document,
-  p.brand_name,
+  p.brandid,
+  p.categoryid,
+  p.subcategoryid,
   p.delivery_amount,
   p.variation_group,
 
