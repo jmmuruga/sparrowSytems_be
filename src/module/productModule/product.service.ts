@@ -256,7 +256,7 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.variation_group,
     STUFF((
         SELECT ', ' + CAST(v2.name AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
         WHERE v2.variationGroup = p.variation_group
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
     p.description,
@@ -269,22 +269,22 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.document,
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         ORDER BY pn.id ASC
     ) AS image1,
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images,
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[products] p
+    [${process.env.DB_name}].[dbo].[products] p
 
     `);
 
@@ -334,7 +334,7 @@ export const getNewAddedProductsDetails = async (req: Request, res: Response) =>
     -- All variation names (comma-separated)
     STUFF((
         SELECT ', ' + v2.name
-        FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
         WHERE v2.variationGroup = p.variation_group
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
 
@@ -350,19 +350,19 @@ export const getNewAddedProductsDetails = async (req: Request, res: Response) =>
     -- All image titles for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
 
     -- All images for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
 
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[products] p;
+    [${process.env.DB_name}].[dbo].[products] p;
 
     `);
 
@@ -473,13 +473,13 @@ export const getTopFirstImage = async (req: Request, res: Response) => {
     pn.image AS top_image,
     pn.image_title AS top_image_title
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[products] p
+    [${process.env.DB_name}].[dbo].[products] p
 OUTER APPLY (
     SELECT TOP 1 
         CAST(image AS NVARCHAR(MAX)) AS image,
         CAST(image_title AS NVARCHAR(MAX)) AS image_title
     FROM 
-        [SPARROW_SYSTEMS].[dbo].[product_nested]
+        [${process.env.DB_name}].[dbo].[product_nested]
     WHERE 
         productid = p.productid
     ORDER BY 
@@ -640,7 +640,7 @@ OUTER APPLY (
 //     -- All variation names (comma-separated)
 //     STUFF((
 //         SELECT ', ' + v2.name
-//         FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//         FROM [${process.env.DB_name}].[dbo].[variation] v2
 //         WHERE v2.variationGroup = p.variation_group
 //         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
 
@@ -656,19 +656,19 @@ OUTER APPLY (
 //     -- All image titles for this product (comma-separated)
 //     STUFF((
 //         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
 //         WHERE pn.productid = p.productid
 //         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
 
 //     -- All images for this product (comma-separated)
 //     STUFF((
 //         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
 //         WHERE pn.productid = p.productid
 //         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
 
 // FROM 
-//     [SPARROW_SYSTEMS].[dbo].[products] p;
+//     [${process.env.DB_name}].[dbo].[products] p;
 
 //     `);
 
