@@ -226,9 +226,9 @@ export const getBrandCount = async (req: Request, res: Response) => {
     const brandRepository = appSource.getRepository(BrandDetail);
     const details:brandDto[] = await brandRepository. query(
      `
-     select brandid from [${process.env.DB_name}].[dbo].[brand_detail] 
+     select brand_detail.brandid from [${process.env.DB_name}].[dbo].[brand_detail] 
      inner join [${process.env.DB_name}].[dbo].[products]
-     on brand_detail.brandname = products.brand_name 
+     on brand_detail.brandid = products.brandid 
      where brand_detail.brandid = ${brandid};
      `
 
@@ -252,10 +252,10 @@ export const getActiveBrandCount = async (req: Request, res: Response) => {
     const brandRepository = appSource.getRepository(BrandDetail);
     const details:brandDto[] = await brandRepository. query(
      `
-     select products.brand_name from [${process.env.DB_name}].[dbo].[brand_detail] 
+     select products.brandid from [${process.env.DB_name}].[dbo].[brand_detail] 
      inner join [${process.env.DB_name}].[dbo].[products]
-     on brand_detail.brandname = products.brand_name 
-     where products.status = 1 and products.brand_name = '${brandname}';
+     on brand_detail.brandid = products.brandid 
+     where products.status = 1 and products.brandid = '${brandname}';
      `
 
     );
