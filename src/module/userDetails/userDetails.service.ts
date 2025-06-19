@@ -3,10 +3,14 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { userDetailsDto, userDetailsUpadteValidation, userDetailsValidation } from "./userDetails.dto";
 import { Request, Response } from "express";
 import { UserDetails } from "./userDetails.model";
+import nodemailer from "nodemailer";
+import bcrypt from "bcrypt";
+
 
 export const newUser = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
   try {
+     const hashedPassword = await bcrypt.hash(payload.password, 10);
     const UserDetailsRepoistry = appSource.getRepository(UserDetails);
       if (payload.userid) {
            const validation = userDetailsUpadteValidation.validate(payload);
@@ -19,7 +23,7 @@ export const newUser = async (req: Request, res: Response) => {
            if (!userDetails?.userid) {
              throw new ValidationException("user details  not found");
            }
-           const { cuid, userid, ...updatePayload } = payload;
+           const { cuid, userid,password, ...updatePayload } = payload;
            await UserDetailsRepoistry.update({ userid: payload.userid }, updatePayload);
            res.status(200).send({
              IsSuccess: "user  Details updated SuccessFully",
@@ -39,7 +43,7 @@ export const newUser = async (req: Request, res: Response) => {
     if (validateTypeName?.length) {
       throw new ValidationException("Email already exist");
     }
-    const { userid, ...updatePayload } = payload;
+    const { userid,password, ...updatePayload } = payload;
     await UserDetailsRepoistry.save(updatePayload);
     res.status(200).send({
       IsSuccess: "User Details added SuccessFully",
@@ -117,12 +121,6 @@ export const updatePassword = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    // OPTIONAL: Hash password (recommended for production)
-    // const hashed = await bcrypt.hash(password, 10);
-    // user.password = hashed;
-    // user.confirmPassword = hashed;
-
     user.password = password;
     user.confirmPassword = password;
 
@@ -133,4 +131,48 @@ export const updatePassword = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
+export const sendOtpInEmail = async(req : Request , res : Response) =>{
+  try{
+     const payload: UserDetails = req.body;
+     const newlyGeneratedOtp = generateOpt();
+
+     const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    let response = await transporter.sendMail({
+      from: payload.email,
+      to: "savedatain@gmail.com",
+      subject:'new user sign in ',
+      text:`Please enter the OTP: ${newlyGeneratedOtp} to new user.`
+    });
+
+    res.status(200).send({
+      Result : newlyGeneratedOtp
+    })
+
+  }
+  catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+}
+
+
+export function generateOpt(): string {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  return otp;
+}
 
