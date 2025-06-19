@@ -106,13 +106,13 @@ export const getCustomerCartDetails = async (req: Request, res: Response) => {
     p.offer_price,
     pn.image AS top_image
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[customer_cart] AS cc
+    [${process.env.DB_name}].[dbo].[customer_cart] AS cc
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[products] AS p
+    [${process.env.DB_name}].[dbo].[products] AS p
     ON cc.productid = p.productid
 OUTER APPLY (
     SELECT TOP 1 pn.image
-    FROM [SPARROW_SYSTEMS].[dbo].[product_nested] AS pn
+    FROM [${process.env.DB_name}].[dbo].[product_nested] AS pn
     WHERE pn.productid = p.productid
     ORDER BY pn.id ASC  
 ) AS pn

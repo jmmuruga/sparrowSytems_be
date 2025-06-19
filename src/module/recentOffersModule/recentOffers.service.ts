@@ -132,7 +132,7 @@ export const getRecentOffersDetails = async (req: Request, res: Response) => {
 //           p.variation_group,
 //           STUFF((
 //               SELECT ', ' + v2.name
-//               FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//               FROM [${process.env.DB_name}].[dbo].[variation] v2
 //               WHERE v2.variationGroup = p.variation_group
 //               FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
 //           p.description,
@@ -152,7 +152,7 @@ export const getRecentOffersDetails = async (req: Request, res: Response) => {
 //           p.status,
 //           p.delivery_days,
 //           p.document
-// FROM [SPARROW_SYSTEMS].[dbo].[recent_offers] ro
+// FROM [${process.env.DB_name}].[dbo].[recent_offers] ro
 // CROSS APPLY (
 //     SELECT LTRIM(RTRIM(m.n.value('.', 'VARCHAR(100)'))) AS value
 //     FROM (
@@ -162,7 +162,7 @@ export const getRecentOffersDetails = async (req: Request, res: Response) => {
 //     ) AS t
 //     CROSS APPLY x.nodes('/XMLRoot/RowData') m(n)
 // ) s
-// INNER JOIN [SPARROW_SYSTEMS].[dbo].[products] p
+// INNER JOIN [${process.env.DB_name}].[dbo].[products] p
 //     ON CAST(s.value AS INT) = p.productid
 //     WHERE p.status = 1 ;`
 //     );
@@ -203,7 +203,7 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
 
     STUFF((
         SELECT ', ' + CAST(v2.name AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
         WHERE v2.variationGroup = p.variation_group
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS variation_names,
@@ -219,27 +219,27 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
 
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         ORDER BY pn.id ASC
     ) AS image1,
 
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS images,
 
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS image_titles
 
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[recent_offers] ro
+    [${process.env.DB_name}].[dbo].[recent_offers] ro
 
 CROSS APPLY (
     SELECT LTRIM(RTRIM(m.n.value('.', 'VARCHAR(100)'))) AS value
@@ -251,7 +251,7 @@ CROSS APPLY (
     CROSS APPLY x.nodes('/XMLRoot/RowData') m(n)
 ) s
 
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[products] p
+INNER JOIN [${process.env.DB_name}].[dbo].[products] p
     ON CAST(s.value AS INT) = p.productid
 
 WHERE 
