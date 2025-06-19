@@ -147,7 +147,7 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
 //     -- 🟩 First image
 //     (
 //         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
-//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
 //         WHERE pn.productid = p.productid
 //         ORDER BY pn.id ASC
 //     ) AS image1,
@@ -155,7 +155,7 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
 //     -- 🟦 All images
 //     STUFF((
 //         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
 //         WHERE pn.productid = p.productid
 //         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
 //     , 1, 2, '') AS images,
@@ -163,16 +163,16 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
 //     -- 🟧 All image titles
 //     STUFF((
 //         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
 //         WHERE pn.productid = p.productid
 //         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
 //     , 1, 2, '') AS image_titles
 
 // FROM 
-//     [SPARROW_SYSTEMS].[dbo].[home_settings] hs
+//     [${process.env.DB_name}].[dbo].[home_settings] hs
 
 // INNER JOIN 
-//     [SPARROW_SYSTEMS].[dbo].[category] c
+//     [${process.env.DB_name}].[dbo].[category] c
 //     ON hs.[category_Id] = c.[categoryid]
 
 // OUTER APPLY (
@@ -184,7 +184,7 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
 //            pr.[offer_price],
 //            pr.[created_at],
 //            pr.[status]
-//     FROM [SPARROW_SYSTEMS].[dbo].[products] pr
+//     FROM [${process.env.DB_name}].[dbo].[products] pr
    
 //     ORDER BY pr.[productid] DESC
 // ) p;
@@ -219,8 +219,8 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
     p.[offer_price],
     p.[created_at],
     p.[status]
-FROM [SPARROW_SYSTEMS].[dbo].[home_settings] hs
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[category] c
+FROM [${process.env.DB_name}].[dbo].[home_settings] hs
+INNER JOIN [${process.env.DB_name}].[dbo].[category] c
     ON hs.[category_Id] = c.[categoryid]
 OUTER APPLY (
     SELECT TOP (hs.[list_count])
@@ -231,7 +231,7 @@ OUTER APPLY (
            pr.[offer_price],
            pr.[created_at],
            pr.[status]
-    FROM [SPARROW_SYSTEMS].[dbo].[products] pr
+    FROM [${process.env.DB_name}].[dbo].[products] pr
     WHERE pr.categoryid = hs.category_Id
     ORDER BY pr.[productid] DESC
 ) p;

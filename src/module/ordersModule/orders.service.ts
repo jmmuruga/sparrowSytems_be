@@ -296,16 +296,16 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
     o.customerid,
 	pn.image 
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+    [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
+    [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.categoryid = c.categoryid
+    [${process.env.DB_name}].[dbo].[category] AS c ON p.categoryid = c.categoryid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
+    [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
 	OUTER APPLY (
     SELECT TOP 1 pn.image
-    FROM [SPARROW_SYSTEMS].[dbo].[product_nested] AS pn
+    FROM [${process.env.DB_name}].[dbo].[product_nested] AS pn
     WHERE pn.productid = p.productid
     ORDER BY pn.id ASC  
 ) AS pn;`
@@ -350,13 +350,13 @@ export const getOrderDetailsByCustomer = async (req: Request, res: Response) => 
     o.delivery_orders_date,
     o.customerid
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[orders] AS o
+    [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
+    [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.category_name = c.categoryid
+    [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
 INNER JOIN 
-    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
+    [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
     WHERE 
     o.customerid = ${customerid}; `
     );

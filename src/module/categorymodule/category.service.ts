@@ -8,7 +8,7 @@ import {
   changeCategroyStatusDto,
 } from "./category.dto";
 import { Category } from "./category.model";
-import { console } from "inspector/promises";
+// import { console } from "inspector/promises";
 import { CategoryNested } from "../categoryNested/categoryNested.model";
 import { products } from "../productModule/product.model";
 

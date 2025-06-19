@@ -92,7 +92,7 @@ export const getNewProductsDetails = async (req: Request, res: Response) => {
 //   p.variation_group,
 //   STUFF((
 //     SELECT ', ' + v2.name
-//     FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//     FROM [${process.env.DB_name}].[dbo].[variation] v2
 //     WHERE v2.variationGroup = p.variation_group
 //     FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
 //  p.description,
@@ -141,7 +141,7 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   -- Variation names
   STUFF((
     SELECT ', ' + v2.name
-    FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+    FROM [${process.env.DB_name}].[dbo].[variation] v2
     WHERE v2.variationGroup = p.variation_group
     FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
 
@@ -153,11 +153,11 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   pn.image AS top_image,
   pn.image_title AS top_image_title
 
-FROM [SPARROW_SYSTEMS].[dbo].[newproducts] np
+FROM [${process.env.DB_name}].[dbo].[newproducts] np
 
 OUTER APPLY (
     SELECT TOP (np.products_Limit) *
-    FROM [SPARROW_SYSTEMS].[dbo].[products] p
+    FROM [${process.env.DB_name}].[dbo].[products] p
     WHERE p.status = 1
     ORDER BY p.created_at DESC 
 ) p
@@ -167,7 +167,7 @@ OUTER APPLY (
     SELECT TOP 1 
         CAST(pn.image AS NVARCHAR(MAX)) AS image,
         CAST(pn.image_title AS NVARCHAR(MAX)) AS image_title
-    FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
     WHERE pn.productid = p.productid
     ORDER BY pn.id -- or created_at, if available
 ) pn;
@@ -206,7 +206,7 @@ OUTER APPLY (
 //           p.variation_group,
 //           STUFF((
 //               SELECT ', ' + v2.name
-//               FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//               FROM [${process.env.DB_name}].[dbo].[variation] v2
 //               WHERE v2.variationGroup = p.variation_group
 //               FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
 //           p.description,
@@ -226,10 +226,10 @@ OUTER APPLY (
 //           p.status,
 //           p.delivery_days,
 //           p.document
-// FROM [SPARROW_SYSTEMS].[dbo].[newproducts] np
+// FROM [${process.env.DB_name}].[dbo].[newproducts] np
 // OUTER APPLY (
 //     SELECT TOP (np.products_Limit) *
-//     FROM [SPARROW_SYSTEMS].[dbo].[products] p
+//     FROM [${process.env.DB_name}].[dbo].[products] p
 //     ORDER BY p.created_at DESC
 // ) p
 //  WHERE p.status = 1`
