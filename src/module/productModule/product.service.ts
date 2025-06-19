@@ -7,63 +7,63 @@ import {
   productStatusDto,
   updateDetailsValidation,
 } from "./product.dto";
-import { products } from "./product.model";
+import { ProductNested, products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
 
-export const addProducts = async (req: Request, res: Response) => {
-  const payload: productDetailsDto = req.body;
-  try {
-    const ProductRepository = appSource.getRepository(products);
-    if (payload.productid) {
-      const validation = updateDetailsValidation.validate(payload);
-      if (validation?.error) {
-        throw new ValidationException(validation.error.message);
-      }
-      const productDetails = await ProductRepository.findOneBy({
-        productid: payload.productid,
-      });
-      if (!productDetails?.productid) {
-        throw new ValidationException("Product not found");
-      }
-      const { cuid, productid, ...updatePayload } = payload;
-      await ProductRepository.update(
-        { productid: payload.productid },
-        updatePayload
-      );
-      res.status(200).send({
-        IsSuccess: "Product Details updated SuccessFully",
-      });
-      return;
-    }
-    const validation = productDetailsValidation.validate(payload);
-    if (validation?.error) {
-      throw new ValidationException(validation.error.message);
-    }
+// export const addProducts = async (req: Request, res: Response) => {
+//   const payload: productDetailsDto = req.body;
+//   try {
+//     const ProductRepository = appSource.getRepository(products);
+//     if (payload.productid) {
+//       const validation = updateDetailsValidation.validate(payload);
+//       if (validation?.error) {
+//         throw new ValidationException(validation.error.message);
+//       }
+//       const productDetails = await ProductRepository.findOneBy({
+//         productid: payload.productid,
+//       });
+//       if (!productDetails?.productid) {
+//         throw new ValidationException("Product not found");
+//       }
+//       const { cuid, productid, ...updatePayload } = payload;
+//       await ProductRepository.update(
+//         { productid: payload.productid },
+//         updatePayload
+//       );
+//       res.status(200).send({
+//         IsSuccess: "Product Details updated SuccessFully",
+//       });
+//       return;
+//     }
+//     const validation = productDetailsValidation.validate(payload);
+//     if (validation?.error) {
+//       throw new ValidationException(validation.error.message);
+//     }
 
-    const existingProduct = await ProductRepository.findOneBy({
-      product_name: payload.product_name,
-    });
-    if (existingProduct) {
-      throw new ValidationException("Product name already exists");
-    }
+//     const existingProduct = await ProductRepository.findOneBy({
+//       product_name: payload.product_name,
+//     });
+//     if (existingProduct) {
+//       throw new ValidationException("Product name already exists");
+//     }
 
-    const { productid, ...updatePayload } = payload;
-    await ProductRepository.save(updatePayload);
-    res.status(200).send({
-      IsSuccess: "Product Details added SuccessFully",
-    });
-  } catch (error) 
-  {
-    console.error("Error while adding/updating product:", error);
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error.message,
-      });
-    }
-    res.status(500).send({ message: "Internal server error" });
-  }
-};
+//     const { productid, ...updatePayload } = payload;
+//     await ProductRepository.save(updatePayload);
+//     res.status(200).send({
+//       IsSuccess: "Product Details added SuccessFully",
+//     });
+//   } catch (error) 
+//   {
+//     console.error("Error while adding/updating product:", error);
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error.message,
+//       });
+//     }
+//     res.status(500).send({ message: "Internal server error" });
+//   }
+// };
 
 // export const getProductsDetails = async (req: Request, res: Response) => {
 //   try {
@@ -90,48 +90,280 @@ export const addProducts = async (req: Request, res: Response) => {
 //   }
 // };
 
+export const addProducts = async (req: Request, res: Response) => {
+  const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
+
+  try {
+    const ProductRepository = appSource.getRepository(products);
+    const NestedRepository = appSource.getRepository(ProductNested);
+
+    if (payload.productid) {
+      const validation = updateDetailsValidation.validate(payload);
+      if (validation?.error) {
+        throw new ValidationException(validation.error.message);
+      }
+
+      const productDetails = await ProductRepository.findOneBy({
+        productid: payload.productid,
+      });
+      if (!productDetails?.productid) {
+        throw new ValidationException("Product not found");
+      }
+
+      const { cuid, productid, images, ...updatePayload } = payload;
+
+      await ProductRepository.update({ productid }, updatePayload);
+
+      if (images && images.length > 0) {
+        // Remove old images
+        await NestedRepository.delete({ productid });
+
+        // Save new ones
+        const newImages = images.map((img) =>
+          NestedRepository.create({
+            productid,
+            image: img.image,
+            image_title: img.image_title || "",
+          })
+        );
+        await NestedRepository.save(newImages);
+      }
+
+      return res.status(200).send({ IsSuccess: "Product Details updated successfully" });
+    }
+
+    const validation = productDetailsValidation.validate(payload);
+    if (validation?.error) {
+      throw new ValidationException(validation.error.message);
+    }
+
+    const existingProduct = await ProductRepository.findOneBy({
+      product_name: payload.product_name,
+    });
+    if (existingProduct) {
+      throw new ValidationException("Product name already exists");
+    }
+
+    const { images, ...newProductData } = payload;
+    const productSaved = await ProductRepository.save(newProductData);
+
+    if (images && images.length > 0) {
+      const imageEntities = images.map((img) =>
+        NestedRepository.create({
+          productid: productSaved.productid,
+          image: img.image,
+          image_title: img.image_title || "",
+        })
+      );
+      await NestedRepository.save(imageEntities);
+    }
+
+    res.status(200).send({ IsSuccess: "Product Details added successfully" });
+  } catch (error) {
+    console.error("Error while adding/updating product:", error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({ message: error.message });
+    }
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
+
+// export const getProductsDetails = async (req: Request, res: Response) => {
+//   try {
+//     // Run your raw SQL query using appSource.query()
+//     const productList: any[] = await appSource.query(`
+//       SELECT 
+//           p.productid,
+//           p.product_name,
+//           p.stock,
+//           p.brand_name,
+//           p.category_name,
+//           p.mrp,
+//           p.discount,
+//           p.offer_price,
+//           p.min_qty,
+//           p.max_qty,
+//           p.delivery_charges,
+//           p.delivery_amount,
+//           p.variation_group,
+//           STUFF((
+//               SELECT ', ' + v2.name
+//               FROM [${process.env.DB_name}].[dbo].[variation] v2
+//               WHERE v2.variationGroup = p.variation_group
+//               FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+//           p.description,
+//           p.terms,
+//           p.warranty,
+//           p.image1,
+//           p.image2,
+//           p.image3,
+//           p.image4,
+//           p.image5,
+//           p.image6,
+//           p.image7,
+//           p.cuid,
+//           p.muid,
+//           p.created_at,
+//           p.updated_at,
+//           p.status,
+//           p.delivery_days,
+//           p.document
+//       FROM 
+//           [${process.env.DB_name}].[dbo].[products] p;
+//     `);
+
+//     // Category mapping logic remains the same
+//     const categoryRepoistry = appSource.getRepository(Category);
+//     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+
+//     productList.forEach((x) => {
+//       x.categoryName = categoryList.find(
+//         (y) => y.categoryid === +x.category_name
+//       )?.categoryname;
+//     });
+
+//     res.status(200).send({
+//       Result: productList,
+//     });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
+
 export const getProductsDetails = async (req: Request, res: Response) => {
   try {
     // Run your raw SQL query using appSource.query()
     const productList: any[] = await appSource.query(`
       SELECT 
-          p.productid,
-          p.product_name,
-          p.stock,
-          p.brand_name,
-          p.category_name,
-          p.mrp,
-          p.discount,
-          p.offer_price,
-          p.min_qty,
-          p.max_qty,
-          p.delivery_charges,
-          p.delivery_amount,
-          p.variation_group,
-          STUFF((
-              SELECT ', ' + v2.name
-              FROM [${process.env.DB_name}].[dbo].[variation] v2
-              WHERE v2.variationGroup = p.variation_group
-              FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
-          p.description,
-          p.terms,
-          p.warranty,
-          p.image1,
-          p.image2,
-          p.image3,
-          p.image4,
-          p.image5,
-          p.image6,
-          p.image7,
-          p.cuid,
-          p.muid,
-          p.created_at,
-          p.updated_at,
-          p.status,
-          p.delivery_days,
-          p.document
-      FROM 
-          [${process.env.DB_name}].[dbo].[products] p;
+    p.productid,
+    p.product_name,
+    p.stock,
+    p.brandid,
+    p.categoryid,
+    p.subcategoryid,
+    p.mrp,
+    p.discount,
+    p.offer_price,
+    p.min_qty,
+    p.max_qty,
+    p.delivery_charges,
+    p.delivery_amount,
+    p.variation_group,
+    STUFF((
+        SELECT ', ' + CAST(v2.name AS NVARCHAR(MAX))
+        FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+        WHERE v2.variationGroup = p.variation_group
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+    p.description,
+    p.terms,
+    p.warranty,
+    p.created_at,
+    p.updated_at,
+    p.status,
+    p.delivery_days,
+    p.document,
+    (
+        SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        ORDER BY pn.id ASC
+    ) AS image1,
+    STUFF((
+        SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images,
+    STUFF((
+        SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles
+FROM 
+    [SPARROW_SYSTEMS].[dbo].[products] p
+
+    `);
+
+    // Category mapping logic remains the same
+    const categoryRepoistry = appSource.getRepository(Category);
+    const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+
+    productList.forEach((x) => {
+      x.categoryName = categoryList.find(
+        (y) => y.categoryid === +x.category_name
+      )?.categoryname;
+    });
+
+    res.status(200).send({
+      Result: productList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getNewAddedProductsDetails = async (req: Request, res: Response) => {
+  try {
+    // Run your raw SQL query using appSource.query()
+    const productList: any[] = await appSource.query(`
+      SELECT 
+    p.productid,
+    p.product_name,
+    p.stock,
+    p.brandid,
+    p.categoryid,
+    p.subcategoryid,
+    p.mrp,
+    p.discount,
+    p.offer_price,
+    p.min_qty,
+    p.max_qty,
+    p.delivery_charges,
+    p.delivery_amount,
+    p.variation_group,
+
+    -- All variation names (comma-separated)
+    STUFF((
+        SELECT ', ' + v2.name
+        FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+        WHERE v2.variationGroup = p.variation_group
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+
+    p.description,
+    p.terms,
+    p.warranty,
+    p.created_at,
+    p.updated_at,
+    p.status,
+    p.delivery_days,
+    p.document,
+
+    -- All image titles for this product (comma-separated)
+    STUFF((
+        SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
+
+    -- All images for this product (comma-separated)
+    STUFF((
+        SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
+
+FROM 
+    [SPARROW_SYSTEMS].[dbo].[products] p;
+
     `);
 
     // Category mapping logic remains the same
@@ -221,6 +453,52 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
       .execute();
     res.status(200).send({
       IsSuccess: `Status for product ${details.product_name} Updated successfully!`,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getTopFirstImage = async (req: Request, res: Response) => {
+  try {
+    // Run your raw SQL query using appSource.query()
+    const productList: any[] = await appSource.query(`
+      SELECT 
+    p.[productid],
+    pn.image AS top_image,
+    pn.image_title AS top_image_title
+FROM 
+    [SPARROW_SYSTEMS].[dbo].[products] p
+OUTER APPLY (
+    SELECT TOP 1 
+        CAST(image AS NVARCHAR(MAX)) AS image,
+        CAST(image_title AS NVARCHAR(MAX)) AS image_title
+    FROM 
+        [SPARROW_SYSTEMS].[dbo].[product_nested]
+    WHERE 
+        productid = p.productid
+    ORDER BY 
+        id 
+) pn;
+    `);
+
+    // Category mapping logic remains the same
+    const categoryRepoistry = appSource.getRepository(Category);
+    const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+
+    productList.forEach((x) => {
+      x.categoryName = categoryList.find(
+        (y) => y.categoryid === +x.category_name
+      )?.categoryname;
+    });
+
+    res.status(200).send({
+      Result: productList,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -328,6 +606,85 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
 //       categoryList.push(...productsOfCategory);
 //     }
 //     res.status(200).send({ Result: details, categoryList: categoryList });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
+
+
+// export const getAllProductDetails = async (req: Request, res: Response) => {
+//   try {
+//     // Run your raw SQL query using appSource.query()
+//     const productList: any[] = await appSource.query(`
+//       SELECT 
+//     p.productid,
+//     p.product_name,
+//     p.stock,
+//     p.brandid,
+//     p.categoryid,
+//     p.subcategoryid,
+//     p.mrp,
+//     p.discount,
+//     p.offer_price,
+//     p.min_qty,
+//     p.max_qty,
+//     p.delivery_charges,
+//     p.delivery_amount,
+//     p.variation_group,
+
+//     -- All variation names (comma-separated)
+//     STUFF((
+//         SELECT ', ' + v2.name
+//         FROM [SPARROW_SYSTEMS].[dbo].[variation] v2
+//         WHERE v2.variationGroup = p.variation_group
+//         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
+
+//     p.description,
+//     p.terms,
+//     p.warranty,
+//     p.created_at,
+//     p.updated_at,
+//     p.status,
+//     p.delivery_days,
+//     p.document,
+
+//     -- All image titles for this product (comma-separated)
+//     STUFF((
+//         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
+//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         WHERE pn.productid = p.productid
+//         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
+
+//     -- All images for this product (comma-separated)
+//     STUFF((
+//         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
+//         FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+//         WHERE pn.productid = p.productid
+//         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
+
+// FROM 
+//     [SPARROW_SYSTEMS].[dbo].[products] p;
+
+//     `);
+
+//     // Category mapping logic remains the same
+//     const categoryRepoistry = appSource.getRepository(Category);
+//     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+
+//     productList.forEach((x) => {
+//       x.categoryName = categoryList.find(
+//         (y) => y.categoryid === +x.category_name
+//       )?.categoryname;
+//     });
+
+//     res.status(200).send({
+//       Result: productList,
+//     });
 //   } catch (error) {
 //     if (error instanceof ValidationException) {
 //       return res.status(400).send({

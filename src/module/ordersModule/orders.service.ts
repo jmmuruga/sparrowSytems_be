@@ -115,7 +115,7 @@ FROM
 INNER JOIN 
     [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
+    [${process.env.DB_name}].[dbo].[category] AS c ON p.categoryid = c.categoryid
 LEFT JOIN 
     [${process.env.DB_name}].[dbo].[customer_address] AS ca ON o.address_id = ca.id
 INNER JOIN 
@@ -223,11 +223,57 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
   }
 };
 
+// export const getAllOrderDetails = async (req: Request, res: Response) => {
+//   try {
+//     const orderRepository = appSource.getRepository(orders);
+//     const details: ordersDto[] = await orderRepository.query(
+//       `  SELECT 
+//     o.orderid,
+//     cd.customername,
+//     o.total_amount,
+//     o.created_at,
+//     o.status,
+//     o.updated_at,
+//     o.quantity,
+//     o.offer_price,
+//     o.payment_method,
+//     p.product_name,
+//     p.delivery_amount,
+//     o.open_orders_date,
+// 	  o.processing_orders_date,
+// 	  o.failure_orders_date,
+// 	  o.canceled_orders_date,
+// 	  o.shipped_orders_date,
+// 	  o.closed_orders_date,
+//     c.categoryname AS category,
+//     // p.image1,
+//     o.delivery_orders_date,
+//     o.customerid
+// FROM 
+//     [${process.env.DB_name}].[dbo].[orders] AS o
+// INNER JOIN 
+//     [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
+// INNER JOIN 
+//     [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
+// INNER JOIN 
+//     [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid; `
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
+
 export const getAllOrderDetails = async (req: Request, res: Response) => {
   try {
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
-      `  SELECT 
+      ` SELECT 
     o.orderid,
     cd.customername,
     o.total_amount,
@@ -237,7 +283,7 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
     o.quantity,
     o.offer_price,
     o.payment_method,
-    p.product_name,
+    p.productid,
     p.delivery_amount,
     o.open_orders_date,
 	  o.processing_orders_date,
@@ -246,17 +292,23 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
 	  o.shipped_orders_date,
 	  o.closed_orders_date,
     c.categoryname AS category,
-    p.image1,
     o.delivery_orders_date,
-    o.customerid
+    o.customerid,
+	pn.image 
 FROM 
-    [${process.env.DB_name}].[dbo].[orders] AS o
+    [SPARROW_SYSTEMS].[dbo].[orders] AS o
 INNER JOIN 
-    [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
+    [SPARROW_SYSTEMS].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
+    [SPARROW_SYSTEMS].[dbo].[category] AS c ON p.categoryid = c.categoryid
 INNER JOIN 
-    [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid; `
+    [SPARROW_SYSTEMS].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
+	OUTER APPLY (
+    SELECT TOP 1 pn.image
+    FROM [SPARROW_SYSTEMS].[dbo].[product_nested] AS pn
+    WHERE pn.productid = p.productid
+    ORDER BY pn.id ASC  
+) AS pn;`
     );
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -268,7 +320,6 @@ INNER JOIN
     res.status(500).send(error);
   }
 };
-
 
 export const getOrderDetailsByCustomer = async (req: Request, res: Response) => {
    const  customerid  = req.params.customerid
@@ -319,9 +370,6 @@ INNER JOIN
     res.status(500).send(error);
   }
 };
-
-
-
 
 export const getOrderId = async (req: Request, res: Response) => {
   try {

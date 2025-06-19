@@ -2,7 +2,7 @@ import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { UserDetails } from "../module/userDetails/userDetails.model";
-import { products } from "../module/productModule/product.model";
+import { ProductNested, products } from "../module/productModule/product.model";
 import { banner } from "../module/bannerModule/banner.model";
 import { BrandDetail } from "../module/brandModule/brand.model";
 import { Category, } from "../module/categorymodule/category.model";
@@ -48,6 +48,7 @@ const Entities: any[] = [
   GetInTouch,
   variation,
   contactDetails,
+  ProductNested
 
 ]
 export const appSource = new DataSource({
