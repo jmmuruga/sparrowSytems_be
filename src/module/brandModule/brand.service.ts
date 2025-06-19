@@ -97,7 +97,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
 
 export const changeStatusBrand = async (req: Request, res: Response) => {
   const  brandStatus: changebrandStatusDto = req.body;
-  console.log( brandStatus, "categoryStatus");
   const brandRepository = appSource.getRepository(BrandDetail);
 
   try {

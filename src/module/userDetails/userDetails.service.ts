@@ -150,7 +150,7 @@ export const sendOtpInEmail = async(req : Request , res : Response) =>{
 
     let response = await transporter.sendMail({
       from: payload.email,
-      to: "savedatasaranya@gmail.com",
+      to: "savedatain@gmail.com",
       subject:'new user sign in ',
       text:`Please enter the OTP: ${newlyGeneratedOtp} to new user.`
     });

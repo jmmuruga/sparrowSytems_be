@@ -223,7 +223,6 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 export const sendOtpInEmail = async(req : Request , res : Response) =>{
   try{
      const payload: customerDetailsDto = req.body;
-     console.log(payload,"gmailcheckig")
      const newlyGeneratedOtp = generateOpt();
 
      const transporter = nodemailer.createTransport({

@@ -149,7 +149,6 @@ export const getHeaderCategory = async (req: Request, res: Response) => {
 
 export const deleteCategory = async (req: Request, res: Response) => {
   const categoryid = Number(req.params.categoryid);
-  console.log(categoryid)
   if (isNaN(categoryid)) {
     return res.status(400).send({ message: "Invalid category ID" });
   }
