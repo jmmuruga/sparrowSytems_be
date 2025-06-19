@@ -100,6 +100,9 @@ export const getCustomerCartDetails = async (req: Request, res: Response) => {
     cc.customerid,
     cc.quantity,
     p.product_name,
+    p.mrp,
+    p.discount,
+    p.delivery_amount,
     p.offer_price,
     pn.image AS top_image
 FROM 

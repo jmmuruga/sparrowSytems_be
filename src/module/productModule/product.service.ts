@@ -90,7 +90,6 @@ import { orders } from "../ordersModule/orders.model";
 //   }
 // };
 
-
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
 

@@ -115,7 +115,7 @@ FROM
 INNER JOIN 
     [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
 INNER JOIN 
-    [${process.env.DB_name}].[dbo].[category] AS c ON p.category_name = c.categoryid
+    [${process.env.DB_name}].[dbo].[category] AS c ON p.categoryid = c.categoryid
 LEFT JOIN 
     [${process.env.DB_name}].[dbo].[customer_address] AS ca ON o.address_id = ca.id
 INNER JOIN 
@@ -370,9 +370,6 @@ INNER JOIN
     res.status(500).send(error);
   }
 };
-
-
-
 
 export const getOrderId = async (req: Request, res: Response) => {
   try {
