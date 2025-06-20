@@ -11,7 +11,7 @@ export const homeSettingsDtoValidation = Joi.object({
     visible: Joi.boolean().required(),
     category_Id: Joi.number().required(),
     column_count: Joi.number().required(),
-    list_count: Joi.number().required()
+    row_count: Joi.number().required()
 });
 
 export const updateHomeSettingsValidation = Joi.object({
@@ -19,5 +19,5 @@ export const updateHomeSettingsValidation = Joi.object({
     visible: Joi.boolean().required(),
     category_Id: Joi.number().required(),
     column_count: Joi.number().required(),
-    list_count: Joi.number().required()
+    row_count: Joi.number().required()
 });
