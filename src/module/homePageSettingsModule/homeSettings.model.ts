@@ -15,5 +15,5 @@ export class homeSettings {
     @Column({nullable: true})
     column_count: number;
     @Column({nullable: true})
-    list_count: number;
+    row_count: number;
 }

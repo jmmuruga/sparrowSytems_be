@@ -205,25 +205,27 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
   try {
     const homeRepository = appSource.getRepository(homeSettings);
     const details: homeSettingsDto[] = await homeRepository.query(
-      ` SELECT 
+      `SELECT 
     hs.[id],
     hs.[visible],
     hs.[category_Id],
     c.[categoryname] AS category_name,
     hs.[column_count],
-    hs.[list_count],
+    hs.[row_count],
     p.[productid],
     p.[product_name],
     p.[mrp],
     p.[discount],
     p.[offer_price],
     p.[created_at],
-    p.[status]
+    p.[status],
+    pn.image1
 FROM [${process.env.DB_name}].[dbo].[home_settings] hs
 INNER JOIN [${process.env.DB_name}].[dbo].[category] c
     ON hs.[category_Id] = c.[categoryid]
+
 OUTER APPLY (
-    SELECT TOP (hs.[list_count])
+    SELECT TOP (hs.[column_count] * hs.[row_count])
            pr.[productid],
            pr.[product_name],
            pr.[mrp],
@@ -232,9 +234,17 @@ OUTER APPLY (
            pr.[created_at],
            pr.[status]
     FROM [${process.env.DB_name}].[dbo].[products] pr
-    WHERE pr.categoryid = hs.category_Id
+    WHERE pr.categoryid = hs.category_Id AND pr.status = 1
     ORDER BY pr.[productid] DESC
-) p;
+) p
+
+OUTER APPLY (
+    SELECT TOP 1 image AS image1
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    ORDER BY pn.id ASC
+) pn
+;
 `
     );
     res.status(200).send({ Result: details });
