@@ -8,9 +8,9 @@ export class products {
     product_name: string;
     @Column()
     stock: string;
-    @Column()
+    @Column({ nullable: true })
     brandid: number;
-    @Column()
+    @Column({ nullable: true })
     categoryid: number;
     @Column()
     mrp: number;
