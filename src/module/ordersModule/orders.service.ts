@@ -294,6 +294,7 @@ export const getAllOrderDetails = async (req: Request, res: Response) => {
     c.categoryname AS category,
     o.delivery_orders_date,
     o.customerid,
+    p.product_name,
 	pn.image 
 FROM 
     [${process.env.DB_name}].[dbo].[orders] AS o
