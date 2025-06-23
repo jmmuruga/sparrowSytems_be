@@ -112,7 +112,7 @@ export const generateVariationId = async (req: Request, res: Response) => {
     const variationRepoistry = appSource.getRepository(variation);
     const variationList = await variationRepoistry.query(
       `SELECT variationid
-            FROM [process.env.DB_name].[dbo].[variation]
+            FROM [${process.env.DB_name}].[dbo].[variation]
             Group by variationid
             ORDER BY CAST(variationid AS INT) DESC;`
     );
