@@ -72,8 +72,8 @@ export const deleteBrand = async (req: Request, res: Response) => {
 
     const usedInProducts = await productRepo
       .createQueryBuilder("product")
-      .where("LOWER(product.brand_name) = LOWER(:brandName)", {
-        brandName: brand.brandname.trim(),
+      .where("(product.brandid) = :brandid", {
+        brandid: brand.brandid,
       })
       .getMany();
 
