@@ -10,26 +10,25 @@ import bcrypt from "bcrypt";
 export const newUser = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
   try {
-     const hashedPassword = await bcrypt.hash(payload.password, 10);
     const UserDetailsRepoistry = appSource.getRepository(UserDetails);
-      if (payload.userid) {
-           const validation = userDetailsUpadteValidation.validate(payload);
-           if (validation?.error) {
-             throw new ValidationException(validation.error.message);
-           }
-           const userDetails = await UserDetailsRepoistry.findOneBy({
-            userid: payload.userid,
-           });
-           if (!userDetails?.userid) {
-             throw new ValidationException("user details  not found");
-           }
-           const { cuid, userid,password, ...updatePayload } = payload;
-           await UserDetailsRepoistry.update({ userid: payload.userid }, updatePayload);
-           res.status(200).send({
-             IsSuccess: "user  Details updated SuccessFully",
-           });
-           return;
-         }
+    if (payload.userid) {
+      const validation = userDetailsUpadteValidation.validate(payload);
+      if (validation?.error) {
+        throw new ValidationException(validation.error.message);
+      }
+      const userDetails = await UserDetailsRepoistry.findOneBy({
+        userid: payload.userid,
+      });
+      if (!userDetails?.userid) {
+        throw new ValidationException("user details  not found");
+      }
+      const { cuid, userid, ...updatePayload } = payload;
+      await UserDetailsRepoistry.update({ userid: payload.userid }, updatePayload);
+      res.status(200).send({
+        IsSuccess: "user  Details updated SuccessFully",
+      });
+      return;
+    }
 
     const validation = userDetailsValidation.validate(payload);
     if (validation?.error) {
@@ -43,7 +42,7 @@ export const newUser = async (req: Request, res: Response) => {
     if (validateTypeName?.length) {
       throw new ValidationException("Email already exist");
     }
-    const { userid,password, ...updatePayload } = payload;
+    const { userid, ...updatePayload } = payload;
     await UserDetailsRepoistry.save(updatePayload);
     res.status(200).send({
       IsSuccess: "User Details added SuccessFully",
@@ -61,20 +60,20 @@ export const newUser = async (req: Request, res: Response) => {
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-      const Repository = appSource.getRepository(UserDetails);
-      const userList = await Repository
-          .createQueryBuilder()
-          .getMany();
-      res.status(200).send({
-          Result: userList
-      });
+    const Repository = appSource.getRepository(UserDetails);
+    const userList = await Repository
+      .createQueryBuilder()
+      .getMany();
+    res.status(200).send({
+      Result: userList
+    });
   } catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
   }
 };
 
@@ -82,32 +81,32 @@ export const deleteUser = async (req: Request, res: Response) => {
   const id = req.params.userid;
   const userRepo = appSource.getRepository(UserDetails);
   try {
-      const typeNameFromDb = await userRepo
-          .createQueryBuilder('UserDetails')
-          .where("UserDetails.userid = :userid", {
-              userid: id,
-          })
-          .getOne();
-      if (!typeNameFromDb?.userid) {
-          throw new HttpException("User not Found", 400);
-      }
-      await userRepo
-          .createQueryBuilder("UserDetails")
-          .delete()
-          .from(UserDetails)
-          .where("userid = :userid", { userid: id })
-          .execute();
-      res.status(200).send({
-          IsSuccess: `User deleted successfully!`,
-      });
+    const typeNameFromDb = await userRepo
+      .createQueryBuilder('UserDetails')
+      .where("UserDetails.userid = :userid", {
+        userid: id,
+      })
+      .getOne();
+    if (!typeNameFromDb?.userid) {
+      throw new HttpException("User not Found", 400);
+    }
+    await userRepo
+      .createQueryBuilder("UserDetails")
+      .delete()
+      .from(UserDetails)
+      .where("userid = :userid", { userid: id })
+      .execute();
+    res.status(200).send({
+      IsSuccess: `User deleted successfully!`,
+    });
   }
   catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
   }
 }
 
@@ -133,12 +132,12 @@ export const updatePassword = async (req: Request, res: Response) => {
 };
 
 
-export const sendOtpInEmail = async(req : Request , res : Response) =>{
-  try{
-     const payload: UserDetails = req.body;
-     const newlyGeneratedOtp = generateOpt();
+export const sendOtpInEmail = async (req: Request, res: Response) => {
+  try {
+    const payload: UserDetails = req.body;
+    const newlyGeneratedOtp = generateOpt();
 
-     const transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
       service: "gmail",
       port: 465,
       secure: false,
@@ -150,13 +149,13 @@ export const sendOtpInEmail = async(req : Request , res : Response) =>{
 
     let response = await transporter.sendMail({
       from: payload.email,
-      to: "savedatain@gmail.com",
-      subject:'new user sign in ',
-      text:`Please enter the OTP: ${newlyGeneratedOtp} to new user.`
+      to: "savedatashreeyamunna@gmail.com",
+      subject: 'new user sign in ',
+      text: `Please enter the OTP: ${newlyGeneratedOtp} to new user.`
     });
 
     res.status(200).send({
-      Result : newlyGeneratedOtp
+      Result: newlyGeneratedOtp
     })
 
   }

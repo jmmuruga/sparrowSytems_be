@@ -7,6 +7,7 @@ import nodemailer from 'nodemailer';
 import { resetPasswordValidation } from "../userDetails/userDetails.dto";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 
 dotenv.config();  // Ensure env variables are loaded
 
@@ -22,22 +23,28 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.params;
         const userRepository = appSource.getRepository(UserDetails);
-        const user = await userRepository.findOneBy({ email  : email});
+        const user = await userRepository.findOneBy({ email: email });
 
         if (!user) {
             throw new ValidationException("Invalid Email!");
         }
 
-       if(user.password != password){
-        throw new ValidationException("Incorrect Password!");
-       }
+        if (user.password != password) {
+            throw new ValidationException("Incorrect Password!");
+        }
 
-      
+        const token = jwt.sign(
+            { id: user.userid, email: user.email },
+            process.env.JWT_SECRET_KEY as string
+        );
+
+
         res.status(200).send({
             Result: {
                 userid: user.userid,
                 email: user.email,
-                status: "Login Success"
+                status: "Login Success",
+                token: token
             },
         });
 
@@ -113,7 +120,7 @@ export const resetNewPassword = async (req: Request, res: Response) => {
         }
 
         await UserDetailsRepoistry
-            .update({ userid: data.userid }, { password: data.password, confirmPassword : data.password, muid: data.muid })
+            .update({ userid: data.userid }, { password: data.password, confirmPassword: data.password, muid: data.muid })
             .then((r) => {
                 res.status(200).send({
                     IsSuccess: "Password Updated successfully",
