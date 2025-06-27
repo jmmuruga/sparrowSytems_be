@@ -80,7 +80,7 @@ export const deleteDetail = async (req: Request, res: Response) => {
       })
       .getOne();
     if (!deleteUser?.id) {
-      throw new HttpException("id not Found", 400);
+      throw new HttpException("id not Found", 404);
     }
     await Repo.createQueryBuilder("breadCramps")
       .delete()
