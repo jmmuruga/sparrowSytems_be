@@ -2,6 +2,7 @@ import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import {
+  changeCurrentOpeniingstatusDto,
   currentOpeningsDto,
   currentOpeningsUpdateValidation,
   currentOpeningsValidation,
@@ -51,7 +52,6 @@ export const addOpenings = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getOpenings = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(currentOpenings);
@@ -70,28 +70,23 @@ export const getOpenings = async (req: Request, res: Response) => {
   }
 };
 
-
 export const changeStatus = async (req: Request, res: Response) => {
-  const id = req.params.id;
-
-  const statusVal: boolean = req.params.status === "true";
-  const repo = appSource.getRepository(currentOpenings);
+  const openingStatus: changeCurrentOpeniingstatusDto = req.body;
+  const currentOpeningsRepo = appSource.getRepository(currentOpenings);
 
   try {
-    const typeNameFromDb = await repo
-      .createQueryBuilder("currentOpenings")
-      .where("currentOpenings.id = :id", {
-        id: id,
-      })
-      .getOne();
-    if (!typeNameFromDb?.id) {
+    const typeNameFromDb = await currentOpeningsRepo.findBy({
+      id: openingStatus.id,
+    });
+
+    if (typeNameFromDb?.length == 0) {
       throw new HttpException("Data not Found", 400);
     }
-    await repo
+    await currentOpeningsRepo
       .createQueryBuilder()
       .update(currentOpenings)
-      .set({ status: statusVal })
-      .where({ id: id })
+      .set({ status: openingStatus.status })
+      .where("id = :id", { id: openingStatus.id })
       .execute();
 
     res.status(200).send({
@@ -106,7 +101,6 @@ export const changeStatus = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
 
 export const deleteOpenings = async (req: Request, res: Response) => {
   const id = req.params.id;

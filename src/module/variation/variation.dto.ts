@@ -19,10 +19,15 @@ export const variationValidate = Joi.object({
   itemId: Joi.string().required(),
   rowId: Joi.string().required(),
 
-   status: Joi.boolean().required(),
+  status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });
+
+export interface changeVariationStatusDto {
+  id: number;
+  status: boolean;
+}
 
 export const variationUpdateValidate = Joi.object({
   id: Joi.number().required(),
@@ -30,7 +35,7 @@ export const variationUpdateValidate = Joi.object({
   variationid: Joi.string().required(),
   name: Joi.string().required(),
   rowId: Joi.string().required(),
-   itemId: Joi.string().required(),
+  itemId: Joi.string().required(),
   status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
