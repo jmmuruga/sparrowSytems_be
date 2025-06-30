@@ -1,16 +1,5 @@
 import Joi from "joi";
 
-// export interface ordersDto {
-//   orderid: number;
-//   productid: number;
-//   customerid: number;
-//   quantity: number;
-//   total_amount: number;
-//   offer_price: number;
-//   payment_method: string;
-// }
-// orders.dto.ts
-
 export interface OrderItem {
   productid: number;
   quantity: number;
@@ -22,7 +11,7 @@ export interface ordersDto {
   customerid: number;
   payment_method: string;
   status: string;
-  orderItems: OrderItem[]; // ✅ Add this
+  orderItems: OrderItem[]; 
   open_orders_date?: Date;
   processing_orders_date?: Date;
   failure_orders_date?: Date;
@@ -55,4 +44,3 @@ export const ordersDtoValidation = Joi.object({
     )
     .required(),
 });
-// zzxz
