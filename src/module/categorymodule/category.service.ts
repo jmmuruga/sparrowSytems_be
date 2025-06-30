@@ -11,6 +11,7 @@ import { Category } from "./category.model";
 // import { console } from "inspector/promises";
 import { CategoryNested } from "../categoryNested/categoryNested.model";
 import { products } from "../productModule/product.model";
+import { Not } from "typeorm";
 
 export const addCategory = async (req: Request, res: Response) => {
   const payload: CategoryDto = req.body;
@@ -27,6 +28,14 @@ export const addCategory = async (req: Request, res: Response) => {
       });
       if (!category?.categoryid) {
         throw new ValidationException("category  not found");
+      }
+
+      const categoryNameValiadtion = await categoryRepository.findBy({
+        categoryname: payload.categoryname,
+        categoryid: Not(payload.categoryid),
+      });
+      if (categoryNameValiadtion?.length) {
+        throw new ValidationException("category name already  exists");
       }
       const { cuid, categoryid, ...updatePayload } = payload;
       await categoryRepository.update(
@@ -156,7 +165,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
     // Step 1: Fetch category by ID
     const category = await categoryRepo.findOneBy({ categoryid: categoryid });
     if (!category) {
-      throw new HttpException("Category not found", 404);
+      throw new ValidationException("Category not found");
     }
     // const categoryName = category.categoryname.trim().toLowerCase();
     // Step 2: Check if any products use this category name
@@ -167,9 +176,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
       })
       .getCount(); // More efficient than getMany if we only need count
     if (usedInProducts > 0) {
-      throw new HttpException(
-        "Unable to delete category. It is currently used by products.",
-        400
+      throw new ValidationException(
+        "Unable to delete category. It is currently used by products."
       );
     }
     // Step 3: Delete the category

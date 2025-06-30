@@ -79,7 +79,7 @@ export const courierStatus = async (req: Request, res: Response) => {
      
      
     if (typeNameFromDb?.length == 0) {
-      throw new HttpException("Data not Found", 400);
+      throw new HttpException("Data not Found", 404);
     }
     await courierRepo
       .createQueryBuilder()

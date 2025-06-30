@@ -2,54 +2,7 @@ import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import { variation } from "./variation.model";
-import { variationDto, variationUpdateValidate, variationValidate } from "./variation.dto";
-
-// export const addVariation = async (req: Request, res: Response) => {
-//   const payload: variation = req.body;
-
-//   try {
-//     const Repository = appSource.getRepository(variation);
-
-//     const checkWhetherExist = await Repository.findOneBy({
-//       variationid: payload.variationid,
-//     });
-
-//     if (checkWhetherExist) {
-//       const validation = variationUpdateValidate.validate(payload);
-//       if (validation?.error) {
-//         throw new ValidationException(validation.error.message);
-//       }
-//       const { id,cuid, ...updatePayload } = payload;
-//       await Repository.update(
-//         { variationid: payload.variationid },
-//         updatePayload
-//       );
-//       res.status(200).send({
-//         IsSuccess: " variation updated SuccessFully",
-//       });
-//       return;
-//     } else {
-//       const validation = variationValidate.validate(payload);
-//       if (validation?.error) {
-//         throw new ValidationException(validation.error.message);
-//       }
-
-//       const { id, ...updatePayload } = payload;
-//       await Repository.save(updatePayload);
-//       res.status(200).send({
-//         IsSuccess: " variation added SuccessFully",
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error , 'error')
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error.message,
-//       });
-//     }
-//     res.status(500).send({ message: "Internal server error" });
-//   }
-// };
+import { changeVariationStatusDto, variationDto, variationUpdateValidate, variationValidate } from "./variation.dto";
 
 
 
@@ -183,25 +136,23 @@ export const deleteVariationid = async (req: Request, res: Response) => {
 };
 
 export const variationStatus = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const statusVal: boolean = req.params.status === "true";
-  const repo = appSource.getRepository(variation);
+  const variationStatus: changeVariationStatusDto =  req.body;
+  const variationrepo = appSource.getRepository(variation);
 
   try {
-    const typeNameFromDb = await repo
-      .createQueryBuilder("variation")
-      .where("variation.variationid = :id", {
-        id: id,
-      })
-      .getOne();
-    if (!typeNameFromDb?.variationid) {
-      throw new HttpException("Data not Found", 400);
+    const typeNameFromDb = await variationrepo.findBy({
+      id:variationStatus.id
+    })
+     
+    
+    if (typeNameFromDb?.length == 0) {
+      throw new HttpException("Data not Found", 404);
     }
-    await repo
+    await variationrepo
       .createQueryBuilder()
       .update(variation)
-      .set({ status: statusVal })
-      .where({ variationid: id })
+      .set({ status: variationStatus.status  })
+      .where("id = :id",{id:variationStatus.id} )
       .execute();
 
     res.status(200).send({
