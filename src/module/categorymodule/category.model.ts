@@ -1,10 +1,10 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-  } from "typeorm";
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class Category {
@@ -14,9 +14,9 @@ export class Category {
   categoryname: string;
   @Column()
   categoryicon: string;
-  @Column({default: true})
-   status: boolean;
-     @Column({ nullable: true })
+  @Column({ default: true })
+  status: boolean;
+  @Column({ nullable: true })
   cuid: number;
   @Column({ nullable: true })
   muid: number;
@@ -25,12 +25,3 @@ export class Category {
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
 }
-
-
-
-
-
-
-
-
-

@@ -12,9 +12,9 @@ export class BrandDetail {
   @Column()
   brandname: string;
   @Column()
-  servicecenter_name: string;
+  company_name: string;
   @Column()
-  description: string;
+  servicecenter_name: string;
   @Column()
   servicecentre_address: string;
   @Column()
@@ -37,7 +37,9 @@ export class BrandDetail {
   email: string;
   @Column()
   website: string;
-  @Column({default: true})
+  @Column()
+  description: string;
+  @Column({ default: true })
   status: boolean;
   @Column({ type: "ntext" })
   brandimage: string;

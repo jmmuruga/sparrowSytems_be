@@ -8,6 +8,7 @@ import {
   changenestedCategroyStatusDto,
 } from "./categoryNested.dto";
 import { CategoryNested } from "./categoryNested.model";
+import { Not } from "typeorm";
 
 export const addsubCategory = async (req: Request, res: Response) => {
   const payload: CategoryNestedDto = req.body;
@@ -26,6 +27,14 @@ export const addsubCategory = async (req: Request, res: Response) => {
       if (!category?.subcategoryid) {
         throw new ValidationException("sub category   not found");
       }
+      const subcategoryNameValiadtion = await categoryRepository.findBy({
+        categoryname: payload.categoryname,
+        subcategoryid: Not(payload.subcategoryid),
+      });
+      if (subcategoryNameValiadtion?.length) {
+        throw new ValidationException("category name already  exists");
+      }
+
       const { cuid, subcategoryid, ...updatePayload } = payload;
       await categoryRepository.update(
         { subcategoryid: payload.subcategoryid },

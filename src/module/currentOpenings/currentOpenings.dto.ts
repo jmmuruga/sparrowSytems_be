@@ -16,7 +16,10 @@ export const currentOpeningsValidation = Joi.object({
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });
-
+export interface changeCurrentOpeniingstatusDto {
+  id:number;
+  status: boolean;
+}
 export const currentOpeningsUpdateValidation = Joi.object({
   id: Joi.number().required(),
   JobName: Joi.string().required(),

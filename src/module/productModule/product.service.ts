@@ -146,12 +146,13 @@ export const getProductsDetails = async (req: Request, res: Response) => {
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
-        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
+        brand.brandname as brand_name
 FROM 
     [${process.env.DB_name}].[dbo].[products] p
+    LEFT JOIN [${process.env.DB_name}].[DBO].[brand_detail] brand on p.brandid = brand.brandid
 ORDER BY 
     p.created_at DESC
-
     `);
 
     // Category mapping logic remains the same

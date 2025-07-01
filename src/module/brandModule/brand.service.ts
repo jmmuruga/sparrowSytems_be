@@ -1,9 +1,15 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
-import { brandDto, brandValidation, changebrandStatusDto, updateBrandValidation } from "./brand.dto";
+import {
+  brandDto,
+  brandValidation,
+  changebrandStatusDto,
+  updateBrandValidation,
+} from "./brand.dto";
 import { Request, Response } from "express";
 import { BrandDetail } from "./brand.model";
 import { products } from "../productModule/product.model";
+import { Not } from "typeorm";
 
 export const addBrand = async (req: Request, res: Response) => {
   const payload: brandDto = req.body;
@@ -15,12 +21,21 @@ export const addBrand = async (req: Request, res: Response) => {
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
       }
+
       const brandDetails = await BrandRepository.findOneBy({
         brandid: payload.brandid,
       });
       if (!brandDetails?.brandid) {
         throw new ValidationException("Brand not found");
       }
+      const brandNameValiadtion = await BrandRepository.findBy({
+        brandname: payload.brandname,
+        brandid: Not(payload.brandid),
+      });
+      if (brandNameValiadtion?.length) {
+        throw new ValidationException("Brand name already  exists");
+      }
+
       const { cuid, brandid, ...updatePayload } = payload;
       await BrandRepository.update({ brandid: payload.brandid }, updatePayload);
       res.status(200).send({
@@ -38,6 +53,13 @@ export const addBrand = async (req: Request, res: Response) => {
     if (validateTypeName?.length) {
       throw new ValidationException("Email already exist");
     }
+    const brandNameValiadtion = await BrandRepository.findBy({
+      brandname: payload.brandname,
+    });
+    if (brandNameValiadtion?.length) {
+      throw new ValidationException("brandname already exists");
+    }
+
     const { brandid, ...updatePayload } = payload;
     await BrandRepository.save(updatePayload);
     res.status(200).send({
@@ -64,7 +86,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
   const productRepo = appSource.getRepository(products);
 
   try {
-    const brand = await brandRepo.findOneBy({ brandid : brandid });
+    const brand = await brandRepo.findOneBy({ brandid: brandid });
 
     if (!brand) {
       throw new HttpException("Brand not found", 404);
@@ -78,16 +100,17 @@ export const deleteBrand = async (req: Request, res: Response) => {
       .getMany();
 
     if (usedInProducts.length > 0) {
-      throw new ValidationException("Unable to delete brand. It is currently used by products.");
+      throw new ValidationException(
+        "Unable to delete brand. It is currently used by products."
+      );
     }
 
     await brandRepo
-    .createQueryBuilder()
-    .delete()
-    .from(BrandDetail)
-    .where({brandid : brandid})
-    .execute();
-  
+      .createQueryBuilder()
+      .delete()
+      .from(BrandDetail)
+      .where({ brandid: brandid })
+      .execute();
 
     res.status(200).send({
       IsSuccess: "Brand deleted successfully!",
@@ -101,12 +124,12 @@ export const deleteBrand = async (req: Request, res: Response) => {
 };
 
 export const changeStatusBrand = async (req: Request, res: Response) => {
-  const  brandStatus: changebrandStatusDto = req.body;
+  const brandStatus: changebrandStatusDto = req.body;
   const brandRepository = appSource.getRepository(BrandDetail);
 
   try {
     const categoryFromDB = await brandRepository.findBy({
-      brandid:brandStatus.brandid,
+      brandid: brandStatus.brandid,
     });
     if (categoryFromDB.length == 0) {
       throw new HttpException("Data not Found", 400);
@@ -114,7 +137,7 @@ export const changeStatusBrand = async (req: Request, res: Response) => {
     await brandRepository
       .createQueryBuilder()
       .update(BrandDetail)
-      .set({ status:brandStatus.status })
+      .set({ status: brandStatus.status })
       .where("brandid = :brandid", { brandid: brandStatus.brandid })
       .execute();
 
@@ -130,7 +153,6 @@ export const changeStatusBrand = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
 
 export const getBrandDetail = async (req: Request, res: Response) => {
   try {
@@ -173,73 +195,19 @@ export const getTopBrandDetail = async (req: Request, res: Response) => {
   }
 };
 
-export const updateBrand = async (req: Request, res: Response) => {
-  const payload: brandDto = req.body;
-
-  try {
-    // Validate request data
-    const validation = brandValidation.validate(payload);
-    if (validation?.error) {
-      throw new ValidationException(validation.error.message);
-    }
-
-    const BrandRepository = appSource.getRepository(BrandDetail);
-
-    // Find the existing brand by ID
-    const existingBrand = await BrandRepository.findOneBy({
-      brandid: payload.brandid,
-    });
-
-    if (!existingBrand) {
-      return res.status(404).send({ message: "Brand not found" });
-    }
-
-    // Check if the email is being changed and already exists
-    if (existingBrand.email !== payload.email) {
-      const emailExists = await BrandRepository.findBy({
-        email: payload.email,
-      });
-
-      if (emailExists.length) {
-        throw new ValidationException("Email already exists");
-      }
-    }
-
-    // Remove non-updatable fields
-    const { brandid, ...updatePayload } = payload;
-
-    // Update the brand details
-    await BrandRepository.update({ brandid }, updatePayload);
-
-    res.status(200).send({
-      IsSuccess: "Brand details updated successfully",
-    });
-  } catch (error) {
-    if (error instanceof ValidationException) {
-      return res.status(400).send({ message: error.message });
-    }
-
-    res.status(500).send({ message: "Internal server error" });
-  }
-};
-
-
-
 export const getBrandCount = async (req: Request, res: Response) => {
   try {
-    const brandid = req.params.brandid
+    const brandid = req.params.brandid;
     const brandRepository = appSource.getRepository(BrandDetail);
-    const details:brandDto[] = await brandRepository. query(
-     `
+    const details: brandDto[] = await brandRepository.query(
+      `
      select brand_detail.brandid from [${process.env.DB_name}].[dbo].[brand_detail] 
      inner join [${process.env.DB_name}].[dbo].[products]
      on brand_detail.brandid = products.brandid 
      where brand_detail.brandid = ${brandid};
      `
-
     );
     res.status(200).send({ Result: details });
-   
   } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -249,23 +217,20 @@ export const getBrandCount = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
 
 export const getActiveBrandCount = async (req: Request, res: Response) => {
   try {
     const brandname = req.params.brandid;
     const brandRepository = appSource.getRepository(BrandDetail);
-    const details:brandDto[] = await brandRepository. query(
-     `
+    const details: brandDto[] = await brandRepository.query(
+      `
      select products.brandid from [${process.env.DB_name}].[dbo].[brand_detail] 
      inner join [${process.env.DB_name}].[dbo].[products]
      on brand_detail.brandid = products.brandid 
      where products.status = 1 and products.brandid = '${brandname}';
      `
-
     );
     res.status(200).send({ Result: details });
-   
   } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -275,6 +240,3 @@ export const getActiveBrandCount = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-
-
