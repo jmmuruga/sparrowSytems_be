@@ -8,6 +8,7 @@ import {
 import { HttpException, ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 import { banner } from "./banner.model";
+import { Not } from "typeorm";
 
 export const newBanner = async (req: Request, res: Response) => {
   const payload: bannerDetailsDto = req.body;
@@ -25,6 +26,18 @@ export const newBanner = async (req: Request, res: Response) => {
       if (!bannerDetails?.bannerid) {
         throw new ValidationException("banner not found");
       }
+
+      const existingProduct = await BannerRepository.findOne({
+        where: {
+          title: payload.title,
+          bannerid: Not(payload.bannerid),
+        },
+      });
+
+      if (existingProduct) {
+        throw new ValidationException("Product name already exists");
+      }
+
       const { cuid, bannerid, ...updatePayload } = payload;
 
       // Safe conversion from "true"/"false"/true/false to boolean
