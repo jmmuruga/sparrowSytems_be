@@ -24,6 +24,7 @@ import { Newproducts } from "../module/newProductsModule/newProducts.model";
 import { GetInTouch } from "../module/getInTouchModule/getInTouch.model";
 import { variation } from "../module/variation/variation.model";
 import { contactDetails } from "../module/contactFormModule/contactForm.model";
+import { Logs } from "../module/logs/logs.model";
 const Entities: any[] = [
   UserDetails,
   products,
@@ -48,7 +49,8 @@ const Entities: any[] = [
   GetInTouch,
   variation,
   contactDetails,
-  ProductNested
+  ProductNested,
+  Logs
 
 ]
 export const appSource = new DataSource({
