@@ -15,7 +15,7 @@ import { CategoryNested } from "../categoryNested/categoryNested.model";
 
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
-  console.log(payload.categoryid , 'category id')
+  console.log(payload.categoryid, 'category id')
   try {
     const ProductRepository = appSource.getRepository(products);
     const NestedRepository = appSource.getRepository(ProductNested);
@@ -132,6 +132,7 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.updated_at,
     p.status,
     p.delivery_days,
+    brand.brandname,
     p.document,
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
@@ -164,30 +165,30 @@ ORDER BY
     const subCatrgeoryList = await subCategoryIdReposiry.createQueryBuilder().getMany();
 
     productList.forEach((x) => {
-    if(x.categoryid){
-     const ids = x.categoryid.split(',');
+      if (x.categoryid) {
+        const ids = x.categoryid.split(',');
 
-      // 2. Map each ID to its categoryname
-      const names = ids.map((id: string) => {
-        const found = categoryList.find(y => y.categoryid === +id.trim());
-        return found?.categoryname || '';
-      }).filter(Boolean); // remove empty if not found
+        // 2. Map each ID to its categoryname
+        const names = ids.map((id: string) => {
+          const found = categoryList.find(y => y.categoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
 
-      // 3. Join back to a single string if needed
-      x.categoryName = names.join(', ');
-    }
-    if(x.subcategoryid){
+        // 3. Join back to a single string if needed
+        x.categoryName = names.join(', ');
+      }
+      if (x.subcategoryid) {
         const subId = x.subcategoryid.split(',');
 
-      // 2. Map each ID to its categoryname
-      const names = subId.map((id: string) => {
-        const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
-        return found?.categoryname || '';
-      }).filter(Boolean); // remove empty if not found
+        // 2. Map each ID to its categoryname
+        const names = subId.map((id: string) => {
+          const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
 
-      // 3. Join back to a single string if needed
-      x.subCategoryName = names.join(', ');
-    }
+        // 3. Join back to a single string if needed
+        x.subCategoryName = names.join(', ');
+      }
     });
 
     res.status(200).send({

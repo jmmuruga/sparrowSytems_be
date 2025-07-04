@@ -79,6 +79,70 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
   }
 };
 
+// export const getHomePageCategoryToDisplay = async (req: Request, res: Response) => {
+//   try {
+//     const homeRepository = appSource.getRepository(homeSettings);
+//     const details: homeSettingsDto[] = await homeRepository.query(
+//       `SELECT 
+//   hs.id,
+//   hs.visible,
+//   hs.categoryid,
+//   hs.column_count,
+//   hs.row_count,
+//   c.categoryname AS category_name,
+//   p.productid,
+//   p.product_name,
+//   p.mrp,
+//   p.discount,
+//   p.offer_price,
+//   p.created_at,
+//   p.status,
+//   p.image,         
+//   p.image_title    
+// FROM [${process.env.DB_name}].[dbo].[home_settings] hs
+// INNER JOIN [${process.env.DB_name}].[dbo].[category] c
+//   ON hs.categoryid = c.categoryid
+// OUTER APPLY (
+//   SELECT TOP (hs.column_count * hs.row_count)
+//          pr.productid,
+//          pr.product_name,
+//          pr.mrp,
+//          pr.discount,
+//          pr.offer_price,
+//          pr.created_at,
+//          pr.status,
+
+//          ISNULL(img.image, '') AS image,               
+//          ISNULL(img.image_title, '') AS image_title    
+//   FROM [${process.env.DB_name}].[dbo].[products] pr
+
+//   OUTER APPLY (
+//     SELECT TOP 1 
+//            pn.image,
+//            pn.image_title
+//     FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+//     WHERE pn.productid = pr.productid
+//     ORDER BY pn.id DESC   
+//   ) img
+
+//   WHERE 
+//     ',' + pr.categoryid + ',' LIKE '%,' + CAST(hs.categoryid AS NVARCHAR(10)) + ',%'
+//     AND pr.status = 1
+//   ORDER BY pr.productid DESC
+// ) p;
+// `
+//     );
+//     res.status(200).send({ Result: details });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
+
 export const getHomePageCategoryToDisplay = async (req: Request, res: Response) => {
   try {
     const homeRepository = appSource.getRepository(homeSettings);
@@ -87,9 +151,11 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
   hs.id,
   hs.visible,
   hs.categoryid,
+  hs.subcategoryid,
   hs.column_count,
   hs.row_count,
   c.categoryname AS category_name,
+  cn.categoryname AS subcategory_name, -- <-- FIXED
   p.productid,
   p.product_name,
   p.mrp,
@@ -97,12 +163,14 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
   p.offer_price,
   p.created_at,
   p.status,
-  p.image,         
-  p.image_title    
-FROM [SPARROW_SYSTEMS].[dbo].[home_settings] hs
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[category] c
+  p.image,
+  p.image_title
+FROM [${process.env.DB_name}].[dbo].[home_settings] hs
+LEFT JOIN [${process.env.DB_name}].[dbo].[category] c
   ON hs.categoryid = c.categoryid
-OUTER APPLY (
+LEFT JOIN [${process.env.DB_name}].[dbo].[category_nested] cn
+  ON hs.subcategoryid = cn.subcategoryid
+  OUTER APPLY (
   SELECT TOP (hs.column_count * hs.row_count)
          pr.productid,
          pr.product_name,
@@ -111,22 +179,36 @@ OUTER APPLY (
          pr.offer_price,
          pr.created_at,
          pr.status,
-
-         ISNULL(img.image, '') AS image,               
-         ISNULL(img.image_title, '') AS image_title    
-  FROM [SPARROW_SYSTEMS].[dbo].[products] pr
+         ISNULL(img.image, '') AS image,
+         ISNULL(img.image_title, '') AS image_title
+  FROM [${process.env.DB_name}].[dbo].[products] pr
 
   OUTER APPLY (
     SELECT TOP 1 
            pn.image,
            pn.image_title
-    FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
     WHERE pn.productid = pr.productid
-    ORDER BY pn.id DESC   
+    ORDER BY pn.id DESC
   ) img
 
   WHERE 
-    ',' + pr.categoryid + ',' LIKE '%,' + CAST(hs.categoryid AS NVARCHAR(10)) + ',%'
+    (
+      
+      (hs.categoryid IS NOT NULL AND hs.subcategoryid IS NULL AND
+        ',' + pr.categoryid + ',' LIKE '%,' + CAST(hs.categoryid AS NVARCHAR(10)) + ',%')
+
+      OR
+
+      (hs.subcategoryid IS NOT NULL AND hs.categoryid IS NULL AND
+        ',' + pr.subcategoryid + ',' LIKE '%,' + CAST(hs.subcategoryid AS NVARCHAR(10)) + ',%')
+
+      OR
+
+      (hs.categoryid IS NOT NULL AND hs.subcategoryid IS NOT NULL AND
+        ',' + pr.categoryid + ',' LIKE '%,' + CAST(hs.categoryid AS NVARCHAR(10)) + ',%'
+        AND ',' + pr.subcategoryid + ',' LIKE '%,' + CAST(hs.subcategoryid AS NVARCHAR(10)) + ',%')
+    )
     AND pr.status = 1
   ORDER BY pr.productid DESC
 ) p;

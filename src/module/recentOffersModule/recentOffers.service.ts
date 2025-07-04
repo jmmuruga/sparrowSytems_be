@@ -190,6 +190,7 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
     p.product_name,
     p.stock,
     p.brandid,
+    b.brandname, 
     p.categoryid,
     p.subcategoryid,    
     p.mrp,
@@ -254,8 +255,13 @@ CROSS APPLY (
 INNER JOIN [${process.env.DB_name}].[dbo].[products] p
     ON CAST(s.value AS INT) = p.productid
 
+
+INNER JOIN [${process.env.DB_name}].[dbo].[brand_detail] b
+    ON p.brandid = b.brandid
+
 WHERE 
     p.status = 1;
+
 `
     );
     res.status(200).send({ Result: details });
