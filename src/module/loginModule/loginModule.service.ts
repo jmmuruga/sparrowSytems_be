@@ -105,9 +105,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
             await transporter.sendMail({
                 from: "savedatain@gmail.com",
-                to: eMail,
+                to: "savedataakshaya03@gmail.com",
+                // to: eMail,
                 subject: `Password Recovery Assistance`,
-                text: `Hello ${isThereEmail.username},\n\n
+                text: `Hello,\n\n
                 We received a request to reset your password. Please use the following One-Time Password (OTP) to log in and reset your password:\n
                 OTP: ${randomOtp}\n\n
                 This OTP is valid for a limited time. After logging in, we recommend that you update your password for security purposes.\n\n
@@ -167,7 +168,6 @@ export const resetNewPassword = async (req: Request, res: Response) => {
         handleError(res, error);
     }
 }
-
 
 export const addLogsWhileLogout = async (req: Request, res: Response) => {
     try {
