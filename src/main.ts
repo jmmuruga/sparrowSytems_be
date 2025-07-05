@@ -30,6 +30,7 @@ import getInTouchRouter from "./module/getInTouchModule/getInTouch.controller";
 import variationRouter from "./module/variation/variation.controller";
 import razorPayRouter from "./module/razorpaymentModule/razorpay.controller";
 import contactRouter from "./module/contactFormModule/contactForm.controller";
+import productColourVariationRouter from "./module/productColorVariation/productColorVariation.controller";
 
 
 
@@ -73,5 +74,8 @@ app.use('/getInTouchRouter', cors(corsOptions), getInTouchRouter);
 app.use('/variationRouter', cors(corsOptions), variationRouter);
 app.use('/razorPayRouter', cors(corsOptions), razorPayRouter);
 app.use('/contactRouter', cors(corsOptions), contactRouter);
+app.use('/productColourVariationRouter', cors(corsOptions), productColourVariationRouter);
+
+
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
