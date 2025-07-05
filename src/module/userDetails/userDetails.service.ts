@@ -46,9 +46,6 @@ export const newUser = async (req: Request, res: Response) => {
     }
     const { userid, ...updatePayload } = payload;
 
-
-
-
     await UserDetailsRepoistry.save(updatePayload);
     res.status(200).send({
       IsSuccess: "User Details added SuccessFully",
