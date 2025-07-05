@@ -55,7 +55,6 @@ export const createRazorpayOrder = async (
       currency: order.currency,
     });
   } catch (error) {
-    console.error("Error creating Razorpay order:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

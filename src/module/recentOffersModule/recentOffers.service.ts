@@ -4,7 +4,6 @@ import { RecentOffersDto, recentOffersDtoValidation, updateRecentOffersValidatio
 import { RecentOffers } from "./recentOffers.model";
 import { ValidationException } from "../../core/exception";
 
-
 export const addRecentOffersSettings = async (req: Request, res: Response) => {
   const payload: RecentOffersDto = req.body;
   const recentOffersRepository = appSource.getRepository(RecentOffers);
@@ -70,113 +69,6 @@ export const getRecentOffersDetails = async (req: Request, res: Response) => {
   }
 };
 
-// export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
-//   try {
-//     const recentOffersRepository = appSource.getRepository(RecentOffers);
-//     const details: RecentOffersDto[] = await recentOffersRepository.query(
-//       `  SELECT ro.id,
-//        ro.status,
-//        ro.products_Id,
-//        s.value AS product_id,
-//        p.product_name,
-//        p.image1,
-// 	   p.discount,
-//      p.productid,
-// 	   p.offer_price,
-// 	   p.mrp
-// FROM [${process.env.DB_name}].[dbo].[recent_offers] ro
-// CROSS APPLY (
-//     SELECT LTRIM(RTRIM(m.n.value('.', 'VARCHAR(100)'))) AS value
-//     FROM (
-//         SELECT CAST('<XMLRoot><RowData>' + 
-//                      REPLACE(ro.products_Id, ',', '</RowData><RowData>') + 
-//                      '</RowData></XMLRoot>' AS XML) AS x
-//     ) AS t
-//     CROSS APPLY x.nodes('/XMLRoot/RowData') m(n)
-// ) s
-// INNER JOIN [${process.env.DB_name}].[dbo].[products] p
-//     ON CAST(s.value AS INT) = p.productid
-//     WHERE p.status = 1 ;`
-//     );
-//     res.status(200).send({ Result: details });
-//   } catch (error) {
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error?.message,
-//       });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
-
-// export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
-//   try {
-//     const recentOffersRepository = appSource.getRepository(RecentOffers);
-//     const details: RecentOffersDto[] = await recentOffersRepository.query(
-//       ` SELECT ro.id,
-//        ro.status,
-//        ro.products_Id,
-//        s.value AS product_id,
-//        p.productid,
-//           p.product_name,
-//           p.stock,
-//           p.brand_name,
-//           p.category_name,
-//           p.mrp,
-//           p.discount,
-//           p.offer_price,
-//           p.min_qty,
-//           p.max_qty,
-//           p.delivery_charges,
-//           p.delivery_amount,
-//           p.variation_group,
-//           STUFF((
-//               SELECT ', ' + v2.name
-//               FROM [${process.env.DB_name}].[dbo].[variation] v2
-//               WHERE v2.variationGroup = p.variation_group
-//               FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
-//           p.description,
-//           p.terms,
-//           p.warranty,
-//           p.image1,
-//           p.image2,
-//           p.image3,
-//           p.image4,
-//           p.image5,
-//           p.image6,
-//           p.image7,
-//           p.cuid,
-//           p.muid,
-//           p.created_at,
-//           p.updated_at,
-//           p.status,
-//           p.delivery_days,
-//           p.document
-// FROM [${process.env.DB_name}].[dbo].[recent_offers] ro
-// CROSS APPLY (
-//     SELECT LTRIM(RTRIM(m.n.value('.', 'VARCHAR(100)'))) AS value
-//     FROM (
-//         SELECT CAST('<XMLRoot><RowData>' + 
-//                      REPLACE(ro.products_Id, ',', '</RowData><RowData>') + 
-//                      '</RowData></XMLRoot>' AS XML) AS x
-//     ) AS t
-//     CROSS APPLY x.nodes('/XMLRoot/RowData') m(n)
-// ) s
-// INNER JOIN [${process.env.DB_name}].[dbo].[products] p
-//     ON CAST(s.value AS INT) = p.productid
-//     WHERE p.status = 1 ;`
-//     );
-//     res.status(200).send({ Result: details });
-//   } catch (error) {
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error?.message,
-//       });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
-
 export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
   try {
     const recentOffersRepository = appSource.getRepository(RecentOffers);
@@ -190,6 +82,7 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
     p.product_name,
     p.stock,
     p.brandid,
+    b.brandname, 
     p.categoryid,
     p.subcategoryid,    
     p.mrp,
@@ -199,15 +92,6 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
     p.max_qty,
     p.delivery_charges,
     p.delivery_amount,
-    p.variation_group,
-
-    STUFF((
-        SELECT ', ' + CAST(v2.name AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[variation] v2
-        WHERE v2.variationGroup = p.variation_group
-        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
-    , 1, 2, '') AS variation_names,
-
     p.description,
     p.terms,
     p.warranty,
@@ -254,8 +138,13 @@ CROSS APPLY (
 INNER JOIN [${process.env.DB_name}].[dbo].[products] p
     ON CAST(s.value AS INT) = p.productid
 
+
+INNER JOIN [${process.env.DB_name}].[dbo].[brand_detail] b
+    ON p.brandid = b.brandid
+
 WHERE 
     p.status = 1;
+
 `
     );
     res.status(200).send({ Result: details });

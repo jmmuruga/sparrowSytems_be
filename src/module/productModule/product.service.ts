@@ -1,16 +1,12 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
-import {
-  productDetailsDto,
-  productDetailsValidation,
-  productStatusDto,
-  updateDetailsValidation,
-} from "./product.dto";
+import {productDetailsDto, productDetailsValidation, productStatusDto, updateDetailsValidation} from "./product.dto";
 import { ProductNested, products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
 import { Not } from "typeorm";
+import { CategoryNested } from "../categoryNested/categoryNested.model";
 
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
@@ -34,7 +30,7 @@ export const addProducts = async (req: Request, res: Response) => {
       const existingProduct = await ProductRepository.findOne({
         where: {
           product_name: payload.product_name,
-          productid: Not(payload.productid), 
+          productid: Not(payload.productid),
         },
       });
 
@@ -61,7 +57,9 @@ export const addProducts = async (req: Request, res: Response) => {
         await NestedRepository.save(newImages);
       }
 
-      return res.status(200).send({ IsSuccess: "Product Details updated successfully" });
+      return res
+        .status(200)
+        .send({ IsSuccess: "Product Details updated successfully" });
     }
 
     const validation = productDetailsValidation.validate(payload);
@@ -117,12 +115,6 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.max_qty,
     p.delivery_charges,
     p.delivery_amount,
-    p.variation_group,
-    STUFF((
-        SELECT ', ' + CAST(v2.name AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[variation] v2
-        WHERE v2.variationGroup = p.variation_group
-        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
     p.description,
     p.terms,
     p.warranty,
@@ -130,6 +122,7 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.updated_at,
     p.status,
     p.delivery_days,
+    brand.brandname,
     p.document,
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
@@ -158,11 +151,34 @@ ORDER BY
     // Category mapping logic remains the same
     const categoryRepoistry = appSource.getRepository(Category);
     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+    const subCategoryIdReposiry = appSource.getRepository(CategoryNested);
+    const subCatrgeoryList = await subCategoryIdReposiry.createQueryBuilder().getMany();
 
     productList.forEach((x) => {
-      x.categoryName = categoryList.find(
-        (y) => y.categoryid === +x.category_name
-      )?.categoryname;
+      if (x.categoryid) {
+        const ids = x.categoryid.split(',');
+
+        // 2. Map each ID to its categoryname
+        const names = ids.map((id: string) => {
+          const found = categoryList.find(y => y.categoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
+
+        // 3. Join back to a single string if needed
+        x.categoryName = names.join(', ');
+      }
+      if (x.subcategoryid) {
+        const subId = x.subcategoryid.split(',');
+
+        // 2. Map each ID to its categoryname
+        const names = subId.map((id: string) => {
+          const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
+
+        // 3. Join back to a single string if needed
+        x.subCategoryName = names.join(', ');
+      }
     });
 
     res.status(200).send({
@@ -178,11 +194,14 @@ ORDER BY
   }
 };
 
-export const getNewAddedProductsDetails = async (req: Request, res: Response) => {
+export const getNewAddedProductsDetails = async (
+  req: Request,
+  res: Response
+) => {
   try {
     // Run your raw SQL query using appSource.query()
     const productList: any[] = await appSource.query(`
-      SELECT 
+       SELECT 
     p.productid,
     p.product_name,
     p.stock,
@@ -196,15 +215,6 @@ export const getNewAddedProductsDetails = async (req: Request, res: Response) =>
     p.max_qty,
     p.delivery_charges,
     p.delivery_amount,
-    p.variation_group,
-
-    -- All variation names (comma-separated)
-    STUFF((
-        SELECT ', ' + v2.name
-        FROM [${process.env.DB_name}].[dbo].[variation] v2
-        WHERE v2.variationGroup = p.variation_group
-        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
-
     p.description,
     p.terms,
     p.warranty,
@@ -217,19 +227,19 @@ export const getNewAddedProductsDetails = async (req: Request, res: Response) =>
     -- All image titles for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
 
     -- All images for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
 
 FROM 
-    [${process.env.DB_name}].[dbo].[products] p;
+    [SPARROW_SYSTEMS].[dbo].[products] p;
 
     `);
 
@@ -273,7 +283,9 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
 
     if (existingOrderItems.length > 0) {
-      throw new ValidationException('Unable to delete product. It is currently in use.');
+      throw new ValidationException(
+        "Unable to delete product. It is currently in use."
+      );
     }
 
     // ✅ Check if product exists
@@ -320,6 +332,26 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
       .execute();
     res.status(200).send({
       IsSuccess: `Status for product ${details.product_name} Updated successfully!`,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getimages = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const imageList: any[] = await appSource.query(`
+       select image from  [${process.env.DB_name}].[dbo].[product_Nested]
+       where product_Nested.productid = '${id}'`);
+
+    res.status(200).send({
+      Result: imageList,
     });
   } catch (error) {
     if (error instanceof ValidationException) {

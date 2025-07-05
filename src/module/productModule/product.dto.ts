@@ -5,7 +5,7 @@ export interface productDetailsDto {
   product_name: string;
   stock: string;
   brandid: number;
-  categoryid: number;
+  categoryid: string;
   mrp: number;
   discount: number;
   offer_price: number;
@@ -13,7 +13,6 @@ export interface productDetailsDto {
   max_qty: number;
   delivery_charges: string;
   delivery_amount: number;
-  variation_group: string;
   description: string;
   terms: string;
   delivery_days: string;
@@ -29,7 +28,7 @@ export interface productDetailsDto {
   cuid: number;
   muid: number;
   status: boolean;
-  subcategoryid: number;
+  subcategoryid: string;
 }
 export interface productStatusDto {
   productid: string;
@@ -40,8 +39,8 @@ export const productDetailsValidation = Joi.object({
   product_name: Joi.string().required(),
   stock: Joi.string().required(),
   brandid: Joi.number().required(),
-  categoryid: Joi.number().optional().allow(null , ''),
-  subcategoryid: Joi.number().optional().allow(null , ''),
+  categoryid: Joi.string().optional().allow(null , ''),
+  subcategoryid: Joi.string().optional().allow(null , ''),
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
@@ -49,7 +48,6 @@ export const productDetailsValidation = Joi.object({
   max_qty: Joi.number().required(),
   delivery_charges: Joi.string().required(),
   delivery_amount: Joi.number().optional().allow(null , ''),
-  variation_group: Joi.string().optional().allow(null , ''),
   description: Joi.string().required(),
   terms: Joi.string().required(),
   delivery_days: Joi.string().optional(),
@@ -70,10 +68,8 @@ export const updateDetailsValidation = Joi.object({
   product_name: Joi.string().required(),
   stock: Joi.string().required(),
   brandid: Joi.number().required(),
-
-  categoryid: Joi.number().optional().allow(null , ''),
-  subcategoryid: Joi.number().optional().allow(null , ''),
-
+  categoryid: Joi.string().optional().allow(null , ''),
+  subcategoryid: Joi.string().optional().allow(null , ''),
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
@@ -81,7 +77,6 @@ export const updateDetailsValidation = Joi.object({
   max_qty: Joi.number().required(),
   delivery_charges: Joi.string().required(),
   delivery_amount: Joi.number().optional().allow(null, ""),
-  variation_group: Joi.string().optional().allow(null, ""),
   description: Joi.string().required(),
   terms: Joi.string().required(),
   delivery_days: Joi.string().required(),
