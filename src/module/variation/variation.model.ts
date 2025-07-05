@@ -12,16 +12,16 @@ export class variation {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
-  variationid:string;
+  variationGroupId:string;
   @Column()
   variationGroup: string;
   @Column()
-  name: string;
+  variationname: string;
   @Column()
-  itemId: string;
+  productid: string;
   @Column({ nullable: true })
-  rowId: string;
-  @Column({ default: true })
+  // rowId: string;
+  // @Column({ default: true })
   status: boolean;
   @Column({ nullable: true })
   cuid: number;

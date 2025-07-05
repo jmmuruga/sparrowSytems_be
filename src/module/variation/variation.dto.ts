@@ -2,11 +2,11 @@ import Joi from "joi";
 
 export interface variationDto {
   id: number;
-  variationid: string;
+  variationGroupId: string;
   variationGroup: string;
-  name: string;
-  itemId: string;
-  rowId: string;
+  variationname: string;
+  productid: string;
+  // rowId: string;
   status: boolean;
   cuid: number;
   muid: number;
@@ -14,10 +14,10 @@ export interface variationDto {
 
 export const variationValidate = Joi.object({
   variationGroup: Joi.string().required(),
-  variationid: Joi.string().required(),
-  name: Joi.string().required(),
-  itemId: Joi.string().required(),
-  rowId: Joi.string().required(),
+  variationGroupId: Joi.string().required(),
+  variationname: Joi.string().required(),
+  productid: Joi.string().required(),
+  // rowId: Joi.string().required(),
 
   status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
@@ -30,12 +30,11 @@ export interface changeVariationStatusDto {
 }
 
 export const variationUpdateValidate = Joi.object({
-  id: Joi.number().required(),
   variationGroup: Joi.string().required(),
-  variationid: Joi.string().required(),
-  name: Joi.string().required(),
-  rowId: Joi.string().required(),
-  itemId: Joi.string().required(),
+  variationGroupId: Joi.string().required(),
+  variationname: Joi.string().required(),
+  // rowId: Joi.string().required(),
+  productid: Joi.string().required(),
   status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
