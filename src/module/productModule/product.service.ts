@@ -53,7 +53,7 @@ import { orders } from "../ordersModule/orders.model";
 //     res.status(200).send({
 //       IsSuccess: "Product Details added SuccessFully",
 //     });
-//   } catch (error) 
+//   } catch (error)
 //   {
 //     console.error("Error while adding/updating product:", error);
 //     if (error instanceof ValidationException) {
@@ -91,7 +91,9 @@ import { orders } from "../ordersModule/orders.model";
 // };
 
 export const addProducts = async (req: Request, res: Response) => {
-  const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
+  const payload: productDetailsDto & {
+    images?: { image: string; image_title: string }[];
+  } = req.body;
 
   try {
     const ProductRepository = appSource.getRepository(products);
@@ -129,7 +131,9 @@ export const addProducts = async (req: Request, res: Response) => {
         await NestedRepository.save(newImages);
       }
 
-      return res.status(200).send({ IsSuccess: "Product Details updated successfully" });
+      return res
+        .status(200)
+        .send({ IsSuccess: "Product Details updated successfully" });
     }
 
     const validation = productDetailsValidation.validate(payload);
@@ -172,7 +176,7 @@ export const addProducts = async (req: Request, res: Response) => {
 //   try {
 //     // Run your raw SQL query using appSource.query()
 //     const productList: any[] = await appSource.query(`
-//       SELECT 
+//       SELECT
 //           p.productid,
 //           p.product_name,
 //           p.stock,
@@ -208,7 +212,7 @@ export const addProducts = async (req: Request, res: Response) => {
 //           p.status,
 //           p.delivery_days,
 //           p.document
-//       FROM 
+//       FROM
 //           [${process.env.DB_name}].[dbo].[products] p;
 //     `);
 
@@ -254,11 +258,6 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.delivery_charges,
     p.delivery_amount,
     p.variation_group,
-    STUFF((
-        SELECT ', ' + CAST(v2.name AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[variation] v2
-        WHERE v2.variationGroup = p.variation_group
-        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
     p.description,
     p.terms,
     p.warranty,
@@ -312,7 +311,10 @@ LEFT JOIN [${process.env.DB_name}].[DBO].[brand_detail] brand on p.brandid = bra
   }
 };
 
-export const getNewAddedProductsDetails = async (req: Request, res: Response) => {
+export const getNewAddedProductsDetails = async (
+  req: Request,
+  res: Response
+) => {
   try {
     // Run your raw SQL query using appSource.query()
     const productList: any[] = await appSource.query(`
@@ -407,7 +409,9 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
 
     if (existingOrderItems.length > 0) {
-      throw new ValidationException('Unable to delete product. It is currently in use.');
+      throw new ValidationException(
+        "Unable to delete product. It is currently in use."
+      );
     }
 
     // ✅ Check if product exists
@@ -512,6 +516,7 @@ OUTER APPLY (
 };
 
 // export const getRecentOffers = async (req: Request, res: Response) => {
+
 //   try {
 //     const ProductRepository = appSource.getRepository(products);
 //     const details: productDetailsDto[] = await ProductRepository.query(
@@ -617,12 +622,11 @@ OUTER APPLY (
 //   }
 // };
 
-
 // export const getAllProductDetails = async (req: Request, res: Response) => {
 //   try {
 //     // Run your raw SQL query using appSource.query()
 //     const productList: any[] = await appSource.query(`
-//       SELECT 
+//       SELECT
 //     p.productid,
 //     p.product_name,
 //     p.stock,
@@ -668,7 +672,7 @@ OUTER APPLY (
 //         WHERE pn.productid = p.productid
 //         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
 
-// FROM 
+// FROM
 //     [${process.env.DB_name}].[dbo].[products] p;
 
 //     `);
@@ -695,3 +699,23 @@ OUTER APPLY (
 //     res.status(500).send(error);
 //   }
 // };
+
+export const getimages = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const imageList: any[] = await appSource.query(`
+       select image from  [${process.env.DB_name}].[dbo].[product_Nested]
+       where product_Nested.productid = '${id}'`);
+
+    res.status(200).send({
+  Result:imageList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
