@@ -11,9 +11,11 @@ import { ProductNested, products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
 import { Not } from "typeorm";
+import { CategoryNested } from "../categoryNested/categoryNested.model";
 
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
+  console.log(payload.categoryid, 'category id')
   try {
     const ProductRepository = appSource.getRepository(products);
     const NestedRepository = appSource.getRepository(ProductNested);
@@ -34,7 +36,7 @@ export const addProducts = async (req: Request, res: Response) => {
       const existingProduct = await ProductRepository.findOne({
         where: {
           product_name: payload.product_name,
-          productid: Not(payload.productid), 
+          productid: Not(payload.productid),
         },
       });
 
@@ -130,6 +132,7 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.updated_at,
     p.status,
     p.delivery_days,
+    brand.brandname,
     p.document,
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
@@ -158,11 +161,34 @@ ORDER BY
     // Category mapping logic remains the same
     const categoryRepoistry = appSource.getRepository(Category);
     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+    const subCategoryIdReposiry = appSource.getRepository(CategoryNested);
+    const subCatrgeoryList = await subCategoryIdReposiry.createQueryBuilder().getMany();
 
     productList.forEach((x) => {
-      x.categoryName = categoryList.find(
-        (y) => y.categoryid === +x.category_name
-      )?.categoryname;
+      if (x.categoryid) {
+        const ids = x.categoryid.split(',');
+
+        // 2. Map each ID to its categoryname
+        const names = ids.map((id: string) => {
+          const found = categoryList.find(y => y.categoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
+
+        // 3. Join back to a single string if needed
+        x.categoryName = names.join(', ');
+      }
+      if (x.subcategoryid) {
+        const subId = x.subcategoryid.split(',');
+
+        // 2. Map each ID to its categoryname
+        const names = subId.map((id: string) => {
+          const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
+
+        // 3. Join back to a single string if needed
+        x.subCategoryName = names.join(', ');
+      }
     });
 
     res.status(200).send({
