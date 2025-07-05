@@ -21,7 +21,7 @@ customerDetailRouter.post("/userlogin", (req, res) => {
 customerDetailRouter.get("/getCustomer", (req, res) => {
   getCustomer(req, res);
 });
-customerDetailRouter.delete("/deletecustomer/:customerid", (req, res) => {
+customerDetailRouter.delete("/deletecustomer/:customerid/:userId", (req, res) => {
   deleteCustomer(req, res);
 });
 
