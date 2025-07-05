@@ -30,68 +30,11 @@ export const addContactFormDetails = async (req: Request, res: Response) => {
       });
     }
 
-    console.error("Contact form save error:", error);
     return res.status(500).send({
       message: "Internal server error",
     });
   }
 };
-
-// export const sendMail = async (req: Request, res: Response) => {
-//   try {
-//     const { customer_name, customer_company, mobileNumber, e_mail, message } = req.body;
-
-//     console.log(req.body, "email service called");
-
-//     const repo = appSource.getRepository(contactDetails);
-
-//     const savedData = repo.create({
-//       customer_name,
-//       customer_company,
-//       mobileNumber,
-//       e_mail,
-//       message,
-//     });
-
-//     await repo.save(savedData);
-
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       port: 465,
-//       secure: true,
-//       auth: {
-//         user: "support@sparrowsystems.in",
-//         pass: "mqks tltb abyk jlyw", // Consider using environment variable
-//       },
-//     });
-
-//     await transporter.sendMail({
-//       from: "support@sparrowsystems.in",
-//       to: "savedataakshaya03@gmail.com",
-//       subject: `New Inquiry from ${customer_name}`,
-//       html: `
-//         <h2>New Inquiry Received</h2>
-//         <p><strong>Name:</strong> ${customer_name}</p>
-//         <p><strong>Company:</strong> ${customer_company}</p>
-//         <p><strong>Phone:</strong> ${mobileNumber}</p>
-//         <p><strong>Email:</strong> ${e_mail}</p>
-//         <p><strong>Message:</strong><br>${message}</p>
-//       `,
-//     });
-
-//     res.status(200).send({
-//       Result: "Mail sent and data saved successfully",
-//     });
-
-//   } catch (error) {
-//     console.error("Mail Error:", error);
-
-//     res.status(500).send({
-//       message: "Internal Server Error",
-//     //   error: error.message,
-//     });
-//   }
-// };
 
 export const sendMail = async (req: Request, res: Response) => {
   try {
@@ -137,7 +80,6 @@ export const sendMail = async (req: Request, res: Response) => {
       message: "Form submitted and mail sent successfully",
     });
   } catch (error) {
-    console.error("Mail Error:", error);
     return res.status(500).send({
       message: "Internal Server Error",
     });

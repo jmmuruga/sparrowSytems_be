@@ -1,12 +1,7 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
-import {
-  productDetailsDto,
-  productDetailsValidation,
-  productStatusDto,
-  updateDetailsValidation,
-} from "./product.dto";
+import {productDetailsDto, productDetailsValidation, productStatusDto, updateDetailsValidation} from "./product.dto";
 import { ProductNested, products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
@@ -15,7 +10,6 @@ import { CategoryNested } from "../categoryNested/categoryNested.model";
 
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
-  console.log(payload.categoryid, 'category id')
   try {
     const ProductRepository = appSource.getRepository(products);
     const NestedRepository = appSource.getRepository(ProductNested);
@@ -121,7 +115,6 @@ export const getProductsDetails = async (req: Request, res: Response) => {
     p.max_qty,
     p.delivery_charges,
     p.delivery_amount,
-    p.variation_group,
     p.description,
     p.terms,
     p.warranty,
@@ -208,7 +201,7 @@ export const getNewAddedProductsDetails = async (
   try {
     // Run your raw SQL query using appSource.query()
     const productList: any[] = await appSource.query(`
-      SELECT 
+       SELECT 
     p.productid,
     p.product_name,
     p.stock,
@@ -222,15 +215,6 @@ export const getNewAddedProductsDetails = async (
     p.max_qty,
     p.delivery_charges,
     p.delivery_amount,
-    p.variation_group,
-
-    -- All variation names (comma-separated)
-    STUFF((
-        SELECT ', ' + v2.name
-        FROM [${process.env.DB_name}].[dbo].[variation] v2
-        WHERE v2.variationGroup = p.variation_group
-        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS variation_names,
-
     p.description,
     p.terms,
     p.warranty,
@@ -243,19 +227,19 @@ export const getNewAddedProductsDetails = async (
     -- All image titles for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
 
     -- All images for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
 
 FROM 
-    [${process.env.DB_name}].[dbo].[products] p;
+    [SPARROW_SYSTEMS].[dbo].[products] p;
 
     `);
 
@@ -359,52 +343,6 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const getTopFirstImage = async (req: Request, res: Response) => {
-  try {
-    // Run your raw SQL query using appSource.query()
-    const productList: any[] = await appSource.query(`
-      SELECT 
-    p.[productid],
-    pn.image AS top_image,
-    pn.image_title AS top_image_title
-FROM 
-    [${process.env.DB_name}].[dbo].[products] p
-OUTER APPLY (
-    SELECT TOP 1 
-        CAST(image AS NVARCHAR(MAX)) AS image,
-        CAST(image_title AS NVARCHAR(MAX)) AS image_title
-    FROM 
-        [${process.env.DB_name}].[dbo].[product_nested]
-    WHERE 
-        productid = p.productid
-    ORDER BY 
-        id 
-) pn;
-    `);
-
-    // Category mapping logic remains the same
-    const categoryRepoistry = appSource.getRepository(Category);
-    const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
-
-    productList.forEach((x) => {
-      x.categoryName = categoryList.find(
-        (y) => y.categoryid === +x.category_name
-      )?.categoryname;
-    });
-
-    res.status(200).send({
-      Result: productList,
-    });
-  } catch (error) {
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
-    }
-    res.status(500).send(error);
-  }
-};
-
 export const getimages = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
@@ -413,7 +351,7 @@ export const getimages = async (req: Request, res: Response) => {
        where product_Nested.productid = '${id}'`);
 
     res.status(200).send({
-  Result:imageList,
+      Result: imageList,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
