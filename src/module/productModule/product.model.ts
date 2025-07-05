@@ -8,10 +8,10 @@ export class products {
     product_name: string;
     @Column()
     stock: string;
-    @Column({ nullable: true })
+    @Column()
     brandid: number;
-    @Column({ nullable: true })
-    categoryid: number;
+    @Column({nullable: true})
+    categoryid: string;
     @Column()
     mrp: number;
     @Column()
@@ -32,7 +32,7 @@ export class products {
     description: string;
     @Column()
     terms: string;
-    @Column({ nullable: true })
+    @Column()
     delivery_days: string;
     @Column()
     warranty: string;
@@ -45,7 +45,7 @@ export class products {
     @Column({default: true})
     status: boolean;
     @Column({nullable: true})
-    subcategoryid: number;
+    subcategoryid: string;
 }
 @Entity()
 export class ProductNested {
@@ -53,7 +53,7 @@ export class ProductNested {
     id: number;
     @Column()
     productid: number;
-    @Column({ type: 'ntext' , nullable: true })
+    @Column({ type: 'ntext' })
     image: string;
     @Column()
     image_title: string;

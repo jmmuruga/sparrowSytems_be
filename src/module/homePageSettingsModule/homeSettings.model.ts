@@ -6,8 +6,8 @@ export class homeSettings {
     id: number;
     @Column()
     visible: boolean;
-    @Column()
-    category_Id: number;
+    @Column({nullable: true})
+    categoryid: number;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
@@ -16,4 +16,6 @@ export class homeSettings {
     column_count: number;
     @Column({nullable: true})
     row_count: number;
+    @Column({nullable: true})
+    subcategoryid: number;
 }

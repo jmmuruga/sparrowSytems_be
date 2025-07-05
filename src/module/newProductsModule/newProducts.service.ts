@@ -133,6 +133,7 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   p.mrp,
   p.document,
   p.brandid,
+  b.brandname, -- ✅ Added brand name here
   p.categoryid,
   p.subcategoryid,
   p.delivery_amount,
@@ -156,21 +157,26 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
 FROM [${process.env.DB_name}].[dbo].[newproducts] np
 
 OUTER APPLY (
-    SELECT TOP (np.products_Limit) *
-    FROM [${process.env.DB_name}].[dbo].[products] p
-    WHERE p.status = 1
-    ORDER BY p.created_at DESC 
+  SELECT TOP (np.products_Limit) *
+  FROM [${process.env.DB_name}].[dbo].[products] p
+  WHERE p.status = 1
+  ORDER BY p.created_at DESC
 ) p
+
+-- ✅ INNER JOIN brand_detail to get brand name
+INNER JOIN [${process.env.DB_name}].[dbo].[brand_detail] b
+  ON p.brandid = b.brandid
 
 -- Nested OUTER APPLY to get top 1 image per product
 OUTER APPLY (
-    SELECT TOP 1 
-        CAST(pn.image AS NVARCHAR(MAX)) AS image,
-        CAST(pn.image_title AS NVARCHAR(MAX)) AS image_title
-    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
-    WHERE pn.productid = p.productid
-    ORDER BY pn.id -- or created_at, if available
+  SELECT TOP 1 
+    CAST(pn.image AS NVARCHAR(MAX)) AS image,
+    CAST(pn.image_title AS NVARCHAR(MAX)) AS image_title
+  FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+  WHERE pn.productid = p.productid
+  ORDER BY pn.id
 ) pn;
+
 `
     );
     res.status(200).send({ Result: details });

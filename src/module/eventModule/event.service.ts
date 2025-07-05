@@ -1,3 +1,4 @@
+import { Not } from "typeorm";
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { eventDetailsDto, eventDtoValidation, eventStatusDto, updateEventValidation } from "./event.dto";
@@ -19,6 +20,17 @@ export const addNewEvent = async (req: Request, res: Response) => {
       if (!eventDetails?.eventid) {
         throw new ValidationException("event not found");
       }
+      const existingProduct = await EventRepository.findOne({
+        where: {
+          event_name: payload.event_name,
+          eventid: Not(payload.eventid),
+        },
+      });
+
+      if (existingProduct) {
+        throw new ValidationException("Product name already exists");
+      }
+
       const { eventid, ...updatePayload } = payload;
       await EventRepository.update(
         { eventid: payload.eventid },
