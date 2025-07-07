@@ -41,7 +41,6 @@ export const newBanner = async (req: Request, res: Response) => {
 
       // Safe conversion from "true"/"false"/true/false to boolean
       updatePayload.status = String(payload.status).toLowerCase() === "true";
-
       await BannerRepository.update(
         { bannerid: payload.bannerid },
         updatePayload
