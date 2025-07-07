@@ -5,6 +5,8 @@ export interface homeSettingsDto {
     visible: boolean;
     categoryid: number;
     subcategoryid: number;
+    cuid: number;
+    muid: number;
 };
 
 export const homeSettingsDtoValidation = Joi.object({
@@ -13,6 +15,8 @@ export const homeSettingsDtoValidation = Joi.object({
     subcategoryid: Joi.number().allow(null),
     column_count: Joi.number().required(),
     row_count: Joi.number().required(),
+    cuid: Joi.number().optional().allow(null, ''),
+    muid: Joi.number().optional().allow(null, ''),
 })
 
 
@@ -23,4 +27,6 @@ export const updateHomeSettingsValidation = Joi.object({
     subcategoryid: Joi.number().allow(null),
     column_count: Joi.number().required(),
     row_count: Joi.number().required(),
+    cuid: Joi.number().optional().allow(null, ''),
+    muid: Joi.number().optional().allow(null, ''),
 })
