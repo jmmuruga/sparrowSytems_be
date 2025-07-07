@@ -409,7 +409,7 @@ export const getimages = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
     const imageList: any[] = await appSource.query(`
-       select image from  [${process.env.DB_name}].[dbo].[product_Nested]
+       select id, image from  [${process.env.DB_name}].[dbo].[product_Nested]
        where product_Nested.productid = '${id}'`);
 
     res.status(200).send({

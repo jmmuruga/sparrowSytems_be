@@ -6,13 +6,12 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-
 @Entity()
 export class productColorVariation {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
-  product_id:string;
+  product_id: string;
   @Column()
   selected_productid: string;
   @Column()
