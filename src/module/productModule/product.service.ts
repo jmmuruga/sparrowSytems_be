@@ -63,7 +63,6 @@ export const addProducts = async (req: Request, res: Response) => {
     }
 
     const validation = productDetailsValidation.validate(payload);
-    console.log(payload, 'incoming')
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
@@ -228,19 +227,19 @@ export const getNewAddedProductsDetails = async (
     -- All image titles for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS image_titles,
 
     -- All images for this product (comma-separated)
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS images
 
 FROM 
-    [SPARROW_SYSTEMS].[dbo].[products] p;
+    [${process.env.DB_name}].[dbo].[products] p;
 
     `);
 

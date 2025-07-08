@@ -98,17 +98,17 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   pn.image AS top_image,
   pn.image_title AS top_image_title
 
-FROM [SPARROW_SYSTEMS].[dbo].[newproducts] np
+FROM [${process.env.DB_name}].[dbo].[newproducts] np
 
 OUTER APPLY (
   SELECT TOP (np.products_Limit) *
-  FROM [SPARROW_SYSTEMS].[dbo].[products] p
+  FROM [${process.env.DB_name}].[dbo].[products] p
   WHERE p.status = 1
   ORDER BY p.created_at DESC
 ) p
 
 --  INNER JOIN brand_detail to get brand name
-INNER JOIN [SPARROW_SYSTEMS].[dbo].[brand_detail] b
+INNER JOIN [${process.env.DB_name}].[dbo].[brand_detail] b
   ON p.brandid = b.brandid
 
 -- Nested OUTER APPLY to get top 1 image per product
@@ -116,7 +116,7 @@ OUTER APPLY (
   SELECT TOP 1 
     CAST(pn.image AS NVARCHAR(MAX)) AS image,
     CAST(pn.image_title AS NVARCHAR(MAX)) AS image_title
-  FROM [SPARROW_SYSTEMS].[dbo].[product_nested] pn
+  FROM [${process.env.DB_name}].[dbo].[product_nested] pn
   WHERE pn.productid = p.productid
   ORDER BY pn.id
 ) pn;
