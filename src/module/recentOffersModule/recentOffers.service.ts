@@ -19,7 +19,9 @@ export const addRecentOffersSettings = async (req: Request, res: Response) => {
         throw new ValidationException("Recent Offers settings not found");
       }
 
-      const { id, ...updatePayload } = payload;
+      const { cuid, id, ...updatePayload } = payload;
+
+      // const { id, ...updatePayload } = payload;
       await recentOffersRepository.update({ id }, updatePayload);
 
       return res.status(200).send({

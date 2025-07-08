@@ -114,7 +114,7 @@ FROM
     [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN 
     [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
-INNER JOIN 
+LEFT JOIN 
     [${process.env.DB_name}].[dbo].[category] AS c ON p.categoryid = c.categoryid
 LEFT JOIN 
     [${process.env.DB_name}].[dbo].[customer_address] AS ca ON o.address_id = ca.id
@@ -123,6 +123,7 @@ INNER JOIN
 WHERE 
     o.orderid = ${orderid} ; `
     );
+
     res.status(200).send({ Result: details });
   } catch (error) {
     if (error instanceof ValidationException) {

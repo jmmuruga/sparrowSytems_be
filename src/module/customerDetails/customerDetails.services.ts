@@ -11,6 +11,8 @@ import nodemailer from "nodemailer";
 
 import dotenv from "dotenv";
 import { orders } from "../ordersModule/orders.model";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 const jwt = require("jsonwebtoken");
 
 dotenv.config(); // Ensure env variables are loaded
@@ -166,14 +168,14 @@ export const deleteCustomer = async (req: Request, res: Response) => {
   }
   const customerRepo = appSource.getRepository(customerDetails);
   const ordersRepo = appSource.getRepository(orders);
-
+  const userId = req.params.userId;
+  const currentCustomer = await customerRepo.findOneBy({
+    customerid: id,
+  });
+  if (!currentCustomer) {
+    throw new ValidationException("customer not found");
+  }
   try {
-    const customerDetailsRepo = await customerRepo.findOneBy({
-      customerid: id,
-    });
-    if (!customerDetailsRepo) {
-      throw new ValidationException("customer not found");
-    }
     const usedInProducts = await ordersRepo
       .createQueryBuilder()
       .where({
@@ -183,7 +185,7 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
     if (usedInProducts.length > 0) {
       throw new ValidationException(
-        "Unable to delete customer. It is currently used by products."
+        "Unable to delete customer Because they have orders."
       );
     }
 
@@ -193,10 +195,28 @@ export const deleteCustomer = async (req: Request, res: Response) => {
       .from(customerDetails)
       .where("customerid = :customerid", { customerid: id })
       .execute();
+
+    // logs
+    const logsPayload: LogsDto = {
+      userId: Number(userId),
+      userName: '',
+      statusCode: 200,
+      message: `Customer namely ${currentCustomer.customername} deleted by - `
+    }
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: `User deleted successfully!`,
     });
   } catch (error) {
+    const errorMessage = (error as Error).message;
+    // logs
+    const logsPayload: LogsDto = {
+      userId: Number(userId),
+      userName: '',
+      statusCode: 400,
+      message: `Error while deleting Customer namely ${currentCustomer.customername} - ${errorMessage} by - `
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

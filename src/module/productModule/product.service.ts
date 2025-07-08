@@ -63,6 +63,7 @@ export const addProducts = async (req: Request, res: Response) => {
     }
 
     const validation = productDetailsValidation.validate(payload);
+    console.log(payload, 'incoming')
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }

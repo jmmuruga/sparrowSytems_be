@@ -12,4 +12,8 @@ export class GetInTouch {
     created_at: Date;
     @UpdateDateColumn()
     updated_at: Date;
+    @Column({ 'nullable': true })
+    cuid: number;
+    @Column({ 'nullable': true })
+    muid: number;
 }
