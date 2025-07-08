@@ -109,6 +109,12 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
         WHERE pn.productid = p.productid
         ORDER BY pn.id ASC
     ) AS image1,
+     (
+    SELECT TOP 1 CAST(pn.image_title AS NVARCHAR(MAX))
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    ORDER BY pn.id ASC
+    ) AS image1_title,
 
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
