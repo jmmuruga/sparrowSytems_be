@@ -5,6 +5,8 @@ import { Request, Response } from "express";
 import { UserDetails } from "./userDetails.model";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 
 export const newUser = async (req: Request, res: Response) => {
@@ -43,6 +45,7 @@ export const newUser = async (req: Request, res: Response) => {
       throw new ValidationException("Email already exist");
     }
     const { userid, ...updatePayload } = payload;
+
     await UserDetailsRepoistry.save(updatePayload);
     res.status(200).send({
       IsSuccess: "User Details added SuccessFully",
@@ -112,25 +115,46 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const updatePassword = async (req: Request, res: Response) => {
   const { userid, password } = req.body;
-
+  const userRepo = appSource.getRepository(UserDetails);
+  const user = await userRepo.findOneBy({ userid });
+  if (!user) {
+    throw new ValidationException("User not found");
+  }
   try {
-    const userRepo = appSource.getRepository(UserDetails);
-    const user = await userRepo.findOneBy({ userid });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
     user.password = password;
     user.confirmPassword = password;
 
     await userRepo.save(user);
 
-    return res.json({ message: 'Password updated successfully' });
-  } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-};
+    // logs
+    const logsPayload: LogsDto = {
+      userId: user.userid,
+      userName: '',
+      statusCode: 200,
+      message: `Updated Password for user - `
+    }
+    await InsertLog(logsPayload);
 
+    res.status(200).send({
+      IsSuccess: "User Password updated SuccessFully",
+    });
+  } catch (error) {
+    // logs
+    const logsPayload: LogsDto = {
+      userId: user.userid,
+      userName: '',
+      statusCode: 400,
+      message: `Error while Updated Password ${error} for user - `
+    }
+    await InsertLog(logsPayload);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error.message, // Ensure the error message is sent properly
+      });
+    }
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
 
 export const sendOtpInEmail = async (req: Request, res: Response) => {
   try {
@@ -168,7 +192,6 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 }
-
 
 export function generateOpt(): string {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();

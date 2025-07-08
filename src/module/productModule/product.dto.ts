@@ -13,7 +13,6 @@ export interface productDetailsDto {
   max_qty: number;
   delivery_charges: string;
   delivery_amount: number;
-  variation_group: string;
   description: string;
   terms: string;
   delivery_days: string;
@@ -40,22 +39,23 @@ export const productDetailsValidation = Joi.object({
   product_name: Joi.string().required(),
   stock: Joi.string().required(),
   brandid: Joi.number().required(),
-  categoryid: Joi.string().optional().allow(null , ''),
-  subcategoryid: Joi.string().optional().allow(null , ''),
+  categoryid: Joi.string().optional().allow(null, ''),
+  subcategoryid: Joi.string().optional().allow(null, ''),
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
   min_qty: Joi.number().required(),
   max_qty: Joi.number().required(),
   delivery_charges: Joi.string().required(),
-  delivery_amount: Joi.number().optional().allow(null , ''),
-  variation_group: Joi.string().optional().allow(null , ''),
+  delivery_amount: Joi.number().optional().allow(null, ''),
   description: Joi.string().required(),
   terms: Joi.string().required(),
   delivery_days: Joi.string().optional(),
   warranty: Joi.string().required(),
-  document: Joi.string().optional().allow(null , ''),
+  document: Joi.string().optional().allow(null, ''),
   status: Joi.boolean().optional(),
+  cuid: Joi.number().optional().allow(null, ''),
+  muid: Joi.number().optional().allow(null, ''),
 
   images: Joi.array().items(
     Joi.object({
@@ -70,10 +70,8 @@ export const updateDetailsValidation = Joi.object({
   product_name: Joi.string().required(),
   stock: Joi.string().required(),
   brandid: Joi.number().required(),
-
-  categoryid: Joi.string().optional().allow(null , ''),
-  subcategoryid: Joi.string().optional().allow(null , ''),
-
+  categoryid: Joi.string().optional().allow(null, ''),
+  subcategoryid: Joi.string().optional().allow(null, ''),
   mrp: Joi.number().required(),
   discount: Joi.number().required(),
   offer_price: Joi.number().required(),
@@ -81,13 +79,14 @@ export const updateDetailsValidation = Joi.object({
   max_qty: Joi.number().required(),
   delivery_charges: Joi.string().required(),
   delivery_amount: Joi.number().optional().allow(null, ""),
-  variation_group: Joi.string().optional().allow(null, ""),
   description: Joi.string().required(),
   terms: Joi.string().required(),
   delivery_days: Joi.string().required(),
   warranty: Joi.string().required(),
   document: Joi.string().optional().allow(null, ""),
   status: Joi.boolean().optional(),
+  cuid: Joi.number().optional().allow(null, ''),
+  muid: Joi.number().optional().allow(null, ''),
 
   images: Joi.array().items(
     Joi.object({

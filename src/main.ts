@@ -12,7 +12,6 @@ import brandRouter from "./module/brandModule/brand.controller";
 import categoryRouter from "./module/categorymodule/category.controller";
 import categoryNestedRouter from "./module/categoryNested/categoryNested.controller";
 import customerDetailRouter from "./module/customerDetails/customerDetails.controller";
-// import allOrdersRouter from "./module/allOrdersModule/allOrders.controller";
 import customerCartRouter from "./module/customerCartModule/customerCart.controller";
 import customerAddressRouter from "./module/Address/customerAddress.controller";
 import ordersRouter from "./module/ordersModule/orders.controller";

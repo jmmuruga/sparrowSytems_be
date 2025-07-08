@@ -10,11 +10,14 @@ export class events {
     description: string;
     @Column({ type: 'ntext' })
     image: string;
-    @Column({default: true})
+    @Column({ default: true })
     status: boolean;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
     updated_at: Date;
-
+    @Column({ 'nullable': true })
+    cuid: number;
+    @Column({ 'nullable': true })
+    muid: number;
 }

@@ -6,6 +6,8 @@ export interface eventDetailsDto {
   description: string;
   image: string;
   status: boolean;
+  cuid: number;
+  muid: number;
 }
 
 export interface eventStatusDto {
@@ -18,6 +20,8 @@ export const eventDtoValidation = Joi.object({
   description: Joi.string().required(),
   image: Joi.string().required(),
   status: Joi.boolean().optional(),
+  cuid: Joi.number().optional().allow(null, ''),
+  muid: Joi.number().optional().allow(null, ''),
 });
 
 export const updateEventValidation = Joi.object({
@@ -26,6 +30,8 @@ export const updateEventValidation = Joi.object({
   description: Joi.string().required(),
   image: Joi.string().required(),
   status: Joi.boolean().optional(),
+  cuid: Joi.number().optional().allow(null, ''),
+  muid: Joi.number().optional().allow(null, ''),
 });
 
 export const deleteEventValidation = Joi.object({
@@ -33,4 +39,6 @@ export const deleteEventValidation = Joi.object({
   description: Joi.string().required(),
   image: Joi.string().required(),
   status: Joi.boolean().optional(),
+  cuid: Joi.number().optional().allow(null, ''),
+  muid: Joi.number().optional().allow(null, ''),
 });

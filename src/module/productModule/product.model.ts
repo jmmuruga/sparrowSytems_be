@@ -26,8 +26,6 @@ export class products {
     delivery_charges: string;
     @Column({ nullable: true })
     delivery_amount: number;
-    @Column({ nullable: true })
-    variation_group: string;
     @Column({ type: 'ntext' })
     description: string;
     @Column()
@@ -46,6 +44,10 @@ export class products {
     status: boolean;
     @Column({nullable: true})
     subcategoryid: string;
+    @Column({'nullable': true})
+    cuid: number;
+    @Column({'nullable': true})
+    muid: number;
 }
 @Entity()
 export class ProductNested {

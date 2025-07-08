@@ -8,6 +8,8 @@ import { resetPasswordValidation } from "../userDetails/userDetails.dto";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 dotenv.config();  // Ensure env variables are loaded
 
@@ -20,15 +22,14 @@ const handleError = (res: Response, error: any) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.params;
-        const userRepository = appSource.getRepository(UserDetails);
-        const user = await userRepository.findOneBy({ email: email });
+    const { email, password } = req.params;
+    const userRepository = appSource.getRepository(UserDetails);
+    const user = await userRepository.findOneBy({ email: email });
 
+    try {
         if (!user) {
             throw new ValidationException("Invalid Email!");
         }
-
         if (user.password != password) {
             throw new ValidationException("Incorrect Password!");
         }
@@ -37,7 +38,24 @@ export const login = async (req: Request, res: Response) => {
             { id: user.userid, email: user.email },
             process.env.JWT_SECRET_KEY as string
         );
-
+        // logs
+        const now = new Date().toLocaleTimeString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        })
+        const logsPayload: LogsDto = {
+            userId: user.userid,
+            userName: '',
+            statusCode: 200,
+            message: `Session started at ${now} by user - `
+        }
+        await InsertLog(logsPayload);
 
         res.status(200).send({
             Result: {
@@ -49,6 +67,15 @@ export const login = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
+        // logs
+        const errorMessage = (error as Error).message;
+        const logPayload: LogsDto = {
+            userId: user?.userid || 0,
+            userName: '',
+            statusCode: 400,
+            message: `Error while starting the session - ${errorMessage} by user - `
+        }
+        await InsertLog(logPayload);
         handleError(res, error);
     }
 };
@@ -69,18 +96,19 @@ export const forgotPassword = async (req: Request, res: Response) => {
             const transporter = nodemailer.createTransport({
                 service: "gmail",
                 port: 465,
-                secure: true,
+                secure: false,
                 auth: {
                     user: "savedatain@gmail.com",
-                    pass: "mqks tltb abyk jlyw",
+                    pass: "unpk bcsy ibhp wzrm",
                 },
             });
 
             await transporter.sendMail({
                 from: "savedatain@gmail.com",
-                to: eMail,
+                to: "savedataakshaya03@gmail.com",
+                // to: eMail,
                 subject: `Password Recovery Assistance`,
-                text: `Hello ${isThereEmail.user_name},\n\n
+                text: `Hello,\n\n
                 We received a request to reset your password. Please use the following One-Time Password (OTP) to log in and reset your password:\n
                 OTP: ${randomOtp}\n\n
                 This OTP is valid for a limited time. After logging in, we recommend that you update your password for security purposes.\n\n
@@ -91,11 +119,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
         res.status(200).send({
             IsSuccess: true,
             otp: randomOtp,
-            user_details: { user_name: isThereEmail.user_name, userid: isThereEmail.userid },
+            user_details: { user_name: isThereEmail.username, userid: isThereEmail.userid },
             Result: "Mail sent successfully"
         });
     }
     catch (error) {
+        console.log(error, 'errr')
         handleError(res, error);
     }
 }
@@ -134,6 +163,35 @@ export const resetNewPassword = async (req: Request, res: Response) => {
                 }
                 res.status(500).send(error);
             });
+    }
+    catch (error) {
+        handleError(res, error);
+    }
+}
+
+export const addLogsWhileLogout = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+        const now = new Date().toLocaleTimeString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        })
+        const logsPayload: LogsDto = {
+            userId: Number(userId),
+            userName: '',
+            statusCode: 200,
+            message: `Session ends at ${now} by user - `,
+        }
+        await InsertLog(logsPayload);
+        res.status(200).send({
+            Result: "Logout Success"
+        });
     }
     catch (error) {
         handleError(res, error);

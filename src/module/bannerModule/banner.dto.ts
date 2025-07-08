@@ -21,8 +21,8 @@ export const bannerDetailsValidation = Joi.object({
     description: Joi.string().required(),
     link: Joi.string().allow('', null).optional(),
     image: Joi.string().required(),
-    cuid: Joi.number().optional(),
-    muid: Joi.number().optional(),
+    cuid: Joi.number().allow('', null).optional(),
+    muid: Joi.number().allow('', null).optional(),
     status:Joi.boolean().optional()
 });
 
