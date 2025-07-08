@@ -24,6 +24,7 @@ import { Newproducts } from "../module/newProductsModule/newProducts.model";
 import { GetInTouch } from "../module/getInTouchModule/getInTouch.model";
 import { variation } from "../module/variation/variation.model";
 import { contactDetails } from "../module/contactFormModule/contactForm.model";
+import { productColorVariation } from "../module/productColorVariation/productColorVariation.model";
 import { Logs } from "../module/logs/logs.model";
 const Entities: any[] = [
   UserDetails,
@@ -50,6 +51,7 @@ const Entities: any[] = [
   variation,
   contactDetails,
   ProductNested,
+  productColorVariation,
   Logs
 
 ]
