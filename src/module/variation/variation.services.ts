@@ -14,29 +14,29 @@ export const addVariation = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(variation);
 
-    if (payload.id) {
-      // ✅ Update specific variation row by id
-      const validation = variationUpdateValidate.validate(payload);
-      if (validation?.error) {
-        throw new ValidationException(validation.error.message);
-      }
+    // if (payload.id) {
+    //   // ✅ Update specific variation row by id
+    //   const validation = variationUpdateValidate.validate(payload);
+    //   if (validation?.error) {
+    //     throw new ValidationException(validation.error.message);
+    //   }
 
-      const { id, cuid, ...updatePayload } = payload;
+    //   const { id, cuid, ...updatePayload } = payload;
 
-      const existing = await Repository.findOneBy({ id });
-      if (!existing) {
-        return res
-          .status(404)
-          .send({ message: "Variation not found for update" });
-      }
+    //   const existing = await Repository.findOneBy({ id });
+    //   if (!existing) {
+    //     return res
+    //       .status(404)
+    //       .send({ message: "Variation not found for update" });
+    //   }
 
-      await Repository.update({ id }, updatePayload);
+    //   await Repository.update({ id }, updatePayload);
 
-      res.status(200).send({
-        IsSuccess: "Variation updated successfully",
-      });
-      return;
-    }
+    //   res.status(200).send({
+    //     IsSuccess: "Variation updated successfully",
+    //   });
+    //   return;
+    // }
 
     // ✅ Insert new variation row
     const validation = variationValidate.validate(payload);
