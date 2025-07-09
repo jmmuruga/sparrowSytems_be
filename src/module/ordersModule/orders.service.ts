@@ -275,12 +275,12 @@ INNER JOIN
 };
 
 export const getOrderDetailsByCustomer = async (req: Request, res: Response) => {
-   const  customerid  = req.params.customerid
+  const customerid = req.params.customerid
 
   try {
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
-      `  SELECT
+      ` SELECT
     o.orderid,
     cd.customername,
     o.total_amount,
@@ -298,7 +298,6 @@ export const getOrderDetailsByCustomer = async (req: Request, res: Response) => 
     o.canceled_orders_date,
     o.shipped_orders_date,
     o.closed_orders_date,
-    c.categoryname AS category,
     o.delivery_orders_date,
     o.customerid,
     pn.image AS image1  -- :white_check_mark: First product image
@@ -306,8 +305,6 @@ FROM
     [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN
     [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
-INNER JOIN
-    [${process.env.DB_name}].[dbo].[category] AS c ON p.categoryid = c.categoryid
 INNER JOIN
     [${process.env.DB_name}].[dbo].[customer_details] AS cd ON o.customerid = cd.customerid
 OUTER APPLY (

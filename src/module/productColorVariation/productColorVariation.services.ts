@@ -36,7 +36,7 @@ export const addImageColour = async (req: Request, res: Response) => {
       throw new ValidationException(validation.error.message);
     }
 
-    const { id, cuid, ...insertdata } = payload;
+    const { id, ...insertdata } = payload;
     await Repository.save(insertdata);
     res.status(200).send({
       IsSuccess: "product colour added SuccessFully",
