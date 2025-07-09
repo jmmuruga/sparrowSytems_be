@@ -90,7 +90,6 @@ export const getOrderDetails = async (req: Request, res: Response) => {
     o.closed_orders_date,
     p.delivery_amount,
     o.address_id,
-    c.categoryname AS category,
     cd.mobilenumber,
     o.delivery_orders_date,
 	  o.return_orders_date,
@@ -114,8 +113,6 @@ FROM
     [${process.env.DB_name}].[dbo].[orders] AS o
 INNER JOIN 
     [${process.env.DB_name}].[dbo].[products] AS p ON o.productid = p.productid
-LEFT JOIN 
-    [${process.env.DB_name}].[dbo].[category] AS c ON p.categoryid = c.categoryid
 LEFT JOIN 
     [${process.env.DB_name}].[dbo].[customer_address] AS ca ON o.address_id = ca.id
 INNER JOIN 
@@ -357,7 +354,7 @@ export const getLatestOrders = async (req: Request, res: Response) => {
   try {
     const orderRepository = appSource.getRepository(orders);
     const details: ordersDto[] = await orderRepository.query(
-      `SELECT TOP 10
+      `SELECT 
     o.orderid,
     cd.customername,
     o.total_amount,
