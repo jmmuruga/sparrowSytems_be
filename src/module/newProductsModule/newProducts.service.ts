@@ -74,7 +74,7 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   try {
     const recentOffersRepository = appSource.getRepository(Newproducts);
     const details: NewProductsDto[] = await recentOffersRepository.query(
-      `  SELECT
+      `SELECT
   np.status AS newproduct_status,
   np.products_Limit,
   p.productid,
@@ -94,9 +94,66 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   p.terms,
   p.warranty,
 
-  -- Top 1 image and image title from product_nested
-  pn.image AS top_image,
-  pn.image_title AS top_image_title
+  -- 🟢 First image and title
+  (
+    SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    ORDER BY pn.id ASC
+  ) AS image1,
+
+  (
+    SELECT TOP 1 CAST(pn.image_title AS NVARCHAR(MAX))
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    ORDER BY pn.id ASC
+  ) AS image1_title,
+
+  -- 🟢 All images
+  STUFF((
+    SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+  , 1, 2, '') AS images,
+
+  -- 🟢 All image titles
+  STUFF((
+    SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
+    FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+    WHERE pn.productid = p.productid
+    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+  , 1, 2, '') AS image_titles,
+
+  -- 🟢 variation_groups for current product
+  STUFF((
+    SELECT DISTINCT ', ' + v.variationGroup
+    FROM [${process.env.DB_name}].[dbo].[variation] v
+    WHERE v.productid = p.productid
+    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+  , 1, 2, '') AS variationGroup,
+
+  -- ✅ variation_names: all variation names for those groups
+  STUFF((
+    SELECT DISTINCT ', ' + v2.variationname
+    FROM [${process.env.DB_name}].[dbo].[variation] v2
+    WHERE v2.variationGroup IN (
+      SELECT DISTINCT v1.variationGroup
+      FROM [${process.env.DB_name}].[dbo].[variation] v1
+      WHERE v1.productid = p.productid
+    )
+    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+  , 1, 2, '') AS variation_names,
+    STUFF((
+        SELECT DISTINCT ', ' + v2.productid
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
+        WHERE v2.variationGroup IN (
+            SELECT DISTINCT v1.variationGroup
+            FROM [${process.env.DB_name}].[dbo].[variation] v1
+            WHERE v1.productid = p.productid
+        )
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variationProductId
 
 FROM [${process.env.DB_name}].[dbo].[newproducts] np
 
@@ -107,19 +164,9 @@ OUTER APPLY (
   ORDER BY p.created_at DESC
 ) p
 
---  INNER JOIN brand_detail to get brand name
 INNER JOIN [${process.env.DB_name}].[dbo].[brand_detail] b
-  ON p.brandid = b.brandid
+  ON p.brandid = b.brandid;
 
--- Nested OUTER APPLY to get top 1 image per product
-OUTER APPLY (
-  SELECT TOP 1 
-    CAST(pn.image AS NVARCHAR(MAX)) AS image,
-    CAST(pn.image_title AS NVARCHAR(MAX)) AS image_title
-  FROM [${process.env.DB_name}].[dbo].[product_nested] pn
-  WHERE pn.productid = p.productid
-  ORDER BY pn.id
-) pn;
 
 `
     );
@@ -133,3 +180,4 @@ OUTER APPLY (
     res.status(500).send(error);
   }
 };
+

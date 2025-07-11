@@ -154,7 +154,7 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
   hs.column_count,
   hs.row_count,
   c.categoryname AS category_name,
-  cn.categoryname AS subcategory_name, -- <-- FIXED
+  cn.categoryname AS subcategory_name, 
   p.productid,
   p.product_name,
   p.mrp,
@@ -162,24 +162,104 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
   p.offer_price,
   p.created_at,
   p.status,
+  p.delivery_charges, 
+  p.delivery_days,    
+  p.warranty,         
+  p.stock,            
+  p.description,      
+  p.terms,            
   p.image,
-  p.image_title
+  p.image_title,
+  p.image1,
+  p.image1_title,
+  p.images,
+  p.image_titles,
+  p.variationGroup,
+  p.variation_names,
+  p.variationProductId
+
 FROM [${process.env.DB_name}].[dbo].[home_settings] hs
 LEFT JOIN [${process.env.DB_name}].[dbo].[category] c
   ON hs.categoryid = c.categoryid
 LEFT JOIN [${process.env.DB_name}].[dbo].[category_nested] cn
   ON hs.subcategoryid = cn.subcategoryid
-  OUTER APPLY (
+
+OUTER APPLY (
   SELECT TOP (hs.column_count * hs.row_count)
-         pr.productid,
-         pr.product_name,
-         pr.mrp,
-         pr.discount,
-         pr.offer_price,
-         pr.created_at,
-         pr.status,
-         ISNULL(img.image, '') AS image,
-         ISNULL(img.image_title, '') AS image_title
+    pr.productid,
+    pr.product_name,
+    pr.mrp,
+    pr.discount,
+    pr.offer_price,
+    pr.created_at,
+    pr.status,
+    pr.delivery_charges,   
+    pr.delivery_days,      
+    pr.warranty,           
+    pr.stock,              
+    pr.description,        
+    pr.terms,              
+    ISNULL(img.image, '') AS image,
+    ISNULL(img.image_title, '') AS image_title,
+
+    -- Images & variations
+    (
+        SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = pr.productid
+        ORDER BY pn.id ASC
+    ) AS image1,
+
+    (
+        SELECT TOP 1 CAST(pn.image_title AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = pr.productid
+        ORDER BY pn.id ASC
+    ) AS image1_title,
+
+    STUFF((
+        SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = pr.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS images,
+
+    STUFF((
+        SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = pr.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS image_titles,
+
+    STUFF((
+        SELECT DISTINCT ', ' + v.variationGroup
+        FROM [${process.env.DB_name}].[dbo].[variation] v
+        WHERE v.productid = pr.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variationGroup,
+
+    STUFF((
+        SELECT DISTINCT ', ' + v2.variationname
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
+        WHERE v2.variationGroup IN (
+            SELECT DISTINCT v1.variationGroup
+            FROM [${process.env.DB_name}].[dbo].[variation] v1
+            WHERE v1.productid = pr.productid
+        )
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variation_names,
+
+    STUFF((
+        SELECT DISTINCT ', ' + CAST(v2.productid AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
+        WHERE v2.variationGroup IN (
+            SELECT DISTINCT v1.variationGroup
+            FROM [${process.env.DB_name}].[dbo].[variation] v1
+            WHERE v1.productid = pr.productid
+        )
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variationProductId
+
   FROM [${process.env.DB_name}].[dbo].[products] pr
 
   OUTER APPLY (
@@ -193,7 +273,6 @@ LEFT JOIN [${process.env.DB_name}].[dbo].[category_nested] cn
 
   WHERE 
     (
-      
       (hs.categoryid IS NOT NULL AND hs.subcategoryid IS NULL AND
         ',' + pr.categoryid + ',' LIKE '%,' + CAST(hs.categoryid AS NVARCHAR(10)) + ',%')
 
@@ -210,8 +289,7 @@ LEFT JOIN [${process.env.DB_name}].[dbo].[category_nested] cn
     )
     AND pr.status = 1
   ORDER BY pr.productid DESC
-) p;
-`
+) p; `
     );
     res.status(200).send({ Result: details });
   } catch (error) {

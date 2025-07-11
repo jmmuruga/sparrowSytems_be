@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addVariation, deleteVariationid, generateVariationId, getvariation, getVariationDetails, getVariationGroup, getVariationName, updateVariation, variationStatus } from "./variation.services";
+import { addVariation, deleteVariationid, generateVariationId, getUnusedProductList, getvariation, getVariationDetails, getVariationGroup, getVariationName, updateVariation, variationStatus } from "./variation.services";
 
 const variationRouter = Router();
 
@@ -13,6 +13,7 @@ variationRouter.get('/getVariationName', (req, res) => { getVariationName(req, r
 variationRouter.get('/getVariationDetails/:variationGroupId', (req, res) => { getVariationDetails(req, res) });
 variationRouter.post('/updateVariation' , (req , res) => {updateVariation(req ,res)});
 variationRouter.post('/updateVariation' , (req , res) => {updateVariation(req ,res)});
+variationRouter.get('/getProductList' , (req, res) => {getUnusedProductList(req , res)});
 
 
 
