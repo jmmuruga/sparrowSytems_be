@@ -229,3 +229,48 @@ export const changeStatusCategory = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
+export const getCatAndSubcat = async (req: Request, res: Response) => {
+  try {
+    const categoryRepository = appSource.getRepository(Category);
+    const details: CategoryDto[] = await categoryRepository.query(
+      ` 
+SELECT TOP 7 *
+FROM (
+    SELECT
+        c.categoryid,
+        c.categoryname,
+        c.categoryicon,
+        c.status,
+        c.created_at,
+        c.updated_at,
+        NULL AS subcategoryid,
+        NULL AS subcategoryname
+    FROM [${process.env.DB_name}].[dbo].[category] c
+
+    UNION ALL
+
+    SELECT
+        NULL AS categoryid,
+        NULL AS categoryname,
+        NULL AS categoryicon,
+        cn.status,
+        cn.created_at,
+        cn.updated_at,
+        cn.subcategoryid,
+        cn.categoryname AS subcategoryname
+    FROM [${process.env.DB_name}].[dbo].[category_nested] cn
+    
+) AS combined
+ORDER BY created_at ;`
+    );
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};

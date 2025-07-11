@@ -3,6 +3,7 @@ import {
   addCategory,
   changeStatusCategory,
   deleteCategory,
+  getCatAndSubcat,
   getCategory,
   getHeaderCategory,
 } from "./category.service";
@@ -25,5 +26,7 @@ categoryRouter.post("/changestatus", (req, res) => {
 categoryRouter.get("/getHeaderCategory", (req, res) => {
   getHeaderCategory(req, res);
 });
+
+categoryRouter.get("/getCatAndSubcat", (req, res) => { getCatAndSubcat(req, res) });
 
 export default categoryRouter;

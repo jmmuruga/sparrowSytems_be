@@ -8,6 +8,7 @@ import {
   variationUpdateValidate,
   variationValidate,
 } from "./variation.dto";
+import { products } from "../productModule/product.model";
 
 export const addVariation = async (req: Request, res: Response) => {
   const payload: variation = req.body;
@@ -169,7 +170,7 @@ export const variationStatus = async (req: Request, res: Response) => {
 
   try {
     const typeNameFromDb = await variationrepo.findBy({
-      variationGroupId : variationStatus.id?.toString(),
+      variationGroupId: variationStatus.id?.toString(),
     });
     if (typeNameFromDb?.length == 0) {
       throw new HttpException("Data not Found", 404);
@@ -178,7 +179,7 @@ export const variationStatus = async (req: Request, res: Response) => {
       .createQueryBuilder()
       .update(variation)
       .set({ status: variationStatus.status })
-      .where({  variationGroupId : variationStatus.id?.toString() })
+      .where({ variationGroupId: variationStatus.id?.toString() })
       .execute();
 
     res.status(200).send({
@@ -271,6 +272,7 @@ export const updateVariation = async (req: Request, res: Response) => {
   const payload: variation[] = req.body;
   try {
     const variationRepoistry = appSource.getRepository(variation);
+    const allVariation = await variationRepoistry.createQueryBuilder().getMany();
     const currentVariation = await variationRepoistry.findBy({
       variationGroupId: payload[0].variationGroupId,
     });
@@ -278,13 +280,18 @@ export const updateVariation = async (req: Request, res: Response) => {
       throw new ValidationException("Unable to find variation.Cannot edit");
     }
     await variationRepoistry
-    .createQueryBuilder()
-    .delete()
-    .from(variation)
-    .where({variationGroupId :payload[0].variationGroupId })
-    .execute()
- 
+      .createQueryBuilder()
+      .delete()
+      .from(variation)
+      .where({ variationGroupId: payload[0].variationGroupId })
+      .execute()
+
     for (const item of payload) {
+      const currentProd = item.productid;
+      const checkProductAlreadyExist = allVariation.find((y) => +y.productid == +currentProd && +y.variationGroupId !== +item.variationGroupId);
+      if(checkProductAlreadyExist){
+        throw new ValidationException('Already Variation exist for this product')
+      }
       const validation = variationUpdateValidate.validate(item);
       if (validation?.error) {
         throw new ValidationException(validation.error.message);
@@ -292,10 +299,10 @@ export const updateVariation = async (req: Request, res: Response) => {
 
       await variationRepoistry.save(item);
     }
-   res.status(200).send({
+    res.status(200).send({
       IsSuccess: "Variation Updated successfully",
     });
-  
+
   } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -305,3 +312,37 @@ export const updateVariation = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
+export const getUnusedProductList = async (req: Request, res: Response) => {
+  try {
+    const variationRepoistry = appSource.getRepository(variation);
+    const productRepoistry = appSource.getRepository(products);
+    let variationList = await variationRepoistry.createQueryBuilder().getMany();
+    let productsList = await productRepoistry.createQueryBuilder().getMany();
+    if (variationList.length > 0) {
+      // Extract product IDs from variations
+      const usedProductIds = new Set(
+        variationList.map(variation => Number(variation.productid)) // convert to number for comparison
+      );
+
+      // Filter products that are not used in variations
+      const unusedProductList = productsList.filter(
+        product => !usedProductIds.has(product.productid)
+      );
+
+      productsList = [];
+      productsList = unusedProductList;
+    }
+    res.status(200).send({
+      Result: productsList
+    });
+  }
+  catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+}

@@ -10,7 +10,7 @@ export class products {
     stock: string;
     @Column()
     brandid: number;
-    @Column({nullable: true})
+    @Column({ nullable: true })
     categoryid: string;
     @Column()
     mrp: number;
@@ -26,6 +26,8 @@ export class products {
     delivery_charges: string;
     @Column({ nullable: true })
     delivery_amount: number;
+    // @Column({ nullable: true })
+    // variation_group: string;
     @Column({ type: 'ntext' })
     description: string;
     @Column()
@@ -34,19 +36,19 @@ export class products {
     delivery_days: string;
     @Column()
     warranty: string;
-    @Column({ type: 'ntext' , nullable: true })
+    @Column({ type: 'ntext', nullable: true })
     document: string;
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
-    @Column({default: true})
+    @Column({ default: true })
     status: boolean;
-    @Column({nullable: true})
+    @Column({ nullable: true })
     subcategoryid: string;
-    @Column({'nullable': true})
+    @Column({ 'nullable': true })
     cuid: number;
-    @Column({'nullable': true})
+    @Column({ 'nullable': true })
     muid: number;
 }
 @Entity()

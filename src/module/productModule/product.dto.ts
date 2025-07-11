@@ -13,6 +13,7 @@ export interface productDetailsDto {
   max_qty: number;
   delivery_charges: string;
   delivery_amount: number;
+  // variation_group: string;
   description: string;
   terms: string;
   delivery_days: string;
@@ -48,6 +49,7 @@ export const productDetailsValidation = Joi.object({
   max_qty: Joi.number().required(),
   delivery_charges: Joi.string().required(),
   delivery_amount: Joi.number().optional().allow(null, ''),
+  // variation_group: Joi.string().optional().allow(null, ""),
   description: Joi.string().required(),
   terms: Joi.string().required(),
   delivery_days: Joi.string().optional(),
@@ -79,6 +81,7 @@ export const updateDetailsValidation = Joi.object({
   max_qty: Joi.number().required(),
   delivery_charges: Joi.string().required(),
   delivery_amount: Joi.number().optional().allow(null, ""),
+  // variation_group: Joi.string().optional().allow(null, ""),
   description: Joi.string().required(),
   terms: Joi.string().required(),
   delivery_days: Joi.string().required(),

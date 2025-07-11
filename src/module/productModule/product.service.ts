@@ -1,7 +1,7 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
-import {productDetailsDto, productDetailsValidation, productStatusDto, updateDetailsValidation} from "./product.dto";
+import { productDetailsDto, productDetailsValidation, productStatusDto, updateDetailsValidation } from "./product.dto";
 import { ProductNested, products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
@@ -352,6 +352,147 @@ export const getimages = async (req: Request, res: Response) => {
 
     res.status(200).send({
       Result: imageList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getProductsWithVariations = async (req: Request, res: Response) => {
+  try {
+    // Run your raw SQL query using appSource.query()
+    const productList: any[] = await appSource.query(`
+      SELECT 
+    p.productid,
+    p.product_name,
+    p.stock,
+    p.brandid,
+    p.categoryid,
+    p.subcategoryid,
+    p.mrp,
+    p.discount,
+    p.offer_price,
+    p.min_qty,
+    p.max_qty,
+    p.delivery_charges,
+    p.delivery_amount,
+    p.description,
+    p.terms,
+    p.warranty,
+    p.created_at,
+    p.updated_at,
+    p.status,
+    p.delivery_days,
+    brand.brandname,
+    p.document,
+
+    -- 🟢 First image
+    (
+        SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        ORDER BY pn.id ASC
+    ) AS image1,
+
+    -- 🟢 All images
+    STUFF((
+        SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS images,
+
+    -- 🟢 All image titles
+    STUFF((
+        SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[product_nested] pn
+        WHERE pn.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS image_titles,
+
+    -- 🟢 variation_groups for this product
+    STUFF((
+        SELECT DISTINCT ', ' + v2.variationGroup
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
+        WHERE v2.productid = p.productid
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variationGroup,
+
+    -- ✅ variation_names for all groups for this product
+    STUFF((
+        SELECT DISTINCT ', ' + v2.variationname
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
+        WHERE v2.variationGroup IN (
+            SELECT DISTINCT v1.variationGroup
+            FROM [${process.env.DB_name}].[dbo].[variation] v1
+            WHERE v1.productid = p.productid
+        )
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variation_names,
+
+    -- ✅ variationProductId for all products in same groups
+    STUFF((
+        SELECT DISTINCT ', ' + CAST(v2.productid AS NVARCHAR(MAX))
+        FROM [${process.env.DB_name}].[dbo].[variation] v2
+        WHERE v2.variationGroup IN (
+            SELECT DISTINCT v1.variationGroup
+            FROM [${process.env.DB_name}].[dbo].[variation] v1
+            WHERE v1.productid = p.productid
+        )
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    , 1, 2, '') AS variationProductId,
+
+    -- 🟢 brand name alias (duplicate safe)
+    brand.brandname AS brand_name
+
+FROM 
+    [${process.env.DB_name}].[dbo].[products] p
+    LEFT JOIN [${process.env.DB_name}].[dbo].[brand_detail] brand 
+        ON p.brandid = brand.brandid
+ORDER BY 
+    p.created_at DESC;
+ `);
+
+    // Category mapping logic remains the same
+    const categoryRepoistry = appSource.getRepository(Category);
+    const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
+    const subCategoryIdReposiry = appSource.getRepository(CategoryNested);
+    const subCatrgeoryList = await subCategoryIdReposiry.createQueryBuilder().getMany();
+
+    productList.forEach((x) => {
+      if (x.categoryid) {
+        const ids = x.categoryid.split(',');
+
+        // 2. Map each ID to its categoryname
+        const names = ids.map((id: string) => {
+          const found = categoryList.find(y => y.categoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
+
+        // 3. Join back to a single string if needed
+        x.categoryName = names.join(', ');
+      }
+      if (x.subcategoryid) {
+        const subId = x.subcategoryid.split(',');
+
+        // 2. Map each ID to its categoryname
+        const names = subId.map((id: string) => {
+          const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
+          return found?.categoryname || '';
+        }).filter(Boolean); // remove empty if not found
+
+        // 3. Join back to a single string if needed
+        x.subCategoryName = names.join(', ');
+      }
+    });
+
+    res.status(200).send({
+      Result: productList,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
