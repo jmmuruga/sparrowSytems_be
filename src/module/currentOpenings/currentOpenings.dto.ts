@@ -12,7 +12,7 @@ export interface currentOpeningsDto {
 export const currentOpeningsValidation = Joi.object({
   JobName: Joi.string().required(),
   Description: Joi.string().required(),
-  status: Joi.boolean().required(),
+  // status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });
