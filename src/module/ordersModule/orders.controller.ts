@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { addAllOrders, changeOrderStatus, getAllOrderDetails, getLatestOrders, getOrderDetails, getOrderDetailsByCustomer, getOrderId } from "./orders.service";
+import { auth } from "../../shared/helper";
 
 const ordersRouter = Router();
 

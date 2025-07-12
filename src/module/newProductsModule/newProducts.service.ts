@@ -3,9 +3,12 @@ import { Request, Response } from "express";
 import { NewProductsDto, newProductsDtoValidation, updateNewProductsValidation } from "./newProducts.dto";
 import { Newproducts } from "./newProducts.model";
 import { ValidationException } from "../../core/exception";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const addNewProducts = async (req: Request, res: Response) => {
   const payload: NewProductsDto = req.body;
+  const userId = payload.id ? payload.muid : payload.cuid;
   const newProductsRepository = appSource.getRepository(Newproducts);
   try {
     if (payload.id) {
@@ -22,6 +25,13 @@ export const addNewProducts = async (req: Request, res: Response) => {
 
       const { id, ...updatePayload } = payload;
       await newProductsRepository.update({ id }, updatePayload);
+      const logsPayload: LogsDto = {
+        userId: userId,
+        userName: '',
+        statusCode: 200,
+        message: `New products ${payload.products_Limit} updated by -`
+      }
+      await InsertLog(logsPayload);
 
       return res.status(200).send({
         message: "New Products settings updated successfully",
@@ -34,13 +44,27 @@ export const addNewProducts = async (req: Request, res: Response) => {
       throw new ValidationException(validation.error.message);
     }
 
-    await newProductsRepository.save(payload)
+    await newProductsRepository.save(payload);
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `New product ${payload.products_Limit} added by -`
+    }
+    await InsertLog(logsPayload);
 
     return res.status(200).send({
       message: "New Products settings added successfully",
     });
 
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while saving New Products ${payload.products_Limit} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

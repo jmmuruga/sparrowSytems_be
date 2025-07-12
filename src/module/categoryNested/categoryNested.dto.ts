@@ -22,6 +22,7 @@ export const categorynestedValidation = Joi.object({
 export interface changenestedCategroyStatusDto {
   subcategoryid: number;
   status: boolean;
+  userId: string;
 }
 
 export const categorynestedUpdateValidation = Joi.object({

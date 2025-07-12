@@ -19,6 +19,7 @@ export const currentOpeningsValidation = Joi.object({
 export interface changeCurrentOpeniingstatusDto {
   id:number;
   status: boolean;
+  userId: string;
 }
 export const currentOpeningsUpdateValidation = Joi.object({
   id: Joi.number().required(),

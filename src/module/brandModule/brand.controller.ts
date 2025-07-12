@@ -12,7 +12,7 @@ brandRouter.get('/getBrandDetail', (req, res) => {
     getBrandDetail(req, res);
 });
 
-brandRouter.delete('/deleteBrand/:brandid', (req, res) => {
+brandRouter.delete('/deleteBrand/:brandid/:userId', (req, res) => {
     deleteBrand(req, res);
 });
 

@@ -1,13 +1,14 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { customerDetails } from "../customerDetails/customerDetails.model";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 import { ordersDto, ordersDtoValidation, orderStatusDto } from "./orders.dto";
 import { orders } from "./orders.model";
 import { Request, Response } from "express";
 
 export const addAllOrders = async (req: Request, res: Response) => {
   const payload: ordersDto = req.body;
-
   try {
     // Validate incoming payload
     const validation = ordersDtoValidation.validate(payload);
@@ -133,27 +134,27 @@ WHERE
 };
 
 export const changeOrderStatus = async (req: Request, res: Response) => {
+  const status: orderStatusDto = req.body;
+  status.status = status.status.toString();
+  if (
+    !status.orderid ||
+    status.status === undefined ||
+    status.status === null
+  ) {
+    throw new HttpException("Invalid order ID or status", 400);
+  }
+
+  const OrderRepository = appSource.getRepository(orders);
+
+  const details = await OrderRepository.findOneBy({
+    orderid: Number(status.orderid),
+  });
+
+  if (!details) {
+    throw new HttpException("Order not Found", 404);
+  }
+
   try {
-    const status: orderStatusDto = req.body;
-    status.status = status.status.toString();
-    if (
-      !status.orderid ||
-      status.status === undefined ||
-      status.status === null
-    ) {
-      throw new HttpException("Invalid order ID or status", 400);
-    }
-
-    const OrderRepository = appSource.getRepository(orders);
-
-    const details = await OrderRepository.findOneBy({
-      orderid: Number(status.orderid),
-    });
-
-    if (!details) {
-      throw new HttpException("Order not Found", 404);
-    }
-
     await OrderRepository.createQueryBuilder()
       .update(orders)
       .set({ status: status.status })
@@ -210,10 +211,25 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
         .execute();
     }
 
+    const logsPayload: LogsDto = {
+      userId: Number(status.userId),
+      userName: '',
+      statusCode: 200,
+      message: `Order Status id of ${details.orderid} status changed to ${status.status} by -`
+    }
+    await InsertLog(logsPayload);
+
     return res.status(200).send({
       IsSuccess: `Status for order updated successfully!`,
     });
   } catch (error: any) {
+    const logsPayload: LogsDto = {
+      userId: Number(status.userId),
+      userName: '',
+      statusCode: 500,
+      message: `Error while changing status for Order id of ${details.orderid}  to ${status.status} by -`
+    }
+    await InsertLog(logsPayload);
     return res.status(error.statusCode || 500).send({
       IsSuccess: false,
       Message: error.message || "Something went wrong",

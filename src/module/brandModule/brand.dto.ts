@@ -46,6 +46,7 @@ export const brandValidation = Joi.object({
 export interface changebrandStatusDto {
   brandid: number;
   status: boolean;
+  userId: string;
 }
 export const updateBrandValidation = Joi.object({
   brandid: Joi.number().required(),

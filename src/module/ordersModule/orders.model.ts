@@ -44,8 +44,12 @@ export class orders {
   closed_orders_date: Date;
   @Column({ nullable: true })
   delivery_orders_date: Date;
-  @Column({nullable: true})
+  @Column({ nullable: true })
   return_orders_date: Date;
-  @Column({'nullable': true})
+  @Column({ 'nullable': true })
   address_id: number;
+  @Column({ 'nullable': true })
+  cuid: number;
+  @Column({ 'nullable': true })
+  muid: number;
 }

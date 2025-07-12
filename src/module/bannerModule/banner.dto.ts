@@ -14,6 +14,7 @@ export interface bannerDetailsDto {
 export interface bannerStatusDto{
     bannerid: number;
     status: boolean;
+    userId: string;
 }
 
 export const bannerDetailsValidation = Joi.object({

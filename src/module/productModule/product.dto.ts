@@ -34,6 +34,7 @@ export interface productDetailsDto {
 export interface productStatusDto {
   productid: string;
   status: boolean;
+  userId: string;
 }
 
 export const productDetailsValidation = Joi.object({

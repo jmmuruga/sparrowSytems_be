@@ -17,7 +17,7 @@ courierRouter.get("/getcourier", (req, res) => {
 courierRouter.post("/updatestatus", (req, res) => {
   courierStatus(req, res);
 });
-courierRouter.delete("/deletecourier/:id", (req, res) => {
+courierRouter.delete("/deletecourier/:id/:userId", (req, res) => {
   deletecourierDetails(req, res);
 });
 
