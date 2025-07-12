@@ -9,6 +9,7 @@ export interface productColorVariationDto {
   colour_code: string;
   cuid: number;
   muid: number;
+  userId: string;
 }
 
 export const productColorVariationValidate = Joi.object({

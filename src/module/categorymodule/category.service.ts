@@ -12,9 +12,13 @@ import { Category } from "./category.model";
 import { CategoryNested } from "../categoryNested/categoryNested.model";
 import { products } from "../productModule/product.model";
 import { Not } from "typeorm";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const addCategory = async (req: Request, res: Response) => {
   const payload: CategoryDto = req.body;
+  const userId = payload.categoryid ? payload.muid : payload.cuid;
+
   try {
     const categoryRepository = appSource.getRepository(Category);
 
@@ -42,6 +46,13 @@ export const addCategory = async (req: Request, res: Response) => {
         { categoryid: payload.categoryid },
         updatePayload
       );
+      const logsPayload: LogsDto = {
+        userId: userId,
+        userName: '',
+        statusCode: 200,
+        message: `Category ${payload.categoryname} updated by -`
+      }
+      await InsertLog(logsPayload);
       res.status(200).send({
         IsSuccess: "Category Details updated SuccessFully",
       });
@@ -63,7 +74,21 @@ export const addCategory = async (req: Request, res: Response) => {
     res.status(200).send({
       IsSuccess: "Category  Details added SuccessFully",
     });
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Category ${payload.categoryname} added by -`
+    }
+    await InsertLog(logsPayload);
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while saving Category ${payload.categoryname} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -156,17 +181,19 @@ export const getHeaderCategory = async (req: Request, res: Response) => {
 
 export const deleteCategory = async (req: Request, res: Response) => {
   const categoryid = Number(req.params.categoryid);
+  const userId = Number(req.params.userId);
   if (isNaN(categoryid)) {
     return res.status(400).send({ message: "Invalid category ID" });
   }
   const categoryRepo = appSource.getRepository(Category);
   const productRepo = appSource.getRepository(products);
+  const category = await categoryRepo.findOneBy({ categoryid: categoryid });
+  if (!category) {
+    throw new ValidationException("Category not found");
+  }
   try {
     // Step 1: Fetch category by ID
-    const category = await categoryRepo.findOneBy({ categoryid: categoryid });
-    if (!category) {
-      throw new ValidationException("Category not found");
-    }
+
     // const categoryName = category.categoryname.trim().toLowerCase();
     // Step 2: Check if any products use this category name
     const usedInProducts = await productRepo
@@ -188,10 +215,25 @@ export const deleteCategory = async (req: Request, res: Response) => {
       .where({ categoryid: categoryid })
       .execute();
 
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Category ${category.categoryname} deleted by -`
+    }
+    await InsertLog(logsPayload);
+
     res.status(200).send({
       IsSuccess: `Category ${category.categoryname} deleted successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while deleting Category ${category.categoryname}  by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
     }
@@ -202,20 +244,28 @@ export const deleteCategory = async (req: Request, res: Response) => {
 export const changeStatusCategory = async (req: Request, res: Response) => {
   const categoryStatus: changeCategroyStatusDto = req.body;
   const categoryRepository = appSource.getRepository(Category);
-
+  const categoryFromDB = await categoryRepository.findOneBy({
+    categoryid: categoryStatus.categoryid,
+  });
+  if (!categoryFromDB) {
+    throw new HttpException("Data not Found", 404);
+  }
   try {
-    const categoryFromDB = await categoryRepository.findOneBy({
-      categoryid: categoryStatus.categoryid,
-    });
-    if (!categoryFromDB) {
-      throw new HttpException("Data not Found", 404);
-    }
+
     await categoryRepository
       .createQueryBuilder()
       .update(Category)
       .set({ status: categoryStatus.status })
       .where({ categoryid: categoryStatus.categoryid })
       .execute();
+
+    const logsPayload: LogsDto = {
+      userId: Number(categoryStatus.userId),
+      userName: '',
+      statusCode: 200,
+      message: `Category ${categoryFromDB.categoryname} status changed to ${categoryStatus.status} by -`
+    }
+    await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `Status for ${categoryFromDB.categoryname} Updated successfully!`,

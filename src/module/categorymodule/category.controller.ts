@@ -16,7 +16,7 @@ categoryRouter.post("/addCategory", (req, res) => {
 categoryRouter.get("/getCategory", (req, res) => {
   getCategory(req, res);
 });
-categoryRouter.delete("/deletecategory/:categoryid", (req, res) => {
+categoryRouter.delete("/deletecategory/:categoryid/:userId", (req, res) => {
   deleteCategory(req, res);
 });
 

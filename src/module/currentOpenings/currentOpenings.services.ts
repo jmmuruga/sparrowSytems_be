@@ -8,9 +8,12 @@ import {
   currentOpeningsValidation,
 } from "./currentOpenings.dto";
 import { currentOpenings } from "./currentOpenings.model";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const addOpenings = async (req: Request, res: Response) => {
   const payload: currentOpeningsDto = req.body;
+  const userId = payload.id ? payload.muid : payload.cuid;
   try {
     const Repository = appSource.getRepository(currentOpenings);
 
@@ -26,6 +29,13 @@ export const addOpenings = async (req: Request, res: Response) => {
         throw new ValidationException("id not found");
       }
       const { cuid, id, ...updatePayload } = payload;
+      const logsPayload: LogsDto = {
+        userId: userId,
+        userName: '',
+        statusCode: 200,
+        message: `Job details ${payload.JobName} updated by -`
+      }
+      await InsertLog(logsPayload);
       await Repository.update({ id: payload.id }, updatePayload);
       res.status(200).send({
         IsSuccess: " Details updated SuccessFully",
@@ -39,6 +49,13 @@ export const addOpenings = async (req: Request, res: Response) => {
 
     const { id, ...updatePayload } = payload;
     await Repository.save(updatePayload);
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Job details ${payload.JobName} added by -`
+    }
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: " Details added SuccessFully",
     });
@@ -73,15 +90,15 @@ export const getOpenings = async (req: Request, res: Response) => {
 export const changeStatus = async (req: Request, res: Response) => {
   const openingStatus: changeCurrentOpeniingstatusDto = req.body;
   const currentOpeningsRepo = appSource.getRepository(currentOpenings);
+  const typeNameFromDb = await currentOpeningsRepo.findBy({
+    id: openingStatus.id,
+  });
 
+  if (typeNameFromDb?.length == 0) {
+    throw new HttpException("Data not Found", 400);
+  }
   try {
-    const typeNameFromDb = await currentOpeningsRepo.findBy({
-      id: openingStatus.id,
-    });
 
-    if (typeNameFromDb?.length == 0) {
-      throw new HttpException("Data not Found", 400);
-    }
     await currentOpeningsRepo
       .createQueryBuilder()
       .update(currentOpenings)
@@ -89,10 +106,25 @@ export const changeStatus = async (req: Request, res: Response) => {
       .where("id = :id", { id: openingStatus.id })
       .execute();
 
+    const logsPayload: LogsDto = {
+      userId: Number(openingStatus.userId),
+      userName: '',
+      statusCode: 200,
+      message: `Job details ${typeNameFromDb[0].JobName} status changed to ${openingStatus.status} by -`
+    }
+    await InsertLog(logsPayload);
+
     res.status(200).send({
       IsSuccess: `Status Updated successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: Number(openingStatus.userId),
+      userName: '',
+      statusCode: 500,
+      message: `Error while changing status for Job details ${typeNameFromDb[0].JobName}  to ${openingStatus.status} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -104,26 +136,42 @@ export const changeStatus = async (req: Request, res: Response) => {
 
 export const deleteOpenings = async (req: Request, res: Response) => {
   const id = req.params.id;
+  const userId = Number(req.params.userId);
   const Repo = appSource.getRepository(currentOpenings);
-
+  const deleteUser = await Repo.createQueryBuilder("currentOpenings")
+    .where("currentOpenings.id = :id", {
+      id: id,
+    })
+    .getOne();
+  if (!deleteUser?.id) {
+    throw new HttpException("id not Found", 400);
+  }
   try {
-    const deleteUser = await Repo.createQueryBuilder("currentOpenings")
-      .where("currentOpenings.id = :id", {
-        id: id,
-      })
-      .getOne();
-    if (!deleteUser?.id) {
-      throw new HttpException("id not Found", 400);
-    }
+
     await Repo.createQueryBuilder("currentOpenings")
       .delete()
       .from(currentOpenings)
       .where("id = :id", { id: id })
       .execute();
+
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `job details ${deleteUser.JobName} deleted by -`
+    }
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: `id  deleted successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while deleting Job details ${deleteUser.JobName}  by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

@@ -20,6 +20,7 @@ export const CourierValidate = Joi.object({
 export interface changecourierStatusDto {
   courier_id: number;
   status: boolean;
+  userId: string;
 }
 export const CourierUpdateValidate = Joi.object({
   courier_id: Joi.number().required(),

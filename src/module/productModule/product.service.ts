@@ -7,9 +7,12 @@ import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
 import { Not } from "typeorm";
 import { CategoryNested } from "../categoryNested/categoryNested.model";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const addProducts = async (req: Request, res: Response) => {
   const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
+  const userId = payload.productid ? payload.muid : payload.cuid;
   try {
     const ProductRepository = appSource.getRepository(products);
     const NestedRepository = appSource.getRepository(ProductNested);
@@ -41,6 +44,14 @@ export const addProducts = async (req: Request, res: Response) => {
       const { cuid, productid, images, ...updatePayload } = payload;
 
       await ProductRepository.update({ productid }, updatePayload);
+
+      const logsPayload: LogsDto = {
+        userId: userId,
+        userName: '',
+        statusCode: 200,
+        message: `Product ${payload.product_name} updated by -`
+      }
+      await InsertLog(logsPayload);
 
       if (images && images.length > 0) {
         // Remove old images
@@ -86,10 +97,24 @@ export const addProducts = async (req: Request, res: Response) => {
         })
       );
       await NestedRepository.save(imageEntities);
+      const logsPayload: LogsDto = {
+        userId: userId,
+        userName: '',
+        statusCode: 200,
+        message: `Product ${payload.product_name} added by -`
+      }
+      await InsertLog(logsPayload);
     }
 
     res.status(200).send({ IsSuccess: "Product Details added successfully" });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while saving Product ${payload.product_name} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
     }
@@ -268,7 +293,7 @@ FROM
 
 export const deleteProduct = async (req: Request, res: Response) => {
   const productid = Number(req.params.productid);
-
+  const userId = Number(req.params.userId);
   if (Number.isNaN(productid)) {
     return res.status(400).send({ message: "Invalid product ID" });
   }
@@ -276,28 +301,28 @@ export const deleteProduct = async (req: Request, res: Response) => {
   const productRepo = appSource.getRepository(products);
   const orderItemRepo = appSource.getRepository(orders); // ✅ Use the correct table
 
+  // ✅ Check if product is used in any order items
+  const existingOrderItems = await orderItemRepo.findBy({
+    productid: productid,
+  });
+
+  if (existingOrderItems.length > 0) {
+    throw new ValidationException(
+      "Unable to delete product. It is currently in use."
+    );
+  }
+
+  // ✅ Check if product exists
+  const productExists = await productRepo
+    .createQueryBuilder("ProductDetail")
+    .where("ProductDetail.productid = :productid", { productid: productid })
+    .getOne();
+
+  if (!productExists) {
+    throw new HttpException("Product not found", 404);
+  }
+
   try {
-    // ✅ Check if product is used in any order items
-    const existingOrderItems = await orderItemRepo.findBy({
-      productid: productid,
-    });
-
-    if (existingOrderItems.length > 0) {
-      throw new ValidationException(
-        "Unable to delete product. It is currently in use."
-      );
-    }
-
-    // ✅ Check if product exists
-    const productExists = await productRepo
-      .createQueryBuilder("ProductDetail")
-      .where("ProductDetail.productid = :productid", { productid: productid })
-      .getOne();
-
-    if (!productExists) {
-      throw new HttpException("Product not found", 404);
-    }
-
     // ✅ Delete the product
     await productRepo
       .createQueryBuilder()
@@ -306,10 +331,25 @@ export const deleteProduct = async (req: Request, res: Response) => {
       .where("productid = :productid", { productid: productid })
       .execute();
 
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Product ${productExists.product_name} deleted by -`
+    }
+    await InsertLog(logsPayload);
+
     res.status(200).send({
       IsSuccess: `Product ${productExists.product_name} deleted successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while deleting Product ${productExists.product_name}  by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
     }
@@ -323,17 +363,33 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
   const details = await ProductRepository.findOneBy({
     productid: Number(status.productid),
   });
+  if (!details) throw new HttpException("productDetails not Found", 400);
   try {
-    if (!details) throw new HttpException("productDetails not Found", 400);
     await ProductRepository.createQueryBuilder()
       .update(products)
       .set({ status: status.status })
       .where({ productid: Number(status.productid) })
       .execute();
+
+    const logsPayload: LogsDto = {
+      userId: Number(status.userId),
+      userName: '',
+      statusCode: 200,
+      message: `Product ${details.product_name} status changed to ${status.status} by -`
+    }
+    await InsertLog(logsPayload);
+
     res.status(200).send({
       IsSuccess: `Status for product ${details.product_name} Updated successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: Number(status.userId),
+      userName: '',
+      statusCode: 500,
+      message: `Error while changing status for Product ${details.product_name}  to ${status.status} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

@@ -9,7 +9,7 @@ currentOpeningsRouter.get('/getOpenings',(req, res) => { getOpenings(req, res);
 });
 currentOpeningsRouter.post('/changestatus',(req, res) => { changeStatus(req, res);
 });
-currentOpeningsRouter.delete("/deleteOpenings/:id", (req, res) => {
+currentOpeningsRouter.delete("/deleteOpenings/:id/:userId", (req, res) => {
   deleteOpenings(req, res);
 });
 

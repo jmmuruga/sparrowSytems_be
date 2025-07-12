@@ -9,9 +9,12 @@ import {
   variationValidate,
 } from "./variation.dto";
 import { products } from "../productModule/product.model";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const addVariation = async (req: Request, res: Response) => {
   const payload: variation = req.body;
+  const userId = payload.id ? payload.muid : payload.cuid;
   try {
     const Repository = appSource.getRepository(variation);
 
@@ -49,10 +52,25 @@ export const addVariation = async (req: Request, res: Response) => {
 
     await Repository.save(insertPayload);
 
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Variation ${payload.variationGroup} added by -`
+    }
+    await InsertLog(logsPayload);
+
     res.status(200).send({
       IsSuccess: "Variation added successfully",
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while saving Variation ${payload.variationGroup} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -135,26 +153,44 @@ GROUP BY
 
 export const deleteVariationid = async (req: Request, res: Response) => {
   const id = req.params.id;
+  const userId = Number(req.params.userId);
   const Repo = appSource.getRepository(variation);
 
+  const deleteVariation = await Repo.createQueryBuilder("variation")
+    .where("variation.variationGroupId = :id", {
+      id: id,
+    })
+    .getOne();
+  if (!deleteVariation) {
+    throw new HttpException("id not Found", 400);
+  }
+
   try {
-    const deleteVariation = await Repo.createQueryBuilder("variation")
-      .where("variation.variationGroupId = :id", {
-        id: id,
-      })
-      .getOne();
-    if (!deleteVariation) {
-      throw new HttpException("id not Found", 400);
-    }
+
     await Repo.createQueryBuilder("variation")
       .delete()
       .from(variation)
       .where("variationGroupId = :id", { id: id })
       .execute();
+
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Variation ${deleteVariation.variationGroup} deleted by -`
+    }
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: `id  deleted successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while deleting Variation ${deleteVariation.variationGroup}  by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -167,14 +203,14 @@ export const deleteVariationid = async (req: Request, res: Response) => {
 export const variationStatus = async (req: Request, res: Response) => {
   const variationStatus: changeVariationStatusDto = req.body;
   const variationrepo = appSource.getRepository(variation);
-
+  const typeNameFromDb = await variationrepo.findBy({
+    variationGroupId: variationStatus.id?.toString(),
+  });
+  if (typeNameFromDb?.length == 0) {
+    throw new HttpException("Data not Found", 404);
+  }
   try {
-    const typeNameFromDb = await variationrepo.findBy({
-      variationGroupId: variationStatus.id?.toString(),
-    });
-    if (typeNameFromDb?.length == 0) {
-      throw new HttpException("Data not Found", 404);
-    }
+
     await variationrepo
       .createQueryBuilder()
       .update(variation)
@@ -182,10 +218,24 @@ export const variationStatus = async (req: Request, res: Response) => {
       .where({ variationGroupId: variationStatus.id?.toString() })
       .execute();
 
+    const logsPayload: LogsDto = {
+      userId: Number(variationStatus.userId),
+      userName: '',
+      statusCode: 200,
+      message: `Variation ${typeNameFromDb[0].variationGroup} status changed to ${variationStatus.status} by -`
+    }
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: `Status Updated successfully!`,
     });
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: Number(variationStatus.userId),
+      userName: '',
+      statusCode: 500,
+      message: `Error while changing status for Variation ${typeNameFromDb[0].variationGroup}  to ${variationStatus.status} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -223,6 +273,7 @@ GROUP BY variationid`
     res.status(500).send(error);
   }
 };
+
 export const getVariationName = async (req: Request, res: Response) => {
   try {
     const orderRepository = appSource.getRepository(variation);
@@ -270,15 +321,16 @@ export const getVariationDetails = async (req: Request, res: Response) => {
 
 export const updateVariation = async (req: Request, res: Response) => {
   const payload: variation[] = req.body;
+  const userId = payload[0].muid;
+  const variationRepoistry = appSource.getRepository(variation);
+  const allVariation = await variationRepoistry.createQueryBuilder().getMany();
+  const currentVariation = await variationRepoistry.findBy({
+    variationGroupId: payload[0].variationGroupId,
+  });
+  if (!currentVariation) {
+    throw new ValidationException("Unable to find variation.Cannot edit");
+  }
   try {
-    const variationRepoistry = appSource.getRepository(variation);
-    const allVariation = await variationRepoistry.createQueryBuilder().getMany();
-    const currentVariation = await variationRepoistry.findBy({
-      variationGroupId: payload[0].variationGroupId,
-    });
-    if (!currentVariation) {
-      throw new ValidationException("Unable to find variation.Cannot edit");
-    }
     await variationRepoistry
       .createQueryBuilder()
       .delete()
@@ -286,10 +338,18 @@ export const updateVariation = async (req: Request, res: Response) => {
       .where({ variationGroupId: payload[0].variationGroupId })
       .execute()
 
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Variation ${payload[0].variationGroup} updated by -`
+    }
+    await InsertLog(logsPayload);
+
     for (const item of payload) {
       const currentProd = item.productid;
       const checkProductAlreadyExist = allVariation.find((y) => +y.productid == +currentProd && +y.variationGroupId !== +item.variationGroupId);
-      if(checkProductAlreadyExist){
+      if (checkProductAlreadyExist) {
         throw new ValidationException('Already Variation exist for this product')
       }
       const validation = variationUpdateValidate.validate(item);
@@ -304,6 +364,13 @@ export const updateVariation = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while saving Variation ${payload[0].variationGroup} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

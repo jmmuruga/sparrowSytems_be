@@ -13,6 +13,7 @@ export interface eventDetailsDto {
 export interface eventStatusDto {
   eventid: number;
   status: boolean;
+  userId: string;
 }
 
 export const eventDtoValidation = Joi.object({

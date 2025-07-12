@@ -5,6 +5,6 @@ const productColourVariationRouter = Router()
 
 productColourVariationRouter.post("/addImageColor",(req,res)=>{addImageColour(req,res)});
 productColourVariationRouter.get("/getdata",(req,res)=>{getcolourVariationData(req,res)});
-productColourVariationRouter.delete("/deleteColour/:id",(req,res)=>{deleteColour(req,res)});
+productColourVariationRouter.delete("/deleteColour/:id/:userId",(req,res)=>{deleteColour(req,res)});
 
 export default  productColourVariationRouter

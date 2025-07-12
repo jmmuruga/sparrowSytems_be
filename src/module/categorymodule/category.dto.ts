@@ -21,6 +21,7 @@ export const categoryValidation = Joi.object({
 export interface changeCategroyStatusDto {
   categoryid: number;
   status: boolean;
+  userId: string;
 }
 
 export const categoryUpdateValidation = Joi.object({

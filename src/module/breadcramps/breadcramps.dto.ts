@@ -8,6 +8,7 @@ export interface breadcrampsDto {
   // status: boolean;
   cuid: number;
   muid: number;
+  userId: string;
 }
 
 export const breadcrampsValidation = Joi.object({

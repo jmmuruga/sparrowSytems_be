@@ -6,7 +6,7 @@ const categoryNestedRouter= Router();
 
 categoryNestedRouter.post('/addsubCategory',(req, res) => { addsubCategory (req, res);
 })
-categoryNestedRouter.delete('/deletesubCategory/:subcategoryid',(req, res) => {  deleteSubCategory (req, res);
+categoryNestedRouter.delete('/deletesubCategory/:subcategoryid/:userId',(req, res) => {  deleteSubCategory (req, res);
 })
 
 categoryNestedRouter.post('/changesubstatus',(req, res) => { changeSubCategoryStatus (req, res);

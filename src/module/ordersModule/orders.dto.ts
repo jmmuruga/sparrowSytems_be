@@ -4,6 +4,8 @@ export interface OrderItem {
   productid: number;
   quantity: number;
   offer_price: number;
+  cuid: number;
+  muid: number;
 }
 
 export interface ordersDto {
@@ -11,7 +13,7 @@ export interface ordersDto {
   customerid: number;
   payment_method: string;
   status: string;
-  orderItems: OrderItem[]; 
+  orderItems: OrderItem[];
   open_orders_date?: Date;
   processing_orders_date?: Date;
   failure_orders_date?: Date;
@@ -21,11 +23,14 @@ export interface ordersDto {
   delivery_orders_date: Date;
   return_orders_date: Date;
   address_id: number;
+  cuid: number;
+  muid: number;
 }
 export interface orderStatusDto {
   orderid: number;
   status: string;
   date: Date;
+  userId: string;
 }
 
 export const ordersDtoValidation = Joi.object({
@@ -34,6 +39,8 @@ export const ordersDtoValidation = Joi.object({
   payment_method: Joi.string().required(),
   status: Joi.string().required(),
   address_id: Joi.number().allow(null),
+  cuid: Joi.number().optional().allow(null, ''),
+  muid: Joi.number().optional().allow(null, ''),
   orderItems: Joi.array()
     .items(
       Joi.object({

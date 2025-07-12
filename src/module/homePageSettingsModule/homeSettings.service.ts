@@ -1,5 +1,7 @@
 import { appSource } from "../../core/db";
 import { ValidationException } from "../../core/exception";
+import { LogsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 import { homeSettingsDto, homeSettingsDtoValidation, updateHomeSettingsValidation } from "./homeSettings.dto";
 import { homeSettings } from "./homeSettings.model";
 import { Request, Response } from "express";
@@ -7,6 +9,7 @@ import { Request, Response } from "express";
 export const addHomesettings = async (req: Request, res: Response) => {
   const payload: homeSettingsDto = req.body;
   const homeRepository = appSource.getRepository(homeSettings);
+  const userId = payload.id ? payload.muid : payload.cuid;
 
   try {
 
@@ -27,6 +30,14 @@ export const addHomesettings = async (req: Request, res: Response) => {
       const { id, ...updatePayload } = payload;
       await homeRepository.update({ id }, updatePayload);
 
+      const logsPayload: LogsDto = {
+        userId: userId,
+        userName: '',
+        statusCode: 200,
+        message: `Home Settings ${payload.categoryid} updated by -`
+      }
+      await InsertLog(logsPayload);
+
       return res.status(200).send({
         message: "Home settings updated successfully",
       });
@@ -42,13 +53,26 @@ export const addHomesettings = async (req: Request, res: Response) => {
 
     const newSettings = homeSettingsRepository.create(payload);
     const savedSettings = await homeSettingsRepository.save(newSettings);
-
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 200,
+      message: `Home Settings ${payload.categoryid} added by -`
+    }
+    await InsertLog(logsPayload);
     return res.status(201).send({
       message: "Home settings added successfully",
       data: savedSettings,
     });
 
   } catch (error) {
+    const logsPayload: LogsDto = {
+      userId: userId,
+      userName: '',
+      statusCode: 500,
+      message: `Error while saving Home Settings ${payload.categoryid} by -`
+    }
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -77,70 +101,6 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-// export const getHomePageCategoryToDisplay = async (req: Request, res: Response) => {
-//   try {
-//     const homeRepository = appSource.getRepository(homeSettings);
-//     const details: homeSettingsDto[] = await homeRepository.query(
-//       `SELECT 
-//   hs.id,
-//   hs.visible,
-//   hs.categoryid,
-//   hs.column_count,
-//   hs.row_count,
-//   c.categoryname AS category_name,
-//   p.productid,
-//   p.product_name,
-//   p.mrp,
-//   p.discount,
-//   p.offer_price,
-//   p.created_at,
-//   p.status,
-//   p.image,         
-//   p.image_title    
-// FROM [${process.env.DB_name}].[dbo].[home_settings] hs
-// INNER JOIN [${process.env.DB_name}].[dbo].[category] c
-//   ON hs.categoryid = c.categoryid
-// OUTER APPLY (
-//   SELECT TOP (hs.column_count * hs.row_count)
-//          pr.productid,
-//          pr.product_name,
-//          pr.mrp,
-//          pr.discount,
-//          pr.offer_price,
-//          pr.created_at,
-//          pr.status,
-
-//          ISNULL(img.image, '') AS image,               
-//          ISNULL(img.image_title, '') AS image_title    
-//   FROM [${process.env.DB_name}].[dbo].[products] pr
-
-//   OUTER APPLY (
-//     SELECT TOP 1 
-//            pn.image,
-//            pn.image_title
-//     FROM [${process.env.DB_name}].[dbo].[product_nested] pn
-//     WHERE pn.productid = pr.productid
-//     ORDER BY pn.id DESC   
-//   ) img
-
-//   WHERE 
-//     ',' + pr.categoryid + ',' LIKE '%,' + CAST(hs.categoryid AS NVARCHAR(10)) + ',%'
-//     AND pr.status = 1
-//   ORDER BY pr.productid DESC
-// ) p;
-// `
-//     );
-//     res.status(200).send({ Result: details });
-//   } catch (error) {
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error?.message,
-//       });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
 
 export const getHomePageCategoryToDisplay = async (req: Request, res: Response) => {
   try {

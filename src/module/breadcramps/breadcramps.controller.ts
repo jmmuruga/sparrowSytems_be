@@ -13,7 +13,7 @@ breadcrampsRouter.get("/getData", (req, res) => {
   getDetail(req, res);
 });
 
-breadcrampsRouter.delete("/deletedata/:id", (req, res) => {
+breadcrampsRouter.delete("/deletedata/:id/:userId", (req, res) => {
   deleteDetail(req, res);
 });
 
