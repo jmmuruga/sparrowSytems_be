@@ -503,3 +503,23 @@ ORDER BY
     res.status(500).send(error);
   }
 };
+
+export const getimagesForImageId = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const ProductNestedRepoistry = appSource.getRepository(ProductNested)
+    const imageList: any[] = await ProductNestedRepoistry.query(`
+       select id, image from  [${process.env.DB_name}].[dbo].[product_Nested]
+       where product_Nested.id = ${id}`);
+    res.status(200).send({
+      Result: imageList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
