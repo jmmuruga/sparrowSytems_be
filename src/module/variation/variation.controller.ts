@@ -12,9 +12,6 @@ variationRouter.get('/getVariationGroup', (req, res) => { getVariationGroup(req,
 variationRouter.get('/getVariationName', (req, res) => { getVariationName(req, res) });
 variationRouter.get('/getVariationDetails/:variationGroupId', (req, res) => { getVariationDetails(req, res) });
 variationRouter.post('/updateVariation' , (req , res) => {updateVariation(req ,res)});
-variationRouter.post('/updateVariation' , (req , res) => {updateVariation(req ,res)});
 variationRouter.get('/getProductList' , (req, res) => {getUnusedProductList(req , res)});
-
-
 
 export default variationRouter

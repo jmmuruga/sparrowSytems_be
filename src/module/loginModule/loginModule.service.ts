@@ -129,46 +129,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 }
 
-export const resetNewPassword = async (req: Request, res: Response) => {
-    const data = req.body;
-    try {
-        const validation = resetPasswordValidation.validate(data);
-        if (validation?.error) {
-            throw new ValidationException(
-                validation.error.message
-            );
-        }
-        const UserDetailsRepoistry = appSource.getRepository(UserDetails);
-        const userDetailsDetails = await UserDetailsRepoistry.createQueryBuilder('UserDetails')
-            .where("UserDetails.userid = :userid", {
-                userid: data.userid,
-            }).getOne();
-
-        if (!userDetailsDetails) {
-            throw new ValidationException('Invalid User !');
-        }
-
-        await UserDetailsRepoistry
-            .update({ userid: data.userid }, { password: data.password, confirmPassword: data.password, muid: data.muid })
-            .then((r) => {
-                res.status(200).send({
-                    IsSuccess: "Password Updated successfully",
-                });
-            })
-            .catch((error) => {
-                if (error instanceof ValidationException) {
-                    return res.status(400).send({
-                        message: error?.message,
-                    });
-                }
-                res.status(500).send(error);
-            });
-    }
-    catch (error) {
-        handleError(res, error);
-    }
-}
-
 export const addLogsWhileLogout = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;

@@ -421,7 +421,6 @@ export const getimages = async (req: Request, res: Response) => {
 
 export const getProductsWithVariations = async (req: Request, res: Response) => {
   try {
-    // Run your raw SQL query using appSource.query()
     const productList: any[] = await appSource.query(`
       SELECT 
     p.productid,
@@ -447,7 +446,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
     brand.brandname,
     p.document,
 
-    -- 🟢 First image
+    -- First image
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
@@ -455,7 +454,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
         ORDER BY pn.id ASC
     ) AS image1,
 
-    -- 🟢 All images
+    -- All images
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
@@ -463,7 +462,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS images,
 
-    -- 🟢 All image titles
+    -- All image titles
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
         FROM [${process.env.DB_name}].[dbo].[product_nested] pn
@@ -471,7 +470,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS image_titles,
 
-    -- 🟢 variation_groups for this product
+    -- variation_groups for this product
     STUFF((
         SELECT DISTINCT ', ' + v2.variationGroup
         FROM [${process.env.DB_name}].[dbo].[variation] v2
@@ -479,7 +478,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS variationGroup,
 
-    -- ✅ variation_names for all groups for this product
+    -- variation_names for all groups for this product
     STUFF((
         SELECT DISTINCT ', ' + v2.variationname
         FROM [${process.env.DB_name}].[dbo].[variation] v2
@@ -491,7 +490,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS variation_names,
 
-    -- ✅ variationProductId for all products in same groups
+    -- variationProductId for all products in same groups
     STUFF((
         SELECT DISTINCT ', ' + CAST(v2.productid AS NVARCHAR(MAX))
         FROM [${process.env.DB_name}].[dbo].[variation] v2
@@ -503,7 +502,7 @@ export const getProductsWithVariations = async (req: Request, res: Response) => 
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS variationProductId,
 
-    -- 🟢 brand name alias (duplicate safe)
+    -- brand name alias (duplicate safe)
     brand.brandname AS brand_name
 
 FROM 

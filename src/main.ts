@@ -5,7 +5,6 @@ import "./core/db";
 import cors from "cors";
 import userDetailRouter from "./module/userDetails/userDetails.controller";
 import loginModuleRouter from "./module/loginModule/loginModule.controller";
-
 import productRouter from "./module/productModule/product.controller"
 import bannerRouter from "./module/bannerModule/banner.controller";
 import brandRouter from "./module/brandModule/brand.controller";
@@ -22,7 +21,6 @@ import applicationRouter from "./module/application/application.controller";
 import courierRouter from "./module/courier/courier.controller";
 import homeSettingRouter from "./module/homePageSettingsModule/homeSettings.controller";
 import generalSettingRouter from "./module/generalSettingModule/general.controller";
-import recentoffersRouter from "./module/recentOffersModule/recentOffers.controller";
 import recentOffersRouter from "./module/recentOffersModule/recentOffers.controller";
 import newProductsRouter from "./module/newProductsModule/newProducts.controller";
 import getInTouchRouter from "./module/getInTouchModule/getInTouch.controller";
@@ -30,9 +28,6 @@ import variationRouter from "./module/variation/variation.controller";
 import razorPayRouter from "./module/razorpaymentModule/razorpay.controller";
 import contactRouter from "./module/contactFormModule/contactForm.controller";
 import productColourVariationRouter from "./module/productColorVariation/productColorVariation.controller";
-
-
-
 
 const app = express();
 dotenv.config();
@@ -46,17 +41,14 @@ let corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-
 app.use("/userDetailsRouter", cors(corsOptions), userDetailRouter);
 app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
-
 app.use("/productRouter", cors(corsOptions), productRouter);
 app.use("/bannerRouter", cors(corsOptions), bannerRouter);
 app.use('/brandRouter', cors(corsOptions), brandRouter);
 app.use('/categoryRouter', cors(corsOptions),categoryRouter );
 app.use('/categoryNestedRouter', cors(corsOptions),categoryNestedRouter );
 app.use('/customerDetailRouter', cors(corsOptions),customerDetailRouter );
-// app.use('/allOrdersRouter', cors(corsOptions), allOrdersRouter);
 app.use('/customerCartRoute', cors(corsOptions), customerCartRouter);
 app.use('/customerAddressRouter', cors(corsOptions), customerAddressRouter);
 app.use('/ordersRouter', cors(corsOptions), ordersRouter);
@@ -74,7 +66,5 @@ app.use('/variationRouter', cors(corsOptions), variationRouter);
 app.use('/razorPayRouter', cors(corsOptions), razorPayRouter);
 app.use('/contactRouter', cors(corsOptions), contactRouter);
 app.use('/productColourVariationRouter', cors(corsOptions), productColourVariationRouter);
-
-
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

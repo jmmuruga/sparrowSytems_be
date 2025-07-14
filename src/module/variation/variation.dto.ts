@@ -27,6 +27,7 @@ export const variationValidate = Joi.object({
 export interface changeVariationStatusDto {
   id: number;
   status: boolean;
+  userId: string;
 }
 
 export const variationUpdateValidate = Joi.object({
