@@ -7,8 +7,6 @@ import {
   deleteAddressDto,
 } from "./customerAddress.dto";
 import { customerAddress } from "./customerAddress.model";
-import { customerDetailsValiadtion } from "../customerDetails/customerDetails.dto";
-import { customerDetails } from "../customerDetails/customerDetails.model";
 
 export const AddNewAddres = async (req: Request, res: Response) => {
   const payload: customerAddressDto = req.body;

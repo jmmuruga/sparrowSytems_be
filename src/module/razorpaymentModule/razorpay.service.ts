@@ -28,7 +28,6 @@ interface RazorpayCreateOrderOptions {
   payment_capture?: number;
 }
 
-// Controller
 export const createRazorpayOrder = async (
   req: Request<{}, {}, CreateOrderRequest>,
   res: Response

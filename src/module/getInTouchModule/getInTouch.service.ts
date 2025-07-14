@@ -6,7 +6,6 @@ import { ValidationException } from "../../core/exception";
 import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 
-
 export const addGetInTouch = async (req: Request, res: Response) => {
   const payload: GetInTouchDto = req.body;
   const getInTouchRepository = appSource.getRepository(GetInTouch);
