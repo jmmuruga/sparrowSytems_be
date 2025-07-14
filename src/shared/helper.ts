@@ -18,7 +18,6 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
         if (typeof jwtVerification === "string" || !jwtVerification) {
             throw new UnauthenticatedException("Unauthenticated access");
         }
-        console.log(jwtVerification , 'jwt verification result')
         const userRepository = appSource.getRepository(UserDetails);
         const user = userRepository.findOneBy({
             userid: jwtVerification?.id,

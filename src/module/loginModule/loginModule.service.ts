@@ -124,7 +124,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
         });
     }
     catch (error) {
-        console.log(error, 'errr')
         handleError(res, error);
     }
 }
