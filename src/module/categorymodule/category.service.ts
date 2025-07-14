@@ -285,34 +285,17 @@ export const getCatAndSubcat = async (req: Request, res: Response) => {
     const categoryRepository = appSource.getRepository(Category);
     const details: CategoryDto[] = await categoryRepository.query(
       ` 
-SELECT TOP 7 *
-FROM (
-    SELECT
-        c.categoryid,
-        c.categoryname,
-        c.categoryicon,
-        c.status,
-        c.created_at,
-        c.updated_at,
-        NULL AS subcategoryid,
-        NULL AS subcategoryname
-    FROM [${process.env.DB_name}].[dbo].[category] c
-
-    UNION ALL
-
-    SELECT
-        NULL AS categoryid,
-        NULL AS categoryname,
-        NULL AS categoryicon,
-        cn.status,
-        cn.created_at,
-        cn.updated_at,
-        cn.subcategoryid,
-        cn.categoryname AS subcategoryname
-    FROM [${process.env.DB_name}].[dbo].[category_nested] cn
-    
-) AS combined
-ORDER BY created_at ;`
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT TOP 7 [categoryid]
+      ,[categoryname]
+      ,[categoryicon]
+      ,[status]
+      ,[cuid]
+      ,[muid]
+      ,[created_at]
+      ,[updated_at]
+  FROM [SPARROW_TESTING].[dbo].[category]
+  ORDER BY created_at`
     );
     res.status(200).send({ Result: details });
   } catch (error) {
