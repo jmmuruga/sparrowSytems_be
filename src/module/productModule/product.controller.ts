@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addProducts, changeStatusProduct, deleteProduct, getimages, getNewAddedProductsDetails, getProductsDetails, getProductsWithVariations } from "./product.service";
+import { addProducts, changeStatusProduct, deleteProduct, getimages, getimagesForImageId, getNewAddedProductsDetails, getProductsDetails, getProductsWithVariations } from "./product.service";
 
 const productRouter = Router();
 
@@ -10,5 +10,6 @@ productRouter.post('/changestatus',(req, res) => { changeStatusProduct(req, res)
 productRouter.get('getNewAddedProductsDetails', (req, res) => { getNewAddedProductsDetails(req, res)});
 productRouter.get('/getimages/:id', (req, res) => { getimages(req, res)});
 productRouter.get('/getProductsWithVariations', (req, res)=> {getProductsWithVariations(req,res)});
+productRouter.get('/getImagesBasedOnImgId/:id' , (req, res) => {getimagesForImageId(req ,res)});
 
 export default productRouter;
