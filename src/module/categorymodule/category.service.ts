@@ -294,7 +294,7 @@ SELECT TOP 7 [categoryid]
       ,[muid]
       ,[created_at]
       ,[updated_at]
-  FROM [SPARROW_TESTING].[dbo].[category]
+  FROM [${process.env.DB_name}].[dbo].[category]
   ORDER BY created_at`
     );
     res.status(200).send({ Result: details });
