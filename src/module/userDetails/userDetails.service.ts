@@ -157,7 +157,7 @@ export const updatePassword = async (req: Request, res: Response) => {
 
 export const sendOtpInEmail = async (req: Request, res: Response) => {
   try {
-    const payload: UserDetails = req.body;
+     const email = req.params.email;  
     const newlyGeneratedOtp = generateOpt();
 
     const transporter = nodemailer.createTransport({
@@ -171,10 +171,10 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
     });
 
     let response = await transporter.sendMail({
-      from: payload.email,
-      to: "savedatashreeyamunna@gmail.com",
+      from: email,
+      to: "savedatasaranya@gmail.com",
       subject: 'new user sign in ',
-      text: `Please enter the OTP: ${newlyGeneratedOtp} to new user.`
+      text: `new user signin: ${email}\n\nGenerated OTP: ${newlyGeneratedOtp}.`
     });
 
     res.status(200).send({
