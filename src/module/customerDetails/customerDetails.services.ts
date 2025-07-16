@@ -47,7 +47,7 @@ export const newCustomer = async (req: Request, res: Response) => {
         updatePayload
       );
       res.status(200).send({
-        IsSuccess: "customer   Details updated SuccessFully",
+        IsSuccess: "Details updated SuccessFully",
       });
       return;
     }
@@ -73,7 +73,7 @@ export const newCustomer = async (req: Request, res: Response) => {
     const { customerid, ...updatePayload } = payload;
     await customerDetailsRepoistry.save(updatePayload);
     res.status(200).send({
-      IsSuccess: "User Details added SuccessFully",
+      IsSuccess: "Details added SuccessFully",
     });
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -254,6 +254,15 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 export const sendOtpInEmail = async (req: Request, res: Response) => {
   try {
     const payload: customerDetailsDto = req.body;
+    const customerRepoistry = appSource.getRepository(customerDetails);
+    const checkIfAlredyExist = await customerRepoistry.findBy({
+      email : payload.email
+    })
+
+    if(checkIfAlredyExist.length > 0){
+      throw new ValidationException("Cannot create a new customer with an existing email");
+    }
+
     const newlyGeneratedOtp = generateOpt();
 
     const transporter = nodemailer.createTransport({
