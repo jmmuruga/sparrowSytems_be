@@ -7,7 +7,7 @@ export class GetInTouch {
     @Column()
     button_name: string;
     @Column()
-    button_link: string;
+    productid: number;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
