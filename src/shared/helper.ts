@@ -15,6 +15,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
             bearerToken,
             process.env.JWT_SECRET_KEY as string
         );
+         // Check if jwtVerification is a string or undefined
         if (typeof jwtVerification === "string" || !jwtVerification) {
             throw new UnauthenticatedException("Unauthenticated access");
         }
@@ -25,6 +26,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
         if (!user) {
             throw new UnauthenticatedException("Unauthenticated access");
         }
+        console.log(user , 'user')
         res.locals.user = user;
         next();
     } catch (error) {

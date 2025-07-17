@@ -1,13 +1,16 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
-import { userDetailsDto, userDetailsUpadteValidation, userDetailsValidation } from "./userDetails.dto";
+import {
+  userDetailsDto,
+  userDetailsUpadteValidation,
+  userDetailsValidation,
+} from "./userDetails.dto";
 import { Request, Response } from "express";
 import { UserDetails } from "./userDetails.model";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
-
 
 export const newUser = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
@@ -25,7 +28,10 @@ export const newUser = async (req: Request, res: Response) => {
         throw new ValidationException("user details  not found");
       }
       const { cuid, userid, ...updatePayload } = payload;
-      await UserDetailsRepoistry.update({ userid: payload.userid }, updatePayload);
+      await UserDetailsRepoistry.update(
+        { userid: payload.userid },
+        updatePayload
+      );
       res.status(200).send({
         IsSuccess: "user  Details updated SuccessFully",
       });
@@ -63,11 +69,9 @@ export const newUser = async (req: Request, res: Response) => {
 export const getUser = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(UserDetails);
-    const userList = await Repository
-      .createQueryBuilder()
-      .getMany();
+    const userList = await Repository.createQueryBuilder().getMany();
     res.status(200).send({
-      Result: userList
+      Result: userList,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -84,7 +88,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   const userRepo = appSource.getRepository(UserDetails);
   try {
     const typeNameFromDb = await userRepo
-      .createQueryBuilder('UserDetails')
+      .createQueryBuilder("UserDetails")
       .where("UserDetails.userid = :userid", {
         userid: id,
       })
@@ -101,8 +105,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(200).send({
       IsSuccess: `User deleted successfully!`,
     });
-  }
-  catch (error) {
+  } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -110,7 +113,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     }
     res.status(500).send(error);
   }
-}
+};
 
 export const updatePassword = async (req: Request, res: Response) => {
   const { userid, password } = req.body;
@@ -128,10 +131,10 @@ export const updatePassword = async (req: Request, res: Response) => {
     // logs
     const logsPayload: LogsDto = {
       userId: user.userid,
-      userName: '',
+      userName: "",
       statusCode: 200,
-      message: `Updated Password for user - `
-    }
+      message: `Updated Password for user - `,
+    };
     await InsertLog(logsPayload);
 
     res.status(200).send({
@@ -141,10 +144,10 @@ export const updatePassword = async (req: Request, res: Response) => {
     // logs
     const logsPayload: LogsDto = {
       userId: user.userid,
-      userName: '',
+      userName: "",
       statusCode: 400,
-      message: `Error while Updated Password ${error} for user - `
-    }
+      message: `Error while Updated Password ${error} for user - `,
+    };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -153,11 +156,11 @@ export const updatePassword = async (req: Request, res: Response) => {
     }
     res.status(500).send({ message: "Internal server error" });
   }
-}
+};
 
 export const sendOtpInEmail = async (req: Request, res: Response) => {
   try {
-     const email = req.params.email;  
+    const { email, name } = req.params;
     const newlyGeneratedOtp = generateOpt();
 
     const transporter = nodemailer.createTransport({
@@ -172,17 +175,21 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
 
     let response = await transporter.sendMail({
       from: email,
-      to: "savedatasaranya@gmail.com",
-      subject: 'new user sign in ',
-      text: `new user signin: ${email}\n\nGenerated OTP: ${newlyGeneratedOtp}.`
+      to: "savedatain@gmail.com",
+      subject: "New User Sign-In Request ",
+      text: `Hello Admin,
+
+A new user sign-in request has been received.:User Details:
+Name: ${name}
+Email: ${email}\n\nGenerated OTP for verification: ${newlyGeneratedOtp} Please use this information to verify and approve the user..`,
     });
 
-    res.status(200).send({
-      Result: newlyGeneratedOtp
-    })
+    // pass key is set for savedatain@gmail.com so mail will be send from this
 
-  }
-  catch (error) {
+    res.status(200).send({
+      Result: newlyGeneratedOtp,
+    });
+  } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -190,10 +197,9 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
     }
     res.status(500).send(error);
   }
-}
+};
 
 export function generateOpt(): string {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   return otp;
 }
-

@@ -8,6 +8,8 @@ import {
   sendOtpInEmail,
   Userlogin,
 } from "./customerDetails.services";
+import { auth } from "../../shared/helper";
+
 
 const customerDetailRouter = Router();
 
@@ -21,7 +23,7 @@ customerDetailRouter.post("/userlogin", (req, res) => {
 customerDetailRouter.get("/getCustomer", (req, res) => {
   getCustomer(req, res);
 });
-customerDetailRouter.delete("/deletecustomer/:customerid/:userId", (req, res) => {
+customerDetailRouter.delete("/deletecustomer/:customerid/:userId", auth, (req, res) => {
   deleteCustomer(req, res);
 });
 
@@ -29,7 +31,7 @@ customerDetailRouter.get("/forgotPassword/:email", (req, res) => {
   requestPasswordReset(req, res);
 });
 
-customerDetailRouter.post("/otprequest", (req, res) => {
+customerDetailRouter.get("/otprequest/:email", (req, res) => {
   sendOtpInEmail(req, res);
 });
 
