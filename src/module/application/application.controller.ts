@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getPersonDetail, getPersonDetails, newApplication } from "./application.services";
 import multer from "multer";
+import { auth } from "../../shared/helper";
+
 
 
 
@@ -10,7 +12,7 @@ const upload = multer({ storage });
 
 applicationRouter.post('/apply',upload.single("brandimage"),(req, res) => { newApplication(req, res);
 });
-applicationRouter.get("/getperson/:id", (req, res) => {
+applicationRouter.get("/getperson/:id",auth, (req, res) => {
   getPersonDetails(req, res);
 });
 

@@ -253,10 +253,11 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 
 export const sendOtpInEmail = async (req: Request, res: Response) => {
   try {
-    const payload: customerDetailsDto = req.body;
+    const {email} = req.params; 
+    console
     const customerRepoistry = appSource.getRepository(customerDetails);
     const checkIfAlredyExist = await customerRepoistry.findBy({
-      email : payload.email
+      email : email
     })
 
     if(checkIfAlredyExist.length > 0){
@@ -277,9 +278,9 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
 
     let response = await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to: payload.email,
-      subject: "Create a new customer",
-      text: `Please enter the OTP: ${newlyGeneratedOtp} to create a customer.`,
+      to: email,
+      subject: "Verify Your Email to Complete Registration",
+      text: `Thank you for registering with us: Please use the following OTP to verify your email and complete your registration process :OTP: ${newlyGeneratedOtp} .`,
     });
 
     res.status(200).send({
