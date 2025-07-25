@@ -80,7 +80,7 @@ export const addBrand = async (req: Request, res: Response) => {
     }
     await InsertLog(logsPayload);
     res.status(200).send({
-      IsSuccess: "Brand Details added SuccessFully",
+      IsSuccess: "Brand  added SuccessFully",
     });
   } catch (error) {
     const logsPayload: LogsDto = {

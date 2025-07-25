@@ -9,12 +9,14 @@ import {
 export class UserDetails {
   @PrimaryGeneratedColumn()
   userid: number;
-   @Column({ nullable: true })
-   username: string;
+  @Column({ nullable: true })
+  username: string;
   // @Column()
   // role: String;
   @Column()
   email: string;
+  @Column()
+  MobileNumber: string;
   @Column()
   userType: string;
   @Column()
