@@ -133,7 +133,7 @@ SELECT TOP 1000
     -- First image
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
-        FROM [FINAL_TESTING].[dbo].[product_nested] pn
+        FROM ${process.env.DB_name}.[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         ORDER BY pn.id ASC
     ) AS image1,
@@ -141,7 +141,7 @@ SELECT TOP 1000
     -- All images
     STUFF((
         SELECT ', ' + CAST(pn.image AS NVARCHAR(MAX))
-        FROM [FINAL_TESTING].[dbo].[product_nested] pn
+        FROM ${process.env.DB_name}.[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS images,
@@ -149,7 +149,7 @@ SELECT TOP 1000
     -- All image titles
     STUFF((
         SELECT ', ' + CAST(pn.image_title AS NVARCHAR(MAX))
-        FROM [FINAL_TESTING].[dbo].[product_nested] pn
+        FROM ${process.env.DB_name}.[dbo].[product_nested] pn
         WHERE pn.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS image_titles,
@@ -157,7 +157,7 @@ SELECT TOP 1000
     -- variation_groups for this product
     STUFF((
         SELECT DISTINCT ', ' + v2.variationGroup
-        FROM [FINAL_TESTING].[dbo].[variation] v2
+        FROM ${process.env.DB_name}.[dbo].[variation] v2
         WHERE v2.productid = p.productid
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS variationGroup,
@@ -165,10 +165,10 @@ SELECT TOP 1000
     -- variation_names for all groups for this product
     STUFF((
         SELECT DISTINCT ', ' + v2.variationname
-        FROM [FINAL_TESTING].[dbo].[variation] v2
+        FROM ${process.env.DB_name}.[dbo].[variation] v2
         WHERE v2.variationGroup IN (
             SELECT DISTINCT v1.variationGroup
-            FROM [FINAL_TESTING].[dbo].[variation] v1
+            FROM ${process.env.DB_name}.[dbo].[variation] v1
             WHERE v1.productid = p.productid
         )
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
@@ -177,21 +177,21 @@ SELECT TOP 1000
     -- variationProductId for all products in same groups
     STUFF((
         SELECT DISTINCT ', ' + CAST(v2.productid AS NVARCHAR(MAX))
-        FROM [FINAL_TESTING].[dbo].[variation] v2
+        FROM ${process.env.DB_name}.[dbo].[variation] v2
         WHERE v2.variationGroup IN (
             SELECT DISTINCT v1.variationGroup
-            FROM [FINAL_TESTING].[dbo].[variation] v1
+            FROM ${process.env.DB_name}.[dbo].[variation] v1
             WHERE v1.productid = p.productid
         )
         FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
     , 1, 2, '') AS variationProductId,
 
-    brand.brandname AS brand_name
+    brand.brandname 
 
 FROM 
-    [FINAL_TESTING].[dbo].[get_in_touch] git
-    LEFT JOIN [FINAL_TESTING].[dbo].[products] p ON git.productid = p.productid
-    LEFT JOIN [FINAL_TESTING].[dbo].[brand_detail] brand ON p.brandid = brand.brandid
+    ${process.env.DB_name}.[dbo].[get_in_touch] git
+    LEFT JOIN ${process.env.DB_name}.[dbo].[products] p ON git.productid = p.productid
+    LEFT JOIN ${process.env.DB_name}.[dbo].[brand_detail] brand ON p.brandid = brand.brandid
 ORDER BY 
     git.created_at DESC;
 `
