@@ -175,13 +175,13 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
 
     let response = await transporter.sendMail({
       from: email,
-      to: "savedatain@gmail.com",
-      subject: "New User Sign-In Request ",
+      to: "savedatasaranya@gmail.com",
+      subject: "New Admin UserId Creation Request ",
       text: `Hello Admin,
 
-A new user sign-in request has been received.:User Details:
+A new admin userid creation request received.
 Name: ${name}
-Email: ${email}\n\nGenerated OTP for verification: ${newlyGeneratedOtp} Please use this information to verify and approve the user..`,
+Email: ${email}\n\nGenerated OTP for verification: ${newlyGeneratedOtp} Please use this OTP to verify and approve the userid.`,
     });
 
     // pass key is set for savedatain@gmail.com so mail will be send from this

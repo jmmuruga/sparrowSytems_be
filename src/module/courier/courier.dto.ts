@@ -12,7 +12,7 @@ export interface CourierDto {
 export const CourierValidate = Joi.object({
   Courier_Name: Joi.string().required(),
   Courier_Link: Joi.string().required(),
-  status: Joi.boolean().required(),
+  // status: Joi.boolean().required(),
   cuid: Joi.optional().allow(null, ""),
   muid: Joi.optional().allow(null, ""),
 });

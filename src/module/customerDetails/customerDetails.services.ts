@@ -47,7 +47,7 @@ export const newCustomer = async (req: Request, res: Response) => {
         updatePayload
       );
       res.status(200).send({
-        IsSuccess: "Details updated SuccessFully",
+        IsSuccess: "Register SuccessFully",
       });
       return;
     }
@@ -285,6 +285,7 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
 
     res.status(200).send({
       Result: newlyGeneratedOtp,
+       
     });
   } catch (error) {
     if (error instanceof ValidationException) {
