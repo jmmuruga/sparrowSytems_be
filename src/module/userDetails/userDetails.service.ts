@@ -175,7 +175,7 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
 
     let response = await transporter.sendMail({
       from: email,
-      to: "savedatasaranya@gmail.com",
+      to: "info@savedata.in",
       subject: "New Admin UserId Creation Request ",
       text: `Hello Admin,
 
