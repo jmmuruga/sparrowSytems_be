@@ -27,6 +27,7 @@ const handleError = (res: Response, error: any) => {
 
 export const newCustomer = async (req: Request, res: Response) => {
   const payload: customerDetailsDto = req.body;
+  console.log(payload,"hello")
   try {
     const customerDetailsRepoistry = appSource.getRepository(customerDetails);
     if (payload.customerid) {

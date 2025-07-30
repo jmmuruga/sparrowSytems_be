@@ -22,7 +22,8 @@ const handleError = (res: Response, error: any) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-    const { email, password } = req.params;
+    const { email, password } = req.body;
+    
     const userRepository = appSource.getRepository(UserDetails);
     const user = await userRepository.findOneBy({ email: email });
 
@@ -83,6 +84,7 @@ export const login = async (req: Request, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
         const eMail = req.params.email;
+        console.log(eMail,"EMAIL")
         const randomOtp = String(Math.floor(100000 + Math.random() * 900000));
         const repo = appSource.getRepository(UserDetails);
         const isThereEmail = await repo.findOneBy({
@@ -93,7 +95,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         }
 
         if (isThereEmail) {
-            const transporter = nodemailer.createTransport({
+         const transporter = nodemailer.createTransport({
                 service: "gmail",
                 port: 465,
                 secure: false,
@@ -105,8 +107,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
             await transporter.sendMail({
                 from: "savedatain@gmail.com",
-                to: "savedataakshaya03@gmail.com",
-                // to: eMail,
+                // to: "isThereEmail",
+                to: eMail,
                 subject: `Password Recovery Assistance`,
                 text: `Hello,\n\n
                 We received a request to reset your password. Please use the following One-Time Password (OTP) to log in and reset your password:\n
@@ -117,8 +119,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
             });
         }
         res.status(200).send({
+           otp: randomOtp,
             IsSuccess: true,
-            otp: randomOtp,
             user_details: { user_name: isThereEmail.username, userid: isThereEmail.userid },
             Result: "Mail sent successfully"
         });
