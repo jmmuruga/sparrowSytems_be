@@ -26,7 +26,6 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
         if (!user) {
             throw new UnauthenticatedException("Unauthenticated access");
         }
-        console.log(user , 'user')
         res.locals.user = user;
         next();
     } catch (error) {
