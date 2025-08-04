@@ -84,7 +84,6 @@ export const login = async (req: Request, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
         const eMail = req.params.email;
-        console.log(eMail,"EMAIL")
         const randomOtp = String(Math.floor(100000 + Math.random() * 900000));
         const repo = appSource.getRepository(UserDetails);
         const isThereEmail = await repo.findOneBy({
@@ -152,6 +151,51 @@ export const addLogsWhileLogout = async (req: Request, res: Response) => {
         await InsertLog(logsPayload);
         res.status(200).send({
             Result: "Logout Success"
+        });
+    }
+    catch (error) {
+        handleError(res, error);
+    }
+}
+
+
+
+export const sendOtp = async (req: Request, res: Response) => {
+    try {
+        const email = req.params.email;
+        const randomOtp = String(Math.floor(100000 + Math.random() * 900000));
+        // const repo = appSource.getRepository(UserDetails);
+        // const isThereEmail = await repo.findOneBy({
+        //     email: eMail
+        // });
+        // if (!isThereEmail) {
+        //     throw new ValidationException('Invalid Email !');
+        // }
+
+       
+         const transporter = nodemailer.createTransport({
+                service: "gmail",
+                port: 465,
+                secure: false,
+                auth: {
+                    user: "savedatain@gmail.com",
+                    pass: "unpk bcsy ibhp wzrm",
+                },
+            });
+
+            await transporter.sendMail({
+                from: "savedatain@gmail.com",
+                // to: "isThereEmail",
+                to: email,
+                subject: `Password Recovery Assistance`,
+                text: `Generated OTP for verification  ${randomOtp} Please use this OTP to verify`
+            });
+       
+        res.status(200).send({
+        //    otp: randomOtp,
+        //     IsSuccess: true,
+            // user_details: { user_name: isThereEmail.username, userid: isThereEmail.userid },
+            Result:randomOtp 
         });
     }
     catch (error) {

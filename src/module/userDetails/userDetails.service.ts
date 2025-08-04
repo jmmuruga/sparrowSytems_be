@@ -53,8 +53,33 @@ export const newUser = async (req: Request, res: Response) => {
     const { userid, ...updatePayload } = payload;
 
     await UserDetailsRepoistry.save(updatePayload);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: "info@savedata.in,",
+      subject: "New Admin UserId Created",
+      text: `Hello Admin,
+ A new admin user created successfully`,
+    });
+
+    await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: payload.email,
+      subject: "Welcome to SparrowSystems Admin Panel",
+      text: ` Your admin account has been successfully created.You can now log in to the SparrowSystems  admin panel using your registered email`,
+    });
+
     res.status(200).send({
-      IsSuccess: "User Details added SuccessFully",
+      IsSuccess: "Admin UserId Created SuccessFully",
     });
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -118,7 +143,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const updatePassword = async (req: Request, res: Response) => {
   const { userid, password } = req.body;
   const userRepo = appSource.getRepository(UserDetails);
-  const user = await userRepo.findOneBy({ userid });
+  const user = await userRepo.findOneBy({ userid: userid });
   if (!user) {
     throw new ValidationException("User not found");
   }
@@ -127,7 +152,29 @@ export const updatePassword = async (req: Request, res: Response) => {
     user.confirmPassword = password;
 
     await userRepo.save(user);
-
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+       await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: "info@savedata.in,",
+      subject: "Admin Password Updated",
+      text: `Hello Admin,
+The password for an admin account has been successfully updated`,
+    });
+    await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to:  user.email,
+      subject: "Your Password Has Been Updated",
+      text: `Your account password has been updated successfully.`,
+    });
+  
     // logs
     const logsPayload: LogsDto = {
       userId: user.userid,
