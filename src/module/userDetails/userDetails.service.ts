@@ -65,7 +65,7 @@ export const newUser = async (req: Request, res: Response) => {
 
     await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to: "savedatasaranya@gmail.com,",
+      to: "info@savedata.in,",
       subject: "New Admin UserId Created",
       text: `Hello Admin,
  A new admin user created successfully`,
@@ -161,7 +161,13 @@ export const updatePassword = async (req: Request, res: Response) => {
         pass: "unpk bcsy ibhp wzrm",
       },
     });
-
+       await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: "info@savedata.in,",
+      subject: "Admin Password Updated",
+      text: `Hello Admin,
+The password for an admin account has been successfully updated`,
+    });
     await transporter.sendMail({
       from: "savedatain@gmail.com",
       to:  user.email,
@@ -216,7 +222,7 @@ export const sendOtpInEmail = async (req: Request, res: Response) => {
 
     let response = await transporter.sendMail({
       from: email,
-      to: "savedatasaranya@gmail.com",
+      to: "info@savedata.in",
       subject: "New Admin UserId Creation Request ",
       text: `Hello Admin,
 

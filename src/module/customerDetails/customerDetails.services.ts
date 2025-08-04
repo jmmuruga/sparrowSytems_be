@@ -254,7 +254,6 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 export const sendOtpInEmail = async (req: Request, res: Response) => {
   try {
     const {email} = req.params; 
-    console
     const customerRepoistry = appSource.getRepository(customerDetails);
     const checkIfAlredyExist = await customerRepoistry.findBy({
       email : email
@@ -320,7 +319,7 @@ export const resendPasswordOtp = async (req: Request, res: Response) => {
       let response = await transporter.sendMail({
         from: "savedatain@gmail.com",
         to: email,
-        subject: "Create a new customer",
+        subject: "OTP for Password Reset Request",
         text: `Please enter the OTP: ${otpGenerate} to change the forgot password.`,
       });
 

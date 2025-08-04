@@ -163,7 +163,6 @@ export const addLogsWhileLogout = async (req: Request, res: Response) => {
 export const sendOtp = async (req: Request, res: Response) => {
     try {
         const email = req.params.email;
-        console.log(email,"resitered email")
         const randomOtp = String(Math.floor(100000 + Math.random() * 900000));
         // const repo = appSource.getRepository(UserDetails);
         // const isThereEmail = await repo.findOneBy({
