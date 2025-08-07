@@ -1,7 +1,12 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
-import { productDetailsDto, productDetailsValidation, productStatusDto, updateDetailsValidation } from "./product.dto";
+import {
+  productDetailsDto,
+  productDetailsValidation,
+  productStatusDto,
+  updateDetailsValidation,
+} from "./product.dto";
 import { ProductNested, products } from "./product.model";
 import { Category } from "../categorymodule/category.model";
 import { orders } from "../ordersModule/orders.model";
@@ -11,7 +16,9 @@ import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 
 export const addProducts = async (req: Request, res: Response) => {
-  const payload: productDetailsDto & { images?: { image: string; image_title: string }[] } = req.body;
+  const payload: productDetailsDto & {
+    images?: { image: string; image_title: string }[];
+  } = req.body;
   const userId = payload.productid ? payload.muid : payload.cuid;
   try {
     const ProductRepository = appSource.getRepository(products);
@@ -47,10 +54,10 @@ export const addProducts = async (req: Request, res: Response) => {
 
       const logsPayload: LogsDto = {
         userId: userId,
-        userName: '',
+        userName: "",
         statusCode: 200,
-        message: `Product ${payload.product_name} updated by -`
-      }
+        message: `Product ${payload.product_name} updated by -`,
+      };
       await InsertLog(logsPayload);
 
       if (images && images.length > 0) {
@@ -99,10 +106,10 @@ export const addProducts = async (req: Request, res: Response) => {
       await NestedRepository.save(imageEntities);
       const logsPayload: LogsDto = {
         userId: userId,
-        userName: '',
+        userName: "",
         statusCode: 200,
-        message: `Product ${payload.product_name} added by -`
-      }
+        message: `Product ${payload.product_name} added by -`,
+      };
       await InsertLog(logsPayload);
     }
 
@@ -110,10 +117,10 @@ export const addProducts = async (req: Request, res: Response) => {
   } catch (error) {
     const logsPayload: LogsDto = {
       userId: userId,
-      userName: '',
+      userName: "",
       statusCode: 500,
-      message: `Error while saving Product ${payload.product_name} by -`
-    }
+      message: `Error while saving Product ${payload.product_name} by -`,
+    };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
@@ -177,32 +184,40 @@ ORDER BY
     const categoryRepoistry = appSource.getRepository(Category);
     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
     const subCategoryIdReposiry = appSource.getRepository(CategoryNested);
-    const subCatrgeoryList = await subCategoryIdReposiry.createQueryBuilder().getMany();
+    const subCatrgeoryList = await subCategoryIdReposiry
+      .createQueryBuilder()
+      .getMany();
 
     productList.forEach((x) => {
       if (x.categoryid) {
-        const ids = x.categoryid.split(',');
+        const ids = x.categoryid.split(",");
 
         // 2. Map each ID to its categoryname
-        const names = ids.map((id: string) => {
-          const found = categoryList.find(y => y.categoryid === +id.trim());
-          return found?.categoryname || '';
-        }).filter(Boolean); // remove empty if not found
+        const names = ids
+          .map((id: string) => {
+            const found = categoryList.find((y) => y.categoryid === +id.trim());
+            return found?.categoryname || "";
+          })
+          .filter(Boolean); // remove empty if not found
 
         // 3. Join back to a single string if needed
-        x.categoryName = names.join(', ');
+        x.categoryName = names.join(", ");
       }
       if (x.subcategoryid) {
-        const subId = x.subcategoryid.split(',');
+        const subId = x.subcategoryid.split(",");
 
         // 2. Map each ID to its categoryname
-        const names = subId.map((id: string) => {
-          const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
-          return found?.categoryname || '';
-        }).filter(Boolean); // remove empty if not found
+        const names = subId
+          .map((id: string) => {
+            const found = subCatrgeoryList.find(
+              (y) => y.subcategoryid === +id.trim()
+            );
+            return found?.categoryname || "";
+          })
+          .filter(Boolean); // remove empty if not found
 
         // 3. Join back to a single string if needed
-        x.subCategoryName = names.join(', ');
+        x.subCategoryName = names.join(", ");
       }
     });
 
@@ -333,10 +348,10 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     const logsPayload: LogsDto = {
       userId: userId,
-      userName: '',
+      userName: "",
       statusCode: 200,
-      message: `Product ${productExists.product_name} deleted by -`
-    }
+      message: `Product ${productExists.product_name} deleted by -`,
+    };
     await InsertLog(logsPayload);
 
     res.status(200).send({
@@ -345,10 +360,10 @@ export const deleteProduct = async (req: Request, res: Response) => {
   } catch (error) {
     const logsPayload: LogsDto = {
       userId: userId,
-      userName: '',
+      userName: "",
       statusCode: 500,
-      message: `Error while deleting Product ${productExists.product_name}  by -`
-    }
+      message: `Error while deleting Product ${productExists.product_name}  by -`,
+    };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
@@ -373,10 +388,10 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
 
     const logsPayload: LogsDto = {
       userId: Number(status.userId),
-      userName: '',
+      userName: "",
       statusCode: 200,
-      message: `Product ${details.product_name} status changed to ${status.status} by -`
-    }
+      message: `Product ${details.product_name} status changed to ${status.status} by -`,
+    };
     await InsertLog(logsPayload);
 
     res.status(200).send({
@@ -385,10 +400,10 @@ export const changeStatusProduct = async (req: Request, res: Response) => {
   } catch (error) {
     const logsPayload: LogsDto = {
       userId: Number(status.userId),
-      userName: '',
+      userName: "",
       statusCode: 500,
-      message: `Error while changing status for Product ${details.product_name}  to ${status.status} by -`
-    }
+      message: `Error while changing status for Product ${details.product_name}  to ${status.status} by -`,
+    };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -419,7 +434,10 @@ export const getimages = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductsWithVariations = async (req: Request, res: Response) => {
+export const getProductsWithVariations = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const productList: any[] = await appSource.query(`
       SELECT 
@@ -517,32 +535,40 @@ ORDER BY
     const categoryRepoistry = appSource.getRepository(Category);
     const categoryList = await categoryRepoistry.createQueryBuilder().getMany();
     const subCategoryIdReposiry = appSource.getRepository(CategoryNested);
-    const subCatrgeoryList = await subCategoryIdReposiry.createQueryBuilder().getMany();
+    const subCatrgeoryList = await subCategoryIdReposiry
+      .createQueryBuilder()
+      .getMany();
 
     productList.forEach((x) => {
       if (x.categoryid) {
-        const ids = x.categoryid.split(',');
+        const ids = x.categoryid.split(",");
 
         // 2. Map each ID to its categoryname
-        const names = ids.map((id: string) => {
-          const found = categoryList.find(y => y.categoryid === +id.trim());
-          return found?.categoryname || '';
-        }).filter(Boolean); // remove empty if not found
+        const names = ids
+          .map((id: string) => {
+            const found = categoryList.find((y) => y.categoryid === +id.trim());
+            return found?.categoryname || "";
+          })
+          .filter(Boolean); // remove empty if not found
 
         // 3. Join back to a single string if needed
-        x.categoryName = names.join(', ');
+        x.categoryName = names.join(", ");
       }
       if (x.subcategoryid) {
-        const subId = x.subcategoryid.split(',');
+        const subId = x.subcategoryid.split(",");
 
         // 2. Map each ID to its categoryname
-        const names = subId.map((id: string) => {
-          const found = subCatrgeoryList.find(y => y.subcategoryid === +id.trim());
-          return found?.categoryname || '';
-        }).filter(Boolean); // remove empty if not found
+        const names = subId
+          .map((id: string) => {
+            const found = subCatrgeoryList.find(
+              (y) => y.subcategoryid === +id.trim()
+            );
+            return found?.categoryname || "";
+          })
+          .filter(Boolean); // remove empty if not found
 
         // 3. Join back to a single string if needed
-        x.subCategoryName = names.join(', ');
+        x.subCategoryName = names.join(", ");
       }
     });
 
@@ -562,12 +588,45 @@ ORDER BY
 export const getimagesForImageId = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const ProductNestedRepoistry = appSource.getRepository(ProductNested)
+    const ProductNestedRepoistry = appSource.getRepository(ProductNested);
     const imageList: any[] = await ProductNestedRepoistry.query(`
        select id, image from  [${process.env.DB_name}].[dbo].[product_Nested]
        where product_Nested.id = ${id}`);
     res.status(200).send({
       Result: imageList,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getCategoryBasedOnBrand = async (req: Request, res: Response) => {
+  const { categoryid, subcategoryid } = req.params;
+  try {
+    let brandList: any[] = [];
+    if (Number(categoryid) > 0) {
+      brandList = await appSource.query(`
+    SELECT products.brandid,brand_detail.brandname
+FROM [SPARROW_SYSTEMS].[dbo].[products] 
+ Left join [SPARROW_SYSTEMS].[dbo].[brand_detail]  on  products.brandid = brand_detail.brandid
+WHERE ',' + categoryid + ',' LIKE '%,${categoryid},%'
+group by products.brandid,brand_detail.brandname;`);
+    } else {
+      brandList = await appSource.query(`
+     SELECT products.brandid,brand_detail.brandname
+FROM [SPARROW_SYSTEMS].[dbo].[products] 
+ Left join [SPARROW_SYSTEMS].[dbo].[brand_detail]  on  products.brandid = brand_detail.brandid
+WHERE ',' + subcategoryid + ',' LIKE '%,${subcategoryid},%'
+group by products.brandid,brand_detail.brandname;`);
+    }
+
+    res.status(200).send({
+      Result: brandList,
     });
   } catch (error) {
     if (error instanceof ValidationException) {
