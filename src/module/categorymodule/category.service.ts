@@ -199,7 +199,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
     const usedInProducts = await productRepo
       .createQueryBuilder("product")
       .where("product.categoryid= :categoryid", {
-        categoryid,
+        categoryid
       })
       .getCount(); // More efficient than getMany if we only need count
     if (usedInProducts > 0) {
@@ -207,6 +207,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
         "Unable to delete category. It is currently used by products."
       );
     }
+
+      console.log("Checking if category is used in products:", categoryid);
     // Step 3: Delete the category
     await categoryRepo
       .createQueryBuilder()
@@ -227,6 +229,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
       IsSuccess: `Category ${category.categoryname} deleted successfully!`,
     });
   } catch (error) {
+      console.error("Error while deleting category:", error);
     const logsPayload: LogsDto = {
       userId: userId,
       userName: '',

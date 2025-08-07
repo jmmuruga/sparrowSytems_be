@@ -73,7 +73,7 @@ export const newCustomer = async (req: Request, res: Response) => {
     const { customerid, ...updatePayload } = payload;
     await customerDetailsRepoistry.save(updatePayload);
     res.status(200).send({
-      IsSuccess: "Details added SuccessFully",
+      IsSuccess: "Register SuccessFully",
     });
   } catch (error) {
     if (error instanceof ValidationException) {
