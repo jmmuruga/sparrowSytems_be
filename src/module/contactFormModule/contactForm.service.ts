@@ -64,7 +64,7 @@ export const sendMail = async (req: Request, res: Response) => {
 
     await transporter.sendMail({
       from: "support@sparrowsystems.in",
-      to: "savedataakshaya03@gmail.com",
+      to:"info@savedata.in",
       subject: `New Inquiry from ${name}`,
       html: `
         <h2>New Inquiry Received</h2>
@@ -77,7 +77,7 @@ export const sendMail = async (req: Request, res: Response) => {
     });
 
     return res.status(200).send({
-      message: "Form submitted and mail sent successfully",
+      message: "Thank you! Your message has been sent successfully. We’ll get back to you soon.",
     });
   } catch (error) {
     return res.status(500).send({
