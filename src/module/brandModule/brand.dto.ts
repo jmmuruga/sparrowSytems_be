@@ -23,7 +23,7 @@ export interface brandDto {
 }
 export const brandValidation = Joi.object({
   brandname: Joi.string().required(),
-  company_name: Joi.string().required(),
+  company_name: Joi.string().allow("", null).optional(),
   servicecenter_name: Joi.string().required(),
   servicecentre_address: Joi.string().required(),
   pincode: Joi.string().required(),
@@ -50,7 +50,7 @@ export interface changebrandStatusDto {
 }
 export const updateBrandValidation = Joi.object({
   brandid: Joi.number().required(),
-  company_name: Joi.string().required(),
+  company_name: Joi.string().allow("", null).optional(),
   brandname: Joi.string().required(),
   servicecenter_name: Joi.string().required(),
   servicecentre_address: Joi.string().required(),
