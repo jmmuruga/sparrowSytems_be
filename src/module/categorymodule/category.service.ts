@@ -192,23 +192,13 @@ export const deleteCategory = async (req: Request, res: Response) => {
     throw new ValidationException("Category not found");
   }
   try {
-    // Step 1: Fetch category by ID
-
-    // const categoryName = category.categoryname.trim().toLowerCase();
-    // Step 2: Check if any products use this category name
-    const usedInProducts = await productRepo
-      .createQueryBuilder("product")
-      .where("product.categoryid= :categoryid", {
-        categoryid
-      })
-      .getCount(); // More efficient than getMany if we only need count
-    if (usedInProducts > 0) {
+    const usedInProducts = await productRepo.findBy({categoryid : categoryid?.toString()});
+    if (usedInProducts.length > 0) {
       throw new ValidationException(
         "Unable to delete category. It is currently used by products."
       );
     }
 
-      console.log("Checking if category is used in products:", categoryid);
     // Step 3: Delete the category
     await categoryRepo
       .createQueryBuilder()
@@ -229,7 +219,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
       IsSuccess: `Category ${category.categoryname} deleted successfully!`,
     });
   } catch (error) {
-      console.error("Error while deleting category:", error);
+      // console.error("Error while deleting category:", error);
     const logsPayload: LogsDto = {
       userId: userId,
       userName: '',
