@@ -612,15 +612,15 @@ export const getCategoryBasedOnBrand = async (req: Request, res: Response) => {
     if (Number(categoryid) > 0) {
       brandList = await appSource.query(`
     SELECT products.brandid,brand_detail.brandname
-FROM [SPARROW_SYSTEMS].[dbo].[products] 
- Left join [SPARROW_SYSTEMS].[dbo].[brand_detail]  on  products.brandid = brand_detail.brandid
+FROM [${process.env.DB_name}].[dbo].[products] 
+ Left join [${process.env.DB_name}].[dbo].[brand_detail]  on  products.brandid = brand_detail.brandid
 WHERE ',' + categoryid + ',' LIKE '%,${categoryid},%'
 group by products.brandid,brand_detail.brandname;`);
     } else {
       brandList = await appSource.query(`
      SELECT products.brandid,brand_detail.brandname
-FROM [SPARROW_SYSTEMS].[dbo].[products] 
- Left join [SPARROW_SYSTEMS].[dbo].[brand_detail]  on  products.brandid = brand_detail.brandid
+FROM [${process.env.DB_name}].[dbo].[products] 
+ Left join [${process.env.DB_name}].[dbo].[brand_detail]  on  products.brandid = brand_detail.brandid
 WHERE ',' + subcategoryid + ',' LIKE '%,${subcategoryid},%'
 group by products.brandid,brand_detail.brandname;`);
     }
