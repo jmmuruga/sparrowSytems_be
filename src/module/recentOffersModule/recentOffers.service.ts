@@ -125,6 +125,7 @@ export const getRecentOffersToDisplay = async (req: Request, res: Response) => {
     p.status,
     p.delivery_days,
     p.document,
+    b.brandimage,
 
     -- 🟢 First image and title
     (

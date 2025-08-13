@@ -117,6 +117,7 @@ export const getNewProductsToDisplay = async (req: Request, res: Response) => {
   p.description,
   p.terms,
   p.warranty,
+  b.brandimage,
 
   -- 🟢 First image and title
   (
