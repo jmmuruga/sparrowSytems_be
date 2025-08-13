@@ -57,8 +57,8 @@ export const sendMail = async (req: Request, res: Response) => {
       port: 465,
       secure: true,
       auth: {
-        user: "savedataakshaya03@gmail.com",
-        pass: "xyvs iqyg bonl mtjr", // Ideally store in .env
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
       },
     });
 

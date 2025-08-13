@@ -1,5 +1,6 @@
 import { appSource } from "../../core/db";
 import { ValidationException } from "../../core/exception";
+import { BrandDetail } from "../brandModule/brand.model";
 import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { homeSettingsDto, homeSettingsDtoValidation, updateHomeSettingsValidation } from "./homeSettings.dto";
@@ -105,7 +106,7 @@ export const getHomeSettingsDetails = async (req: Request, res: Response) => {
 export const getHomePageCategoryToDisplay = async (req: Request, res: Response) => {
   try {
     const homeRepository = appSource.getRepository(homeSettings);
-    const details: homeSettingsDto[] = await homeRepository.query(
+    const details: any[] = await homeRepository.query(
       `SELECT 
   hs.id,
   hs.visible,
@@ -136,7 +137,8 @@ export const getHomePageCategoryToDisplay = async (req: Request, res: Response) 
   p.image_titles,
   p.variationGroup,
   p.variation_names,
-  p.variationProductId
+  p.variationProductId,
+    p.brandid
 
 FROM [${process.env.DB_name}].[dbo].[home_settings] hs
 LEFT JOIN [${process.env.DB_name}].[dbo].[category] c
@@ -161,7 +163,7 @@ OUTER APPLY (
     pr.terms,              
     ISNULL(img.image, '') AS image,
     ISNULL(img.image_title, '') AS image_title,
-
+    pr.brandId,
     -- Images & variations
     (
         SELECT TOP 1 CAST(pn.image AS NVARCHAR(MAX))
@@ -251,6 +253,13 @@ OUTER APPLY (
   ORDER BY pr.productid DESC
 ) p; `
     );
+    const brandRepoistry = appSource.getRepository(BrandDetail);
+    const brandDetails = await brandRepoistry.createQueryBuilder('').getMany();
+    details.forEach((x) =>{
+      x.brandname = brandDetails.find((y) => +x.brandid === +y.brandid)?.brandname;
+      x.brandimage = brandDetails.find((y) => +x.brandid === +y.brandid)?.brandimage;
+    })
+
     res.status(200).send({ Result: details });
   } catch (error) {
     if (error instanceof ValidationException) {
