@@ -57,12 +57,12 @@ export const addBrand = async (req: Request, res: Response) => {
     if (validation?.error) {
       throw new ValidationException(validation.error.message);
     }
-    const validateTypeName = await BrandRepository.findBy({
-      email: payload.email,
-    });
-    if (validateTypeName?.length) {
-      throw new ValidationException("Email already exist");
-    }
+    // const validateTypeName = await BrandRepository.findBy({
+    //   email: payload.email,
+    // });
+    // if (validateTypeName?.length) {
+    //   throw new ValidationException("Email already exist");
+    // }
     const brandNameValiadtion = await BrandRepository.findBy({
       brandname: payload.brandname,
     });
