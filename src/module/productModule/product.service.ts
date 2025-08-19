@@ -462,6 +462,7 @@ export const getProductsWithVariations = async (
     p.status,
     p.delivery_days,
     brand.brandname,
+    brand.brandimage,
     p.document,
 
     -- First image
