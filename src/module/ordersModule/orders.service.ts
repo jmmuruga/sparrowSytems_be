@@ -6,6 +6,7 @@ import { InsertLog } from "../logs/logs.service";
 import { ordersDto, ordersDtoValidation, orderStatusDto } from "./orders.dto";
 import { orders } from "./orders.model";
 import { Request, Response } from "express";
+import nodemailer from "nodemailer";
 
 export const addAllOrders = async (req: Request, res: Response) => {
   const payload: ordersDto = req.body;
@@ -149,6 +150,11 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
   const details = await OrderRepository.findOneBy({
     orderid: Number(status.orderid),
   });
+   const customerRepoistry = appSource.getRepository(customerDetails);
+
+   const OrderedcustomerDetails =  await customerRepoistry.findOneBy({
+    customerid: details?.customerid
+   })
 
   if (!details) {
     throw new HttpException("Order not Found", 404);
@@ -210,6 +216,22 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
         .where({ orderid: Number(status.orderid) })
         .execute();
     }
+
+     const transporter = nodemailer.createTransport({
+          service: "gmail",
+          port: 465,
+          secure: false,
+          auth: {
+            user: "savedatain@gmail.com",
+            pass: "unpk bcsy ibhp wzrm",
+          },
+        });
+            let response = await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to:  OrderedcustomerDetails?.email,
+      subject: "the order process has been changed",
+      text: `you order has been shiped .`,
+    });
 
     const logsPayload: LogsDto = {
       userId: Number(status.userId),
