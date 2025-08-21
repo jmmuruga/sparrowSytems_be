@@ -3,6 +3,7 @@ import { HttpException, ValidationException } from "../../core/exception";
 import { customerDetails } from "../customerDetails/customerDetails.model";
 import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import { products } from "../productModule/product.model";
 import { ordersDto, ordersDtoValidation, orderStatusDto } from "./orders.dto";
 import { orders } from "./orders.model";
 import { Request, Response } from "express";
@@ -51,8 +52,31 @@ export const addAllOrders = async (req: Request, res: Response) => {
         .set({ orderCount: updateOrderCount })
         .where({ customerid: payload.customerid })
         .execute();
-    }
 
+        const productRepository = appSource.getRepository(products)
+  const productNameDetails =  await productRepository.findOneBy({
+    productid: item.productid,
+  })
+      
+        const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+
+      let response = await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: customerData?.email,
+      subject: `Update on Your Order #${orderid}`,
+      text: `Hello ${customerData.customername || "Customer"},\n\nYour order has been placed successfully.\n\nProduct: ${productNameDetails?.product_name}\n\nThank you for shopping with us!\n\n`,
+    });
+
+    }
     res.status(200).send({
       IsSuccess: orderid
         ? "Order updated successfully"
@@ -150,11 +174,16 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
   const details = await OrderRepository.findOneBy({
     orderid: Number(status.orderid),
   });
-   const customerRepoistry = appSource.getRepository(customerDetails);
+  const customerRepoistry = appSource.getRepository(customerDetails);
 
-   const OrderedcustomerDetails =  await customerRepoistry.findOneBy({
-    customerid: details?.customerid
-   })
+  const OrderedcustomerDetails = await customerRepoistry.findOneBy({
+    customerid: details?.customerid,
+  });
+
+  const productRepository = appSource.getRepository(products)
+  const productNameDetails =  await productRepository.findOneBy({
+    productid: details?.productid,
+  })
 
   if (!details) {
     throw new HttpException("Order not Found", 404);
@@ -217,28 +246,50 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
         .execute();
     }
 
-     const transporter = nodemailer.createTransport({
-          service: "gmail",
-          port: 465,
-          secure: false,
-          auth: {
-            user: "savedatain@gmail.com",
-            pass: "unpk bcsy ibhp wzrm",
-          },
-        });
-            let response = await transporter.sendMail({
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    const statusMessages: Record<string, string> = {
+      "1": "Order Opened",
+      "2": "Order is Processing",
+      "3": "Order Failed",
+      "4": "Order Cancelled",
+      "5": "Order Shipped",
+      "6": "Order Closed",
+      "7": "Order Delivered",
+      "8": "Order Returned",
+    };
+
+
+const readableStatus = statusMessages[status.status] || "Order Updated"
+
+ const formattedDate = new Date(status.date).toLocaleString("en-IN", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  
+});
+
+    let response = await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to:  OrderedcustomerDetails?.email,
-      subject: "the order process has been changed",
-      text: `you order has been shiped .`,
+      to: OrderedcustomerDetails?.email,
+      subject: `Product:${productNameDetails?.product_name}Update on Your Order #${details?.orderid} - ${readableStatus}`,
+      text: `Product: ${details?.orderid} Date: ${formattedDate} Current Status: ${readableStatus}}`,
     });
 
     const logsPayload: LogsDto = {
       userId: Number(status.userId),
-      userName: '',
+      userName: "",
       statusCode: 200,
-      message: `Order Status id of ${details.orderid} status changed to ${status.status} by -`
-    }
+      message: `Order Status id of ${details.orderid} status changed to ${status.status} by -`,
+    };
     await InsertLog(logsPayload);
 
     return res.status(200).send({
@@ -247,10 +298,10 @@ export const changeOrderStatus = async (req: Request, res: Response) => {
   } catch (error: any) {
     const logsPayload: LogsDto = {
       userId: Number(status.userId),
-      userName: '',
+      userName: "",
       statusCode: 500,
-      message: `Error while changing status for Order id of ${details.orderid}  to ${status.status} by -`
-    }
+      message: `Error while changing status for Order id of ${details.orderid}  to ${status.status} by -`,
+    };
     await InsertLog(logsPayload);
     return res.status(error.statusCode || 500).send({
       IsSuccess: false,
@@ -309,8 +360,11 @@ INNER JOIN
   }
 };
 
-export const getOrderDetailsByCustomer = async (req: Request, res: Response) => {
-  const customerid = req.params.customerid
+export const getOrderDetailsByCustomer = async (
+  req: Request,
+  res: Response
+) => {
+  const customerid = req.params.customerid;
 
   try {
     const orderRepository = appSource.getRepository(orders);
