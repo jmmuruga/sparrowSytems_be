@@ -25,6 +25,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     
     const userRepository = appSource.getRepository(UserDetails);
+    
     const user = await userRepository.findOneBy({ email: email });
 
     try {

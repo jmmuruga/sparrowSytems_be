@@ -29,6 +29,7 @@ export const newCustomer = async (req: Request, res: Response) => {
   const payload: customerDetailsDto = req.body;
   try {
     const customerDetailsRepoistry = appSource.getRepository(customerDetails);
+    
     if (payload.customerid) {
       const validation = customerDetailsUpdateValidation.validate(payload);
       if (validation?.error) {

@@ -11,11 +11,14 @@ import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import { encryptString } from "../../shared/helper";
 
 export const newUser = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
   try {
     const UserDetailsRepoistry = appSource.getRepository(UserDetails);
+   payload.password = await encryptString(payload.password, "ABCXY123");
+    payload.confirmPassword = await encryptString(payload.confirmPassword, "ABCXY123");
     if (payload.userid) {
       const validation = userDetailsUpadteValidation.validate(payload);
       if (validation?.error) {
