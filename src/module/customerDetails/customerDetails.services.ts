@@ -13,6 +13,7 @@ import dotenv from "dotenv";
 import { orders } from "../ordersModule/orders.model";
 import { LogsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import { encryptString } from "../../shared/helper";
 const jwt = require("jsonwebtoken");
 
 dotenv.config(); // Ensure env variables are loaded
@@ -29,6 +30,8 @@ export const newCustomer = async (req: Request, res: Response) => {
   const payload: customerDetailsDto = req.body;
   try {
     const customerDetailsRepoistry = appSource.getRepository(customerDetails);
+    payload.password = await encryptString(payload.password, "ABCXY123");
+    payload.confirmpassword = await encryptString(payload.confirmpassword, "ABCXY123");
     
     if (payload.customerid) {
       const validation = customerDetailsUpdateValidation.validate(payload);
@@ -77,6 +80,7 @@ export const newCustomer = async (req: Request, res: Response) => {
       IsSuccess: "Register SuccessFully",
     });
   } catch (error) {
+    console.log(error,"errror")
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message, // Ensure the error message is sent properly
@@ -91,6 +95,7 @@ export const Userlogin = async (req: Request, res: Response) => {
   let isLogInSucces: boolean;
   try {
     const customerDetailsRepo = appSource.getRepository(customerDetails);
+    payload.password = await encryptString(payload.password, "ABCXY123");
 
     let loginCustomerDetails;
 
@@ -229,9 +234,13 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
   const { email } = req.params;
+  console.log("called")
 
   try {
     const customerDetailsRepo = appSource.getRepository(customerDetails);
+    //  payload.password = await encryptString(payload.password, "ABCXY123");
+    //  payload.confirmpassword = await encryptString(payload.confirmpassword, "ABCXY123");
+    
     const customer = await customerDetailsRepo.findOneBy({ email: email });
 
     if (!customer) {
