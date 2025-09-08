@@ -234,7 +234,6 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
   const { email } = req.params;
-  console.log("called")
 
   try {
     const customerDetailsRepo = appSource.getRepository(customerDetails);
