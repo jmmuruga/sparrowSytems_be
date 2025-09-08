@@ -80,7 +80,6 @@ export const newCustomer = async (req: Request, res: Response) => {
       IsSuccess: "Register SuccessFully",
     });
   } catch (error) {
-    console.log(error,"errror")
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message, // Ensure the error message is sent properly
