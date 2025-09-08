@@ -17,8 +17,11 @@ export const newUser = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
   try {
     const UserDetailsRepoistry = appSource.getRepository(UserDetails);
-   payload.password = await encryptString(payload.password, "ABCXY123");
-    payload.confirmPassword = await encryptString(payload.confirmPassword, "ABCXY123");
+    payload.password = await encryptString(payload.password, "ABCXY123");
+    payload.confirmPassword = await encryptString(
+      payload.confirmPassword,
+      "ABCXY123"
+    );
     if (payload.userid) {
       const validation = userDetailsUpadteValidation.validate(payload);
       if (validation?.error) {
@@ -85,7 +88,7 @@ export const newUser = async (req: Request, res: Response) => {
       IsSuccess: "Admin UserId Created SuccessFully",
     });
   } catch (error) {
-    if (error instanceof ValidationException) {
+    if (error instanceof ValidationException) { 
       return res.status(400).send({
         message: error.message, // Ensure the error message is sent properly
       });
@@ -144,8 +147,9 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 export const updatePassword = async (req: Request, res: Response) => {
-  const { userid, password } = req.body;
+  let { userid, password } = req.body;
   const userRepo = appSource.getRepository(UserDetails);
+  password = await encryptString(password, "ABCXY123");
   const user = await userRepo.findOneBy({ userid: userid });
   if (!user) {
     throw new ValidationException("User not found");
@@ -164,7 +168,7 @@ export const updatePassword = async (req: Request, res: Response) => {
         pass: "unpk bcsy ibhp wzrm",
       },
     });
-       await transporter.sendMail({
+    await transporter.sendMail({
       from: "savedatain@gmail.com",
       to: "info@savedata.in,",
       subject: "Admin Password Updated",
@@ -173,11 +177,11 @@ The password for an admin account has been successfully updated`,
     });
     await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to:  user.email,
+      to: user.email,
       subject: "Your Password Has Been Updated",
       text: `Your account password has been updated successfully.`,
     });
-  
+
     // logs
     const logsPayload: LogsDto = {
       userId: user.userid,
